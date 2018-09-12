@@ -13,7 +13,7 @@ uniform mat4 projection;
 
 void main() {
 	//v_color = color;
-	v_color = vec4(0.5 * position.x + 0.5, 0.0, 0.5 * position.y + 0.5, 1.0);
+	v_color = vec4((position.x + 128) / 256, 0.0, (position.y + 128) / 256, 1.0);
 	//v_normal = normal;
 	v_normal = vec3(0.0, 0.0, 1.0);
 
