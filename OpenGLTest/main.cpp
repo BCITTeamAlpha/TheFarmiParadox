@@ -14,7 +14,7 @@ GLuint mainProgram, VAO, VBO;
 
 void draw()
 {
-	glClearColor(0.2f, 0.9f, 0.2f, 1.0f);
+	glClearColor(0.188f, 0.188f, 0.164f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainProgram);
