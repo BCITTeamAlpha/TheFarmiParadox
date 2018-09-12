@@ -14,7 +14,7 @@ GLuint mainProgram, VAO, VBO;
 
 void draw()
 {
-	glClearColor(0.188f, 0.188f, 0.164f, 1.0f);
+	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainProgram);
@@ -116,6 +116,8 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	while (!glfwWindowShouldClose(window))
 	{
