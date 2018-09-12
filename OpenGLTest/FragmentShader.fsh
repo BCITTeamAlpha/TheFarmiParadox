@@ -5,8 +5,6 @@ in vec3 v_normal;
 
 out vec4 o_fragColor;
 
-uniform mat3 normalMatrix;
-
 void main() {
     o_fragColor = v_color;
 }

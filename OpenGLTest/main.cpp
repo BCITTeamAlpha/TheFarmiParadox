@@ -15,9 +15,20 @@ GLuint mainProgram, VAO, VBO;
 void draw()
 {
 	glClearColor(0.2f, 0.9f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainProgram);
+
+	glm::mat4 m = glm::mat4(1.0);
+	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 p = glm::perspective(90.0f, 1.0f, 0.1f, 100.0f);
+	glm::mat4 mvp = p * v * m;
+	
+	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
+	GLint pLoc = glGetUniformLocation(mainProgram, "projection");
+	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
+
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glBindVertexArray(0);
