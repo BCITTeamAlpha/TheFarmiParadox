@@ -19,13 +19,13 @@ std::vector<glm::vec3> vertexVector;
 
 GLuint mainProgram, VAO, VBO;
 
-void MarkusBS() {
+void PopulateVertexVector() {
 	const int mapSize = 256;
 	float radius = 64;
-	float center = 128;
+	float center = 127.5;
 
 	// initialize map to all falses
-	bool map[mapSize][mapSize] = { false };
+	float map[mapSize][mapSize] = { false };
 
 	// for each point on map save whether it's in the circle
 	for (int i = 0; i < mapSize; i++) {
@@ -80,7 +80,7 @@ void draw()
 
 int main()
 {
-	MarkusBS();
+	PopulateVertexVector();
 
 	//Setup GLFW
 	glfwInit();
