@@ -21,7 +21,7 @@ void draw()
 
 	glm::mat4 m = glm::mat4(1.0);
 	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -1.0f));
-	glm::mat4 p = glm::perspective(90.0f, 1.0f, 0.1f, 100.0f);
+	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = p * v * m;
 	
 	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
