@@ -26,7 +26,6 @@ void PopulateVertexVector() {
 	// for each point on map that's true, place a quad
 	for (int x = 0; x < m.width(); x++) {
 		for (int y = 0; y < m.height(); y++) {
-			std::cout << m.isSolid(x, y);
 			if (m.isSolid(x,y)) {
 				for (int i = 0; i < sizeof(vertices) / sizeof(GLfloat) / 3; i++) {
 					glm::vec3 temp = glm::vec3(
@@ -38,7 +37,6 @@ void PopulateVertexVector() {
 				}
 			}
 		}
-		std::cout << std::endl;
 	}
 }
 
