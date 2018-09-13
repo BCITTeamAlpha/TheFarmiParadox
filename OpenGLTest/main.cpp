@@ -1,5 +1,6 @@
 #include "openglstuff.h"
 #include "shader.h"
+#include "map.h"
 #include <vector>
 
 const GLint WIDTH = 800, HEIGHT = 600;
