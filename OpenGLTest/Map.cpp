@@ -8,7 +8,7 @@ Map::Map(unsigned int level) {
 		default:
 			_height = 128;
 			_width = 128;
-			planets.push_back(Planetoid(63.5f, 63.5f, 32.0f));
+			planets.push_back(Planetoid(63.5f, 63.5f, 8.0f));
 	}
 
 	_mapArray = new float[_height * _width];
@@ -42,4 +42,15 @@ int Map::width() {
 
 int Map::height() {
 	return _height;
+}
+
+void Map::explosion(Planetoid p) {
+	for (int x = 0; x < _width; x++) {
+		for (int y = 0; y < _height; y++) {
+			_mapArray[_index(x, y)] = std::max(
+				_mapArray[_index(x, y)],
+				-p.distanceFunction(x, y)
+			);
+		}
+	}
 }

@@ -23,6 +23,7 @@ GLuint mainProgram, VAO, VBO;
 
 void PopulateVertexVector() {
 	Map m = Map(0);
+	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
 
 	for (int x = 0; x < m.width() - 1; x++) {
 		for (int y = 0; y < m.height() - 1; y++) {
@@ -54,7 +55,7 @@ void draw()
 	glUseProgram(mainProgram);
 
 	glm::mat4 m = glm::mat4(1.0);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -50.0f));
+	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -10.0f));
 	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = p * v * m;
 	
