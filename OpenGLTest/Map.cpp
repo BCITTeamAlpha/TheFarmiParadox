@@ -27,7 +27,7 @@ Map::Map(unsigned int level) {
 
 // array access
 int Map::_index(int x, int y) {
-	return x * _width + y;
+	return x + y * _width;
 }
 
 bool Map::isSolid(int x, int y) {
