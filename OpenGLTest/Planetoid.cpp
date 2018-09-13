@@ -19,5 +19,5 @@ float Planetoid::radius(){
 }
 
 float Planetoid::distanceFunction(int x, int y) {
-	return (x - _x) * (x - _x) + (y - _y) * (y - _y) - (_r * _r);
+	return sqrt((x - _x) * (x - _x) + (y - _y) * (y - _y)) - _r;
 }
