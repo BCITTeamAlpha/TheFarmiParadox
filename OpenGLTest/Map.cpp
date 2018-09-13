@@ -34,10 +34,6 @@ bool Map::isSolid(int x, int y) {
 	return _mapArray[_index(x, y)] <= 0.0f;
 }
 
-float Map::value(int x, int y) {
-	return _mapArray[_index(x, y)];
-}
-
 int Map::width() {
 	return _width;
 }
