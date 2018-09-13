@@ -1,6 +1,7 @@
 #include "openglstuff.h"
 #include "shader.h"
 #include "map.h"
+#include "special pleading.cpp"
 #include <vector>
 
 const GLint WIDTH = 800, HEIGHT = 600;
@@ -24,17 +25,25 @@ void PopulateVertexVector() {
 	Map m = Map(0);
 
 	// for each point on map that's true, place a quad
-	for (int x = 0; x < m.width(); x++) {
-		for (int y = 0; y < m.height(); y++) {
-			if (m.isSolid(x,y)) {
-				for (int i = 0; i < sizeof(vertices) / sizeof(GLfloat) / 3; i++) {
-					glm::vec3 temp = glm::vec3(
-						vertices[3 * i] + x - m.width() / 2,
-						vertices[3 * i + 1] + y - m.height() / 2,
-						vertices[3 * i + 2]
-					);
-					vertexVector.push_back(temp);
-				}
+	for (int x = 0; x < m.width() - 1; x++) {
+		for (int y = 0; y < m.height() - 1; y++) {
+
+			int index = 0;
+			if (m.isSolid(x, y)) { index += 1; }
+			if (m.isSolid(x + 1, y)) { index += 2; }
+			if (m.isSolid(x + 1, y + 1)) { index += 4; }
+			if (m.isSolid(x, y + 1)) { index += 8; }
+
+			for (int i = 0; i < 27; i += 3) {
+				if (squares[index][i] == -1.0f)
+					break;
+
+				glm::vec3 temp = glm::vec3(
+					squares[index][i] + x - m.width() / 2,
+					squares[index][i + 1] + y - m.height() / 2,
+					squares[index][i + 2]
+				);
+				vertexVector.push_back(temp);
 			}
 		}
 	}
