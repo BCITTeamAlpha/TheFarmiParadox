@@ -24,7 +24,6 @@ GLuint mainProgram, VAO, VBO;
 void PopulateVertexVector() {
 	Map m = Map(0);
 
-	// for each point on map that's true, place a quad
 	for (int x = 0; x < m.width() - 1; x++) {
 		for (int y = 0; y < m.height() - 1; y++) {
 
@@ -34,14 +33,12 @@ void PopulateVertexVector() {
 			if (m.isSolid(x + 1, y + 1)) { index += 4; }
 			if (m.isSolid(x, y + 1)) { index += 8; }
 
-			for (int i = 0; i < 27; i += 3) {
-				if (squares[index][i] == -1.0f)
-					break;
-
+			for (int i = 0; i < 18; i += 2) {
+				if (squares[index][i] == -1.0f) { break; }
 				glm::vec3 temp = glm::vec3(
 					squares[index][i] + x - m.width() / 2,
 					squares[index][i + 1] + y - m.height() / 2,
-					squares[index][i + 2]
+					0.0f
 				);
 				vertexVector.push_back(temp);
 			}
