@@ -6,14 +6,12 @@
 class Planetoid {
 public:
 	Planetoid(float x, float y, float r);
-	float xPos();
-	float yPos();
-	float radius();
+	const float _x;
+	const float _y;
+	const float _r;
+	const float _m;
 	float distanceFunction(int x, int y);
 private:
-	float _x;
-	float _y;
-	float _r;
 };
 
 #endif
