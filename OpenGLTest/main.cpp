@@ -21,39 +21,24 @@ std::vector<glm::vec3> vertexVector;
 GLuint mainProgram, VAO, VBO;
 
 void PopulateVertexVector() {
-	const int mapSize = 256;
-	float radius = 64;
-	float center = 127.5;
-
-	// initialize map to all falses
-	float map[mapSize][mapSize] = { false };
-
-	// for each point on map save whether it's in the circle
-	for (int i = 0; i < mapSize; i++) {
-		for (int j = 0; j < mapSize; j++) {
-			float distanceField = (i - center) * (i - center) + (j - center) * (j - center) - (radius * radius);
-			map[i][j] = distanceField <= 0;
-			std::cout << map[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-
-	map[0][0] = true;
+	Map m = Map(0);
 
 	// for each point on map that's true, place a quad
-	for (int i = 0; i < mapSize; i++) {
-		for (int j = 0; j < mapSize; j++) {
-			if (map[i][j]) {
-				for (int k = 0; k < sizeof(vertices) / sizeof(GLfloat) / 3; k++) {
+	for (int x = 0; x < m.width(); x++) {
+		for (int y = 0; y < m.height(); y++) {
+			std::cout << m.isSolid(x, y);
+			if (m.isSolid(x,y)) {
+				for (int i = 0; i < sizeof(vertices) / sizeof(GLfloat) / 3; i++) {
 					glm::vec3 temp = glm::vec3(
-						vertices[3 * k] + i - mapSize / 2,
-						vertices[3 * k + 1] + j - mapSize / 2,
-						vertices[3 * k + 2]
+						vertices[3 * i] + x - m.width() / 2,
+						vertices[3 * i + 1] + y - m.height() / 2,
+						vertices[3 * i + 2]
 					);
 					vertexVector.push_back(temp);
 				}
 			}
 		}
+		std::cout << std::endl;
 	}
 }
 

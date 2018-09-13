@@ -1,16 +1,20 @@
 #include "Map.h"
 
 Map::Map(unsigned int level) {
-	_height = 128;
-	_width = 128;
+	std::vector<Planetoid> planets;
+
+	switch (level) {
+		default:
+			_height = 128;
+			_width = 128;
+			planets.push_back(Planetoid(63.5f, 63.5f, 32.0f));
+	}
 
 	_mapArray = new float[_height * _width];
 
-	std::vector<Planetoid> planets;
-	planets.push_back(Planetoid(63.5f, 63.5f, 32.0f));
-
 	for (int x = 0; x < _width; x++) {
 		for (int y = 0; y < _height; y++) {
+			_mapArray[_index(x, y)] = 1.0;
 			for (int i = 0; i < planets.size(); i++) {
 				_mapArray[_index(x, y)] = std::min(
 					_mapArray[_index(x, y)], 
@@ -23,11 +27,15 @@ Map::Map(unsigned int level) {
 
 // array access
 int Map::_index(int x, int y) {
-	x * _width + y;
+	return x * _width + y;
 }
 
 bool Map::isSolid(int x, int y) {
-	return _index(x, y) >= 0.0f;
+	return _mapArray[_index(x, y)] <= 0.0f;
+}
+
+float Map::value(int x, int y) {
+	return _mapArray[_index(x, y)];
 }
 
 int Map::width() {
