@@ -1,16 +1,44 @@
 #include "openglstuff.h"
 #include "shader.h"
+#include "map.h"
+#include <vector>
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
 const GLfloat vertices[] =
 {
-	-0.5f, -0.5f, 0.0f, //left
-	0.5f, -0.5f, 0.0f,  //right
-	0.0f, 0.5f, 0.0f    //top
+	-0.5f, 0.5f, 0.0f, //top-left
+	0.5f, 0.5f, 0.0f,  //top-right
+	-0.5f, -0.5f, 0.0f, //bottom-left
+
+	-0.5f, -0.5f, 0.0f, //bottom-left
+	0.5f, 0.5f, 0.0f,  //top-right
+	0.5f, -0.5f, 0.0f //bottom-right
 };
 
+std::vector<glm::vec3> vertexVector;
+
 GLuint mainProgram, VAO, VBO;
+
+void PopulateVertexVector() {
+	Map m = Map(0);
+
+	// for each point on map that's true, place a quad
+	for (int x = 0; x < m.width(); x++) {
+		for (int y = 0; y < m.height(); y++) {
+			if (m.isSolid(x,y)) {
+				for (int i = 0; i < sizeof(vertices) / sizeof(GLfloat) / 3; i++) {
+					glm::vec3 temp = glm::vec3(
+						vertices[3 * i] + x - m.width() / 2,
+						vertices[3 * i + 1] + y - m.height() / 2,
+						vertices[3 * i + 2]
+					);
+					vertexVector.push_back(temp);
+				}
+			}
+		}
+	}
+}
 
 void draw()
 {
@@ -20,7 +48,7 @@ void draw()
 	glUseProgram(mainProgram);
 
 	glm::mat4 m = glm::mat4(1.0);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -50.0f));
 	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = p * v * m;
 	
@@ -30,12 +58,14 @@ void draw()
 	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, vertexVector.size());
 	glBindVertexArray(0);
 }
 
 int main()
 {
+	PopulateVertexVector();
+
 	//Setup GLFW
 	glfwInit();
 
@@ -109,7 +139,7 @@ int main()
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexVector.size() * sizeof(glm::vec3), vertexVector.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
