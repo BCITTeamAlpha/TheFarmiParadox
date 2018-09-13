@@ -1,6 +1,4 @@
-#include "openglstuff.h"
-
-const GLfloat squares[16][27] = {
+const float squares[16][27] = {
 	{ //case 0
 		-1.0f, -1.0f, -1.0f,
 		-1.0f, -1.0f, -1.0f,
