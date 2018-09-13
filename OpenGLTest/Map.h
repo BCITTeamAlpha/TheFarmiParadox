@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <limits>
 #include "Planetoid.h"
 
 class Map {
