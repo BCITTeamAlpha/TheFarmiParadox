@@ -13,6 +13,7 @@ public:
 	int height();
 	void explosion(Planetoid p);
 	int width();
+	float value(int x, int y);
 private:
 	int _index(int x, int y);
 	float* _mapArray;
