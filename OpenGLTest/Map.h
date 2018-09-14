@@ -1,5 +1,4 @@
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <algorithm>
 #include <vector>
@@ -20,5 +19,3 @@ private:
 	int _height;
 	int _width;
 };
-
-#endif
