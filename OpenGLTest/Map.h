@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <limits>
 #include "Planetoid.h"
 
 class Map {
@@ -10,6 +11,7 @@ public:
 	Map(unsigned int type);
 	bool isSolid(int x, int y);
 	int height();
+	void explosion(Planetoid p);
 	int width();
 private:
 	int _index(int x, int y);

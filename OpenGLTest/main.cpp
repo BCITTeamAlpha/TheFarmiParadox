@@ -1,6 +1,7 @@
 #include "openglstuff.h"
 #include "shader.h"
 #include "map.h"
+#include "special pleading.cpp"
 #include <vector>
 
 const GLint WIDTH = 800, HEIGHT = 600;
@@ -22,19 +23,25 @@ GLuint mainProgram, VAO, VBO;
 
 void PopulateVertexVector() {
 	Map m = Map(0);
+	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
 
-	// for each point on map that's true, place a quad
-	for (int x = 0; x < m.width(); x++) {
-		for (int y = 0; y < m.height(); y++) {
-			if (m.isSolid(x,y)) {
-				for (int i = 0; i < sizeof(vertices) / sizeof(GLfloat) / 3; i++) {
-					glm::vec3 temp = glm::vec3(
-						vertices[3 * i] + x - m.width() / 2,
-						vertices[3 * i + 1] + y - m.height() / 2,
-						vertices[3 * i + 2]
-					);
-					vertexVector.push_back(temp);
-				}
+	for (int x = 0; x < m.width() - 1; x++) {
+		for (int y = 0; y < m.height() - 1; y++) {
+
+			int index = 0;
+			if (m.isSolid(x, y)) { index += 1; }
+			if (m.isSolid(x + 1, y)) { index += 2; }
+			if (m.isSolid(x + 1, y + 1)) { index += 4; }
+			if (m.isSolid(x, y + 1)) { index += 8; }
+
+			for (int i = 0; i < 18; i += 2) {
+				if (squares[index][i] == -1.0f) { break; }
+				glm::vec3 temp = glm::vec3(
+					squares[index][i] + x - m.width() / 2,
+					squares[index][i + 1] + y - m.height() / 2,
+					0.0f
+				);
+				vertexVector.push_back(temp);
 			}
 		}
 	}
@@ -48,7 +55,7 @@ void draw()
 	glUseProgram(mainProgram);
 
 	glm::mat4 m = glm::mat4(1.0);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -50.0f));
+	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -10.0f));
 	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = p * v * m;
 	

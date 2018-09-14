@@ -155,6 +155,7 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Planetoid.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="special pleading.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.fsh" />
