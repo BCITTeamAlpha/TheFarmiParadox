@@ -21,6 +21,10 @@ std::vector<glm::vec3> vertexVector;
 
 GLuint mainProgram, VAO, VBO;
 
+// camera variables
+// TODO: extract camera into its own class
+float cameraX = 0.0f, cameraY = 0.0f, cameraZ = 10.0f, cameraFOV = 90.0f, nearclip = 0.0f, farClip = 100.0f;
+
 void PopulateVertexVector() {
 	Map m = Map(0);
 	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
@@ -35,9 +39,8 @@ void draw()
 	glUseProgram(mainProgram);
 
 	glm::mat4 m = glm::mat4(1.0);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -10.0f));
+	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
-	glm::mat4 mvp = p * v * m;
 	
 	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
