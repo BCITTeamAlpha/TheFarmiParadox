@@ -153,9 +153,9 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MarchingSquares.cpp" />
     <ClCompile Include="Planetoid.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="special pleading.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.fsh" />
@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h" />
+    <ClInclude Include="MarchingSquares.h" />
     <ClInclude Include="openglstuff.h" />
     <ClInclude Include="Planetoid.h" />
     <ClInclude Include="shader.h" />

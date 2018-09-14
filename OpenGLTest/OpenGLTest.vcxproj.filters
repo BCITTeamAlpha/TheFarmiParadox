@@ -27,7 +27,7 @@
     <ClCompile Include="Planetoid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="special pleading.cpp">
+    <ClCompile Include="MarchingSquares.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,6 +50,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Planetoid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingSquares.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
