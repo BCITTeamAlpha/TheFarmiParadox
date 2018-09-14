@@ -134,7 +134,8 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	glEnable(GL_FRAMEBUFFER_SRGB); // convert linear fragment shader output to srgb automatically
+	glfwSwapInterval(1); // set opengl to swap framebuffer every # screen refreshes
 
 	while (!glfwWindowShouldClose(window))
 	{
