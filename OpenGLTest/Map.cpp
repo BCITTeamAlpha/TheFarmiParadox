@@ -1,7 +1,13 @@
 #include "Map.h"
 
+using std::numeric_limits;
+using std::vector;
+using std::min;
+using std::max;
+
+
 Map::Map(unsigned int level) {
-	std::vector<Planetoid> planets;
+	vector<Planetoid> planets;
 
 	// choose which level to generate
 	switch (level) {
@@ -16,9 +22,9 @@ Map::Map(unsigned int level) {
 	// calculate the union of all planetoid distance fields
 	for (int x = 0; x < _width; x++) {
 		for (int y = 0; y < _height; y++) {
-			_mapArray[_index(x, y)] = std::numeric_limits<float>::max();
+			_mapArray[_index(x, y)] = numeric_limits<float>::max();
 			for (int i = 0; i < planets.size(); i++) {
-				_mapArray[_index(x, y)] = std::min(
+				_mapArray[_index(x, y)] = min(
 					_mapArray[_index(x, y)], 
 					planets[i].distanceFunction(x, y)
 				);
@@ -51,7 +57,7 @@ int Map::height() {
 void Map::explosion(Planetoid p) {
 	for (int x = 0; x < _width; x++) {
 		for (int y = 0; y < _height; y++) {
-			_mapArray[_index(x, y)] = std::max(
+			_mapArray[_index(x, y)] = max(
 				_mapArray[_index(x, y)],
 				-p.distanceFunction(x, y)
 			);
