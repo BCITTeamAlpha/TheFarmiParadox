@@ -39,7 +39,7 @@ inline float zeroCrossing(float a, float b) {
 
 vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 	vector<vec3> vertexVector;
-	// reserve memory for worse case number of vertices
+	// reserve enough memory for worst case number of vertices
 	vertexVector.reserve(m.height() * m.width() * 9);
 	for (int x = 0; x < m.width() - 1; x++) {
 		for (int y = 0; y < m.height() - 1; y++) {
