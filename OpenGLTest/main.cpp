@@ -39,7 +39,7 @@ void PopulateVertexVector() {
 	// assumes window is wider than tall
 	// cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
 
-	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
+	m.explosion(Planetoid(60.0f, 60.0f, 5.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
 }
 
