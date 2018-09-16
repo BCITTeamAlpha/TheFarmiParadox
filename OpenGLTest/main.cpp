@@ -1,4 +1,6 @@
 #include <vector>
+#define _USE_MATH_DEFINES
+#include <Math.h>
 #include "openglstuff.h"
 #include "shader.h"
 #include "Map.h"
@@ -28,8 +30,15 @@ float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
 void PopulateVertexVector() {
 	Map m = Map(0);
-	cameraPosition.x = m.width() * 0.5f;
-	cameraPosition.y = m.height() * 0.5f;
+
+	// center camera relative to map
+	cameraPosition.x = (m.width() - 1) * 0.5f;
+	cameraPosition.y = (m.height() - 1) * 0.5f;
+	
+	// move camera far enough that the entire map is visible
+	// assumes window is wider than tall
+	// cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
+
 	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
 }
@@ -43,7 +52,7 @@ void draw()
 
 	glm::mat4 m = glm::mat4(1.0);
 	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
-	glm::mat4 p = glm::perspective(cameraFOV, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
+	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
 	
 	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
@@ -140,8 +149,14 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glEnable(GL_FRAMEBUFFER_SRGB); // convert linear fragment shader output to srgb automatically
-	glfwSwapInterval(1); // set opengl to swap framebuffer every # screen refreshes
+	// wireframe mode if we want to enable it for debugging
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// convert linear fragment shader output to srgb automatically
+	glEnable(GL_FRAMEBUFFER_SRGB); 
+
+	// set opengl to swap framebuffer every # screen refreshes
+	glfwSwapInterval(1); 
 
 	while (!glfwWindowShouldClose(window))
 	{
