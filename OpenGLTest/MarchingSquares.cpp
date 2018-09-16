@@ -90,6 +90,5 @@ vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 			}
 		}
 	}
-	vertexVector.shrink_to_fit();
 	return vertexVector;
 }
