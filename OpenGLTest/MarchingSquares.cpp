@@ -33,12 +33,14 @@ const static int _squares[16][10] = {
 };
 
 // reciprocal of lerp where output value is 0
-float zeroCrossing(float a, float b) {
+inline float zeroCrossing(float a, float b) {
 	return -a / (b - a);
 }
 
 vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 	vector<vec3> vertexVector;
+	// reserve memory for worse case number of vertices
+	vertexVector.reserve(m.height() * m.width() * 9);
 	for (int x = 0; x < m.width() - 1; x++) {
 		for (int y = 0; y < m.height() - 1; y++) {
 			vec3 offset = vec3(x, y, 0);
@@ -88,5 +90,6 @@ vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 			}
 		}
 	}
+	vertexVector.shrink_to_fit();
 	return vertexVector;
 }

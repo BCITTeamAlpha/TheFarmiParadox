@@ -34,7 +34,7 @@ Map::Map(unsigned int level) {
 }
 
 // calculate array index so it can be accessed as it were 2d
-int Map::_index(int x, int y) {
+inline int Map::_index(int x, int y) {
 	return x + y * _width;
 }
 
