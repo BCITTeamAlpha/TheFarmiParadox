@@ -1,8 +1,8 @@
+#include <vector>
 #include "openglstuff.h"
 #include "shader.h"
-#include "map.h"
-#include "special pleading.cpp"
-#include <vector>
+#include "Map.h"
+#include "MarchingSquares.h"
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
@@ -21,30 +21,17 @@ std::vector<glm::vec3> vertexVector;
 
 GLuint mainProgram, VAO, VBO;
 
+// camera variables
+// TODO: extract camera into its own class
+glm::vec3 cameraPosition = { 0.0f, 0.0f, 10.0f };
+float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
+
 void PopulateVertexVector() {
 	Map m = Map(0);
+	cameraPosition.x = m.width() * 0.5f;
+	cameraPosition.y = m.height() * 0.5f;
 	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
-
-	for (int x = 0; x < m.width() - 1; x++) {
-		for (int y = 0; y < m.height() - 1; y++) {
-
-			int index = 0;
-			if (m.isSolid(x, y)) { index += 1; }
-			if (m.isSolid(x + 1, y)) { index += 2; }
-			if (m.isSolid(x + 1, y + 1)) { index += 4; }
-			if (m.isSolid(x, y + 1)) { index += 8; }
-
-			for (int i = 0; i < 18; i += 2) {
-				if (squares[index][i] == -1.0f) { break; }
-				glm::vec3 temp = glm::vec3(
-					squares[index][i] + x - m.width() / 2,
-					squares[index][i + 1] + y - m.height() / 2,
-					0.0f
-				);
-				vertexVector.push_back(temp);
-			}
-		}
-	}
+	vertexVector = MarchingSquares::GenerateMesh(m);
 }
 
 void draw()
@@ -55,9 +42,8 @@ void draw()
 	glUseProgram(mainProgram);
 
 	glm::mat4 m = glm::mat4(1.0);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, -10.0f));
-	glm::mat4 p = glm::perspective(90.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
-	glm::mat4 mvp = p * v * m;
+	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
+	glm::mat4 p = glm::perspective(cameraFOV, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
 	
 	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
@@ -82,7 +68,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "The Farmi Paradox", nullptr, nullptr);
 
 	//Ensure window was created
 	if (window == nullptr)
@@ -154,7 +140,8 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	glEnable(GL_FRAMEBUFFER_SRGB); // convert linear fragment shader output to srgb automatically
+	glfwSwapInterval(1); // set opengl to swap framebuffer every # screen refreshes
 
 	while (!glfwWindowShouldClose(window))
 	{

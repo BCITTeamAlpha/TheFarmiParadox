@@ -1,5 +1,4 @@
-#ifndef PLANETOID_H
-#define PLANETOID_H
+#pragma once
 
 #include <math.h>
 
@@ -13,5 +12,3 @@ public:
 	float distanceFunction(int x, int y);
 private:
 };
-
-#endif
