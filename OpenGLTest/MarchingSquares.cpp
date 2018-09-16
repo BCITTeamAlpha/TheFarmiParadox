@@ -34,8 +34,8 @@ vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 			for (int i = 0; i < 18; i += 2) {
 				if (_squares[index][i] == -1.0f) { break; }
 				vec3 vertex = vec3(
-					_squares[index][i] + x - m.width() / 2,
-					_squares[index][i + 1] + y - m.height() / 2,
+					_squares[index][i] + x,
+					_squares[index][i + 1] + y,
 					0.0f
 				);
 				vertexVector.push_back(vertex);

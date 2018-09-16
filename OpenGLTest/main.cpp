@@ -28,6 +28,8 @@ float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
 void PopulateVertexVector() {
 	Map m = Map(0);
+	cameraPosition.x = m.width() * 0.5f;
+	cameraPosition.y = m.height() * 0.5f;
 	m.explosion(Planetoid(60.5f, 60.5f, 5.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
 }
