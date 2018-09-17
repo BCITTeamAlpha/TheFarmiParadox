@@ -14,7 +14,7 @@ Map::Map(unsigned int level) {
 		default:
 			_height = 128;
 			_width = 128;
-			planets.push_back(Planetoid(63.5f, 63.5f, 8.0f));
+			planets.push_back(Planetoid(64.0f, 64.0f, 8.0f));
 	}
 
 	_mapArray = new float[_height * _width];
@@ -34,7 +34,7 @@ Map::Map(unsigned int level) {
 }
 
 // calculate array index so it can be accessed as it were 2d
-int Map::_index(int x, int y) {
+inline int Map::_index(int x, int y) {
 	return x + y * _width;
 }
 

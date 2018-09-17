@@ -14,7 +14,7 @@ public:
 	int width();
 	float value(int x, int y);
 private:
-	int _index(int x, int y);
+	inline int _index(int x, int y);
 	float* _mapArray;
 	int _height;
 	int _width;
