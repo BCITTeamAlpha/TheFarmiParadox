@@ -6,7 +6,7 @@
 #include "Map.h"
 #include "MarchingSquares.h"
 
-const GLint WIDTH = 800, HEIGHT = 600;
+const GLint WIDTH = 1280, HEIGHT = 720;
 
 const GLfloat vertices[] =
 {
@@ -45,9 +45,9 @@ void PopulateVectors() {
 	
 	// move camera far enough that the entire map is visible
 	// assumes window is wider than tall
-	// cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
+	cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
 
-	m.explosion(Planetoid(60.0f, 60.0f, 5.0f));
+	m.explosion(Planetoid(55.0f, 55.0f, 8.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
 	for (GLuint i = 0; i < vertexVector.size(); i++) {
 		colorVector.push_back(glm::vec4(1, 1, 1, 1));
