@@ -161,7 +161,7 @@
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.fsh" />
+    <None Include="FragmentShader.psh" />
     <None Include="VertexShader.vsh" />
   </ItemGroup>
   <ItemGroup>
