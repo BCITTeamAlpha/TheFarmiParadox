@@ -72,6 +72,10 @@ void draw()
 	GLint pLoc = glGetUniformLocation(mainProgram, "projection");
 	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
 
+	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
+	GLint lightPositionLoc = glGetUniformLocation(mainProgram, "lightPosition");
+	glUniform3fv(lightPositionLoc, 1, glm::value_ptr(lightPosition));
+
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indexVector.size(), GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
