@@ -19,16 +19,24 @@ const GLfloat vertices[] =
 	0.5f, -0.5f, 0.0f //bottom-right
 };
 
-std::vector<glm::vec3> vertexVector;
+GLuint mainProgram, VAO;
 
-GLuint mainProgram, VAO, VBO;
+std::vector<glm::vec3> vertexVector;
+std::vector<glm::vec4> colorVector;
+std::vector<glm::vec3> normalVector;
+std::vector<GLuint> indexVector;
+
+GLuint vertexBuffer;
+GLuint colorBuffer;
+GLuint normalBuffer;
+GLuint elementBuffer;
 
 // camera variables
 // TODO: extract camera into its own class
 glm::vec3 cameraPosition = { 0.0f, 0.0f, 10.0f };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
-void PopulateVertexVector() {
+void PopulateVectors() {
 	Map m = Map(0);
 
 	// center camera relative to map
@@ -41,6 +49,11 @@ void PopulateVertexVector() {
 
 	m.explosion(Planetoid(60.0f, 60.0f, 5.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
+	for (GLuint i = 0; i < vertexVector.size(); i++) {
+		colorVector.push_back(glm::vec4(1, 1, 1, 1));
+		normalVector.push_back(glm::vec3(0, 0, 1));
+		indexVector.push_back(i);
+	}
 }
 
 void draw()
@@ -60,13 +73,13 @@ void draw()
 	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, vertexVector.size());
+	glDrawElements(GL_TRIANGLES, indexVector.size(), GL_UNSIGNED_INT, (void*)0);
 	glBindVertexArray(0);
 }
 
 int main()
 {
-	PopulateVertexVector();
+	PopulateVectors();
 
 	//Setup GLFW
 	glfwInit();
@@ -136,18 +149,33 @@ int main()
 	delete(fShader);
 
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
 	glBindVertexArray(VAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// generate vertex buffer
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertexVector.size() * sizeof(glm::vec3), vertexVector.data(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	// generate color buffer
+	glGenBuffers(1, &colorBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+	glBufferData(GL_ARRAY_BUFFER, colorVector.size() * sizeof(glm::vec4), colorVector.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	// generate normal buffer
+	glGenBuffers(1, &normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, normalVector.size() * sizeof(glm::vec3), normalVector.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(2);
+
+	// generate index buffer
+	glGenBuffers(1, &elementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexVector.size() * sizeof(unsigned int), indexVector.data(), GL_STATIC_DRAW);
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

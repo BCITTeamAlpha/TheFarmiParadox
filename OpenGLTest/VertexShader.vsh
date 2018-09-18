@@ -12,10 +12,8 @@ uniform mat4 modelView;
 uniform mat4 projection;
 
 void main() {
-	//v_color = color;
-	v_color = vec4((position.x + 128) / 256, 0.0, (position.y + 128) / 256, 1.0);
-	//v_normal = normal;
-	v_normal = vec3(0.0, 0.0, 1.0);
+	v_color = color;
+	v_normal = normalize(normal);
 
 	vec4 temp_position = modelView * vec4(position, 1.0);
 	v_position = temp_position.xyz;
