@@ -50,7 +50,7 @@ void PopulateVectors() {
 	m.explosion(Planetoid(55.0f, 55.0f, 8.0f));
 	vertexVector = MarchingSquares::GenerateMesh(m);
 	for (GLuint i = 0; i < vertexVector.size(); i++) {
-		colorVector.push_back(glm::vec4(1, 1, 1, 1));
+		colorVector.push_back(glm::vec4(0, 1, 0, 1));
 		normalVector.push_back(glm::vec3(0, 0, 1));
 		indexVector.push_back(i);
 	}
