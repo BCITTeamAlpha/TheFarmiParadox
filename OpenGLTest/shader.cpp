@@ -6,7 +6,7 @@ Shader::Shader(const std::string& fileName, unsigned int type)
 	if(type == GL_VERTEX_SHADER)
 		myShader = CreateShader(LoadShader(fileName + ".vsh"), GL_VERTEX_SHADER);
 	else
-		myShader = CreateShader(LoadShader(fileName + ".fsh"), GL_FRAGMENT_SHADER);
+		myShader = CreateShader(LoadShader(fileName + ".psh"), GL_FRAGMENT_SHADER);
 }
 
 Shader::~Shader()
