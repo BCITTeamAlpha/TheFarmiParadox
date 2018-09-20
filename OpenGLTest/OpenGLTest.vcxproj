@@ -166,6 +166,7 @@
     <None Include="VertexShader.vsh" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IRenderable.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MarchingSquares.h" />
     <ClInclude Include="Planetoid.h" />
