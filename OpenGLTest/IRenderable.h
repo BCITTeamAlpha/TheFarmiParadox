@@ -13,7 +13,9 @@ public:
 	std::vector<glm::vec3> _vertices;
 	std::vector<glm::vec3> _colors;
 	std::vector<glm::vec3> _normals;
+	std::vector<GLuint> _elements;
 	GLuint _vertexBufferLocation;
 	GLuint _colorBufferLocation;
 	GLuint _normalBufferLocation;
+	GLuint _elementBufferLocation;
 };

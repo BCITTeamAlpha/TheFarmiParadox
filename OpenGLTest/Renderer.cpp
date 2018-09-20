@@ -15,6 +15,8 @@ std::vector<glm::vec4> colorVector;
 std::vector<glm::vec3> normalVector;
 std::vector<GLuint> indexVector;
 
+std::list<IRenderable*> renderables;
+
 GLuint vertexBuffer, colorBuffer, normalBuffer, elementBuffer;
 GLuint quadVertexBuffer, quadColorBuffer, quadNormalBuffer, quadElementBuffer;
 
@@ -24,6 +26,26 @@ glm::vec3 cameraPosition = { 0.0f, 0.0f, 10.0f };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
 glm::vec3 quadPosition = { 64.0f, 32.0f, 0.0f };
+
+void AddToRenderables(IRenderable& renderable) {
+	glGenBuffers(1, &renderable._vertexBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &renderable._colorBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._colors.size() * sizeof(glm::vec4), renderable._colors.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &renderable._normalBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._normals.size() * sizeof(glm::vec3), renderable._normals.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &renderable._elementBufferLocation);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
+
+	renderables.push_back(&renderable);
+}
 
 void PopulateVectors() {
 	Map m = Map(0);
