@@ -46,9 +46,6 @@
     <ClInclude Include="shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="openglstuff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Map.h">
       <Filter>Header Files</Filter>
     </ClInclude>

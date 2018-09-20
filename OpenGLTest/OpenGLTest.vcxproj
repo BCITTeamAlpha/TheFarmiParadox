@@ -168,7 +168,6 @@
   <ItemGroup>
     <ClInclude Include="Map.h" />
     <ClInclude Include="MarchingSquares.h" />
-    <ClInclude Include="openglstuff.h" />
     <ClInclude Include="Planetoid.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="shader.h" />

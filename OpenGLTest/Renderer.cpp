@@ -1,12 +1,4 @@
 #include "Renderer.h"
-#include <thread>
-#include <vector>
-#define _USE_MATH_DEFINES
-#include <Math.h>
-#include "openglstuff.h"
-#include "shader.h"
-#include "Map.h"
-#include "MarchingSquares.h"
 
 std::thread renderThread;
 const GLint WIDTH = 1280, HEIGHT = 720;
