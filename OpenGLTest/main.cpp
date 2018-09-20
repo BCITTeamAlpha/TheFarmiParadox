@@ -55,7 +55,7 @@ int main() {
 	PassToRenderer(R);
 	PassToRenderer(map);
 
-	for (int i = 0;; i++) {
+	for (int tick = 0;; tick++) {
 		//
 		// Colt, put your stuff somewhere around here for now
 		//
