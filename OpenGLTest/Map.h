@@ -4,10 +4,11 @@
 #include <vector>
 #include <limits>
 #include "Planetoid.h"
+#include "IRenderable.h"
 
-class Map {
+class Map : public IRenderable {
 public:
-	Map(unsigned int type);
+	Map(std::vector<Planetoid> planets, int width, int height);
 	bool isSolid(int x, int y);
 	int height();
 	void explosion(Planetoid p);

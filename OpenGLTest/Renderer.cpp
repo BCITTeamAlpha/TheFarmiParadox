@@ -1,27 +1,19 @@
 #include "Renderer.h"
 
-std::thread renderThread;
+
 const GLint WIDTH = 1280, HEIGHT = 720;
 
-std::vector<glm::vec3> quadVertices = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
-std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
-std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
-
-GLuint mainProgram, VAO;
+std::thread renderThread;
 
 std::list<IRenderable*> renderables;
 
+GLuint mainProgram, VAO;
 GLuint mLoc, vLoc, pLoc, lightPosLoc;
 
 // camera variables
 // TODO: extract camera into its own class
-glm::vec3 cameraPosition = { 0.0f, 0.0f, 10.0f };
+glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
-
-glm::vec3 quadPosition = { 64.0f, 32.0f, 0.0f };
-
-IRenderable mapRenderable, quadRenderable;
 
 void AddToRenderables(IRenderable& renderable) {
 	glGenBuffers(1, &renderable._vertexBufferLocation);
@@ -39,7 +31,6 @@ void AddToRenderables(IRenderable& renderable) {
 	glGenBuffers(1, &renderable._elementBufferLocation);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
-
 	renderables.push_back(&renderable);
 }
 
@@ -79,39 +70,7 @@ void draw() {
 	}
 }
 
-void PopulateVectors() {
-	Map m = Map(0);
-
-	// center camera relative to map
-	cameraPosition.x = (m.width() - 1) * 0.5f;
-	cameraPosition.y = (m.height() - 1) * 0.5f;
-
-	// move camera far enough that the entire map is visible
-	// assumes window is wider than tall
-	cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
-
-	m.explosion(Planetoid(55.0f, 55.0f, 8.0f));
-	std::vector<glm::vec3> vertexVector = MarchingSquares::GenerateMesh(m);
-
-	std::vector<glm::vec4> colorVector;
-	std::vector<glm::vec3> normalVector;
-	std::vector<GLuint> indexVector;
-
-	for (GLuint i = 0; i < vertexVector.size(); i++) {
-		colorVector.push_back(glm::vec4(0, 1, 0, 1));
-		normalVector.push_back(glm::vec3(0, 0, 1));
-		indexVector.push_back(i);
-	}
-
-	mapRenderable._vertices = vertexVector;
-	mapRenderable._colors = colorVector;
-	mapRenderable._normals = normalVector;
-	mapRenderable._elements = indexVector;
-	mapRenderable._position = { 0, 0, 0 };
-	AddToRenderables(mapRenderable);
-}
-
-int notMain() {
+int notMain(IRenderable ***ppp) {
 	//Setup GLFW
 	glfwInit();
 
@@ -127,7 +86,6 @@ int notMain() {
 	if (window == nullptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
-
 		return EXIT_FAILURE;
 	}
 
@@ -143,7 +101,6 @@ int notMain() {
 	if (glewInit() != GLEW_OK) {
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		glfwTerminate();
-
 		return EXIT_FAILURE;
 	}
 
@@ -188,15 +145,6 @@ int notMain() {
 	pLoc = glGetUniformLocation(mainProgram, "projection");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
-	quadRenderable._vertices = quadVertices;
-	quadRenderable._colors = quadColors;
-	quadRenderable._normals = quadNormals;
-	quadRenderable._elements = quadElements;
-	quadRenderable._position = quadPosition;
-	AddToRenderables(quadRenderable);
-	
-	PopulateVectors();
-
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -205,12 +153,20 @@ int notMain() {
 
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
-
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
+
+		if (ppp != NULL) {
+			if (*ppp != NULL) {
+				if (**ppp != NULL) {
+					AddToRenderables(***ppp);
+					(*ppp) = NULL;
+				}
+			}
+		}
 
 		//draw
 		draw();
@@ -222,8 +178,10 @@ int notMain() {
 	std::terminate();
 }
 
-Renderer::Renderer() {
-	renderThread = std::thread(notMain);
+Renderer::Renderer(IRenderable ***ppp) {
+	int i = 0;
+	renderThread = std::thread(notMain, std::ref(ppp));
+
 }
 
 

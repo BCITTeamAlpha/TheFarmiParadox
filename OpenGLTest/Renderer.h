@@ -22,7 +22,7 @@
 class Renderer
 {
 public:
-	Renderer();
+	Renderer(IRenderable ***p);
 	~Renderer();
 };
 
