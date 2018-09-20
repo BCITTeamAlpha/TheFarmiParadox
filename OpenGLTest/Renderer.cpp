@@ -51,26 +51,35 @@ void draw() {
 	}
 }
 
-void AddToRenderables(IRenderable& renderable) {
+void GenerateBuffers(IRenderable &renderable) {
 	glGenBuffers(1, &renderable._vertexBufferLocation);
+	glGenBuffers(1, &renderable._colorBufferLocation);
+	glGenBuffers(1, &renderable._normalBufferLocation);
+	glGenBuffers(1, &renderable._elementBufferLocation);
+}
+
+void PopulateBuffers(IRenderable &renderable) {
+
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &renderable._colorBufferLocation);
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._colors.size() * sizeof(glm::vec4), renderable._colors.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &renderable._normalBufferLocation);
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._normals.size() * sizeof(glm::vec3), renderable._normals.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &renderable._elementBufferLocation);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
+}
+
+void AddToRenderables(IRenderable& renderable) {
+	GenerateBuffers(renderable);
+	PopulateBuffers(renderable);
 	renderables.push_back(&renderable);
 }
 
-int notMain(IRenderable ***ppp) {
+int notMain(IRenderable ***ppp, std::mutex &mtx) {
 	//Setup GLFW
 	glfwInit();
 
@@ -159,14 +168,15 @@ int notMain(IRenderable ***ppp) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
+		mtx.lock();
 		if (ppp != NULL) {
 			if (*ppp != NULL) {
-				if (**ppp != NULL) {
+					std::cout << "help" << std::endl;
 					AddToRenderables(***ppp);
 					(*ppp) = NULL;
-				}
 			}
 		}
+		mtx.unlock();
 
 		//draw
 		draw();
@@ -178,9 +188,9 @@ int notMain(IRenderable ***ppp) {
 	std::terminate();
 }
 
-Renderer::Renderer(IRenderable ***ppp) {
+Renderer::Renderer(IRenderable ***ppp, std::mutex & mtx) {
 	int i = 0;
-	renderThread = std::thread(notMain, std::ref(ppp));
+	renderThread = std::thread(notMain, std::ref(ppp), std::ref(mtx));
 }
 
 Renderer::~Renderer() {

@@ -6,6 +6,7 @@
 #include <Math.h>
 #include <thread>
 #include <vector>
+#include <mutex>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -21,7 +22,7 @@
 
 class Renderer {
 	public:
-		Renderer(IRenderable ***p);
+		Renderer(IRenderable ***ppp, std::mutex &mtx);
 		~Renderer();
 };
 

@@ -1,5 +1,6 @@
 #include <vector>
 #include <Windows.h>
+#include <mutex>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -11,10 +12,13 @@
 #include "Map.h"
 
 IRenderable *p, **pp, ***ppp = &pp;
+std::mutex mtx;
 
 void PassToRenderer(IRenderable &x) {
+	mtx.lock();
 	p = &x;
 	pp = &p;
+	mtx.unlock();
 	while (*ppp != NULL) {
 		Sleep(1);
 	}
@@ -26,7 +30,7 @@ std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 
 std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
 
 int main() {
-	Renderer renderer = Renderer(std::ref(ppp));
+	Renderer renderer = Renderer(std::ref(ppp), std::ref(mtx));
 
 	IRenderable R;
 	R._vertices = quadVertices;
@@ -53,7 +57,9 @@ int main() {
 	}
 
 	PassToRenderer(R);
+	std::cout << "passed R" << std::endl;
 	PassToRenderer(map);
+	std::cout << "passed map" << std::endl;
 
 	for (int tick = 0;; tick++) {
 		//
