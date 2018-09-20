@@ -1,9 +1,14 @@
 #include <vector>
+#include <Windows.h>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+
 #include "MarchingSquares.h"
 #include "Renderer.h"
 #include "Planetoid.h"
 #include "Map.h"
-#include "Windows.h"
 
 IRenderable *p, **pp, ***ppp = &pp;
 
