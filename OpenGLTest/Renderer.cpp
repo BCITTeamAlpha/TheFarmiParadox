@@ -3,10 +3,10 @@
 std::thread renderThread;
 const GLint WIDTH = 1280, HEIGHT = 720;
 
-const glm::vec3 quadVertices[] = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
-const glm::vec4 quadColors[] = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
-const glm::vec3 quadNormals[] = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-const GLint quadElements[] = { 0, 1, 2, 2, 1, 3 };
+std::vector<glm::vec3> quadVertices = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
+std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
+std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
+std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
 
 GLuint mainProgram, VAO;
 
@@ -18,7 +18,6 @@ std::vector<GLuint> indexVector;
 std::list<IRenderable*> renderables;
 
 GLuint vertexBuffer, colorBuffer, normalBuffer, elementBuffer;
-GLuint quadVertexBuffer, quadColorBuffer, quadNormalBuffer, quadElementBuffer;
 
 // camera variables
 // TODO: extract camera into its own class
@@ -26,6 +25,8 @@ glm::vec3 cameraPosition = { 0.0f, 0.0f, 10.0f };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
 glm::vec3 quadPosition = { 64.0f, 32.0f, 0.0f };
+
+IRenderable i;
 
 void AddToRenderables(IRenderable& renderable) {
 	glGenBuffers(1, &renderable._vertexBufferLocation);
@@ -117,7 +118,6 @@ void draw() {
 
 	m = glm::translate(glm::mat4(1.0), quadPosition);
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
-	DrawBuffers(quadVertexBuffer, quadColorBuffer, quadNormalBuffer, quadElementBuffer, 6);
 }
 
 int notMain() {
@@ -195,12 +195,6 @@ int notMain() {
 	glGenBuffers(1, &normalBuffer);
 	glGenBuffers(1, &elementBuffer);
 
-	glGenBuffers(1, &quadVertexBuffer);
-	glGenBuffers(1, &quadColorBuffer);
-	glGenBuffers(1, &quadNormalBuffer);
-	glGenBuffers(1, &quadElementBuffer);
-
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertexVector.size() * sizeof(glm::vec3), vertexVector.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
@@ -210,19 +204,15 @@ int notMain() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexVector.size() * sizeof(unsigned int), indexVector.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), quadVertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, quadColorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec4), quadColors, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, quadNormalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), quadNormals, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadElementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), quadElements, GL_STATIC_DRAW);
-
-
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+
+	i._vertices = quadVertices;
+	i._colors = quadColors;
+	i._normals = quadNormals;
+	i._elements = quadElements;
+	AddToRenderables(i);
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
