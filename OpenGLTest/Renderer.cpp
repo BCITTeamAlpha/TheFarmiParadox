@@ -171,9 +171,9 @@ int notMain(IRenderable ***ppp, std::mutex &mtx) {
 		mtx.lock();
 		if (ppp != NULL) {
 			if (*ppp != NULL) {
-					std::cout << "help" << std::endl;
-					AddToRenderables(***ppp);
-					(*ppp) = NULL;
+				AddToRenderables(***ppp);
+				(**ppp) = NULL;
+				(*ppp) = NULL;
 			}
 		}
 		mtx.unlock();
@@ -190,7 +190,7 @@ int notMain(IRenderable ***ppp, std::mutex &mtx) {
 
 Renderer::Renderer(IRenderable ***ppp, std::mutex & mtx) {
 	int i = 0;
-	renderThread = std::thread(notMain, std::ref(ppp), std::ref(mtx));
+	renderThread = std::thread(notMain, ppp, std::ref(mtx));
 }
 
 Renderer::~Renderer() {
