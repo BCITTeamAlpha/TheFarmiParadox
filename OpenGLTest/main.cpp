@@ -56,6 +56,9 @@ int main() {
 	PassToRenderer(map);
 
 	for (int i = 0;; i++) {
+		//
+		// Colt, put your stuff somewhere around here for now
+		//
 		R._position.x += 0.1f;
 		Sleep(10);
 	}
