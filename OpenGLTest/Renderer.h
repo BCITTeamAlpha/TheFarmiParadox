@@ -19,10 +19,9 @@
 #include "MarchingSquares.h"
 #include "shader.h"
 
-class Renderer
-{
-public:
-	Renderer(IRenderable ***p);
-	~Renderer();
+class Renderer {
+	public:
+		Renderer(IRenderable ***p);
+		~Renderer();
 };
 
