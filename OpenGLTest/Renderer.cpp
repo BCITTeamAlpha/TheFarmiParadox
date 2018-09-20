@@ -67,6 +67,17 @@ void PopulateVectors() {
 	}
 }
 
+void DrawRenderable(IRenderable& renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
+	glDrawElements(GL_TRIANGLES, renderable._elements.size(), GL_UNSIGNED_INT, (void*)0);
+}
+
 void DrawBuffers(GLuint v, GLuint c, GLuint n, GLuint e, GLuint count) {
 	glBindBuffer(GL_ARRAY_BUFFER, v);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -99,6 +110,10 @@ void draw() {
 	m = glm::mat4(1.0);
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
 	DrawBuffers(vertexBuffer, colorBuffer, normalBuffer, elementBuffer, indexVector.size());
+
+	for (auto renderable : renderables) {
+		DrawRenderable(*renderable);
+	}
 
 	m = glm::translate(glm::mat4(1.0), quadPosition);
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
