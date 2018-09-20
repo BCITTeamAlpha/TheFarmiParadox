@@ -10,14 +10,9 @@ std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
 
 GLuint mainProgram, VAO;
 
-std::vector<glm::vec3> vertexVector;
-std::vector<glm::vec4> colorVector;
-std::vector<glm::vec3> normalVector;
-std::vector<GLuint> indexVector;
-
 std::list<IRenderable*> renderables;
 
-GLuint vertexBuffer, colorBuffer, normalBuffer, elementBuffer;
+GLuint mLoc, vLoc, pLoc, lightPosLoc;
 
 // camera variables
 // TODO: extract camera into its own class
@@ -26,7 +21,7 @@ float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
 glm::vec3 quadPosition = { 64.0f, 32.0f, 0.0f };
 
-IRenderable i;
+IRenderable mapRenderable, quadRenderable;
 
 void AddToRenderables(IRenderable& renderable) {
 	glGenBuffers(1, &renderable._vertexBufferLocation);
@@ -48,6 +43,42 @@ void AddToRenderables(IRenderable& renderable) {
 	renderables.push_back(&renderable);
 }
 
+void DrawRenderable(IRenderable& renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
+
+	glm::mat4 m = glm::translate(glm::mat4(1.0), renderable._position);
+	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
+
+	glDrawElements(GL_TRIANGLES, renderable._elements.size(), GL_UNSIGNED_INT, (void*)0);
+}
+
+void draw() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(mainProgram);
+
+	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
+	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
+	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
+
+	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
+	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPosition));
+
+	for (auto renderable : renderables) {
+		DrawRenderable(*renderable);
+	}
+}
+
 void PopulateVectors() {
 	Map m = Map(0);
 
@@ -60,69 +91,27 @@ void PopulateVectors() {
 	cameraPosition.z = (m.height() - 1) * 0.5f / std::tan(cameraFOV * M_PI / 360.0f);
 
 	m.explosion(Planetoid(55.0f, 55.0f, 8.0f));
-	vertexVector = MarchingSquares::GenerateMesh(m);
+	std::vector<glm::vec3> vertexVector = MarchingSquares::GenerateMesh(m);
+
+	std::vector<glm::vec4> colorVector;
+	std::vector<glm::vec3> normalVector;
+	std::vector<GLuint> indexVector;
+
 	for (GLuint i = 0; i < vertexVector.size(); i++) {
 		colorVector.push_back(glm::vec4(0, 1, 0, 1));
 		normalVector.push_back(glm::vec3(0, 0, 1));
 		indexVector.push_back(i);
 	}
-}
 
-void DrawRenderable(IRenderable& renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
-	glDrawElements(GL_TRIANGLES, renderable._elements.size(), GL_UNSIGNED_INT, (void*)0);
-}
-
-void DrawBuffers(GLuint v, GLuint c, GLuint n, GLuint e, GLuint count) {
-	glBindBuffer(GL_ARRAY_BUFFER, v);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, c);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, n);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, e);
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
-}
-
-void draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUseProgram(mainProgram);
-
-	glm::mat4 m;
-	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
-	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
-
-	GLint mvLoc = glGetUniformLocation(mainProgram, "modelView");
-	GLint pLoc = glGetUniformLocation(mainProgram, "projection");
-	GLint lightPositionLoc = glGetUniformLocation(mainProgram, "lightPosition");
-
-	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
-
-	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
-	glUniform3fv(lightPositionLoc, 1, glm::value_ptr(lightPosition));
-
-	m = glm::mat4(1.0);
-	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
-	DrawBuffers(vertexBuffer, colorBuffer, normalBuffer, elementBuffer, indexVector.size());
-
-	for (auto renderable : renderables) {
-		DrawRenderable(*renderable);
-	}
-
-	m = glm::translate(glm::mat4(1.0), quadPosition);
-	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(v * m));
+	mapRenderable._vertices = vertexVector;
+	mapRenderable._colors = colorVector;
+	mapRenderable._normals = normalVector;
+	mapRenderable._elements = indexVector;
+	mapRenderable._position = { 0, 0, 0 };
+	AddToRenderables(mapRenderable);
 }
 
 int notMain() {
-	PopulateVectors();
-
 	//Setup GLFW
 	glfwInit();
 
@@ -190,29 +179,23 @@ int notMain() {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &vertexBuffer);
-	glGenBuffers(1, &colorBuffer);
-	glGenBuffers(1, &normalBuffer);
-	glGenBuffers(1, &elementBuffer);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertexVector.size() * sizeof(glm::vec3), vertexVector.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, colorVector.size() * sizeof(glm::vec4), colorVector.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, normalVector.size() * sizeof(glm::vec3), normalVector.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexVector.size() * sizeof(unsigned int), indexVector.data(), GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	i._vertices = quadVertices;
-	i._colors = quadColors;
-	i._normals = quadNormals;
-	i._elements = quadElements;
-	AddToRenderables(i);
+	mLoc = glGetUniformLocation(mainProgram, "model");
+	vLoc = glGetUniformLocation(mainProgram, "view");
+	pLoc = glGetUniformLocation(mainProgram, "projection");
+	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
+
+	quadRenderable._vertices = quadVertices;
+	quadRenderable._colors = quadColors;
+	quadRenderable._normals = quadNormals;
+	quadRenderable._elements = quadElements;
+	quadRenderable._position = quadPosition;
+	AddToRenderables(quadRenderable);
+	
+	PopulateVectors();
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -244,6 +227,5 @@ Renderer::Renderer() {
 }
 
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
 }
