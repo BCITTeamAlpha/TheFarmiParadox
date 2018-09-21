@@ -59,7 +59,6 @@ void GenerateBuffers(IRenderable &renderable) {
 }
 
 void PopulateBuffers(IRenderable &renderable) {
-
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
 
@@ -189,7 +188,6 @@ int notMain(IRenderable ***ppp, std::mutex &mtx) {
 }
 
 Renderer::Renderer(IRenderable ***ppp, std::mutex & mtx) {
-	int i = 0;
 	renderThread = std::thread(notMain, ppp, std::ref(mtx));
 }
 
