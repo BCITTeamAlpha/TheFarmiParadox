@@ -159,6 +159,9 @@ int notMain(IRenderable **pp) {
 	// convert linear fragment shader output to srgb automatically
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
+	// objects don't draw if they're behind other objects
+	glEnable(GL_DEPTH_TEST);
+
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
