@@ -16,8 +16,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "IRenderable.h"
-#include "Map.h"
-#include "MarchingSquares.h"
 #include "shader.h"
 
 class Renderer {
