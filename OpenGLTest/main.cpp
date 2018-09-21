@@ -25,7 +25,7 @@ void SendToRenderer(IRenderable &renderable) {
 std::vector<glm::vec3> quadVertices = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
 std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
 std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
+std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
 
 int main() {
 	// start Renderer in own thread

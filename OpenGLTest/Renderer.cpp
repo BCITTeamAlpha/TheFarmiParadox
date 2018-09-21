@@ -159,8 +159,11 @@ int notMain(IRenderable **pp) {
 	// convert linear fragment shader output to srgb automatically
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
-	// objects don't draw if they're behind other objects
+	// don't draw polygons if they are behind other polygons
 	glEnable(GL_DEPTH_TEST);
+	// don't draw polygons if they are facing away from the camera
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
