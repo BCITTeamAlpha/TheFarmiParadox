@@ -4,9 +4,9 @@
 #include <list>
 #define _USE_MATH_DEFINES
 #include <Math.h>
+#include <mutex>
 #include <thread>
 #include <vector>
-#include <mutex>
 
 #define GLEW_STATIC
 #include <GL/glew.h>

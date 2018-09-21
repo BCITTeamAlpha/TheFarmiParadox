@@ -1,6 +1,6 @@
 #include <vector>
-#include <Windows.h>
 #include <mutex>
+#include <Windows.h>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
