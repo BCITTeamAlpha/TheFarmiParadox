@@ -14,17 +14,14 @@
 std::mutex mtx;
 IRenderable empty;
 IRenderable *p = &empty;
-IRenderable **pp = &p;
-IRenderable *** const ppp = &pp;
+IRenderable ** const pp = &p;
 
 void SendToRenderer(IRenderable &renderable) {
-	while (*ppp != NULL) {
+	while (*pp != NULL) {
 		Sleep(1);
 	}
 	mtx.lock();
-	p = &renderable;
-	pp = &p;
-	*ppp = pp;
+	*pp = &renderable;
 	mtx.unlock();
 	std::cout << "passed IRenderable to Renderer" << std::endl;
 }
@@ -36,7 +33,7 @@ std::vector<GLuint> quadElements = { 0, 1, 2, 2, 1, 3 };
 
 int main() {
 	// start Renderer in own thread
-	Renderer renderer = Renderer(ppp, std::ref(mtx));
+	Renderer renderer = Renderer(pp, std::ref(mtx));
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;

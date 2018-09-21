@@ -20,7 +20,7 @@
 
 class Renderer {
 	public:
-		Renderer(IRenderable ***ppp, std::mutex &mtx);
+		Renderer(IRenderable **pp, std::mutex &mtx);
 		~Renderer();
 };
 
