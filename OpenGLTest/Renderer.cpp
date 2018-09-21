@@ -78,7 +78,7 @@ void AddToRenderables(IRenderable& renderable) {
 	renderables.push_back(&renderable);
 }
 
-int notMain(IRenderable **pp, std::mutex &mtx) {
+int notMain(IRenderable **pp) {
 	//Setup GLFW
 	glfwInit();
 
@@ -167,12 +167,10 @@ int notMain(IRenderable **pp, std::mutex &mtx) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
-		mtx.lock();
 		if (*pp != NULL) {
 			AddToRenderables(**pp);
 			*pp = NULL;
 		}
-		mtx.unlock();
 
 		//draw
 		draw();
@@ -184,8 +182,8 @@ int notMain(IRenderable **pp, std::mutex &mtx) {
 	std::terminate();
 }
 
-Renderer::Renderer(IRenderable **pp, std::mutex & mtx) {
-	renderThread = std::thread(notMain, pp, std::ref(mtx));
+Renderer::Renderer(IRenderable **pp) {
+	renderThread = std::thread(notMain, pp);
 }
 
 Renderer::~Renderer() {

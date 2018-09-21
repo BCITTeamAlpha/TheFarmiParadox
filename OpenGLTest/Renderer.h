@@ -4,7 +4,6 @@
 #include <list>
 #define _USE_MATH_DEFINES
 #include <Math.h>
-#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -20,7 +19,7 @@
 
 class Renderer {
 	public:
-		Renderer(IRenderable **pp, std::mutex &mtx);
+		Renderer(IRenderable **pp);
 		~Renderer();
 };
 
