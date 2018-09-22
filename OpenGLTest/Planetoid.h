@@ -1,5 +1,5 @@
 #pragma once
-
+//created by Map
 #include <math.h>
 
 class Planetoid {

@@ -1,5 +1,5 @@
 #pragma once
-
+//uses Planetoids; created by Game
 #include <algorithm>
 #include <vector>
 #include <limits>
