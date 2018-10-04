@@ -29,7 +29,7 @@ std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 
 std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
 
 int main() {
-	Model model = Model("Cube.obj");
+	Model model = Model("teapot.obj");
 	// start Renderer in own thread
 	Renderer renderer = Renderer(pp);
 

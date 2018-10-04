@@ -49,10 +49,15 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 		vector.z = mesh->mVertices[i].z;
 		vertex.Position = vector;
 		// normals
-		vector.x = mesh->mNormals[i].x;
-		vector.y = mesh->mNormals[i].y;
-		vector.z = mesh->mNormals[i].z;
-		vertex.Normal = vector;
+		if (mesh->mNormals != NULL) {
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.Normal = vector;
+		} else {
+			vertex.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		}
+
 		// texture coordinates
 		if (mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
 			glm::vec2 vec;
@@ -61,21 +66,31 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 			vec.x = mesh->mTextureCoords[0][i].x;
 			vec.y = mesh->mTextureCoords[0][i].y;
 			vertex.TexCoords = vec;
+		} else {
+			vertex.TexCoords = glm::vec2(0.0f);
 		}
-		else {
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-		}
+
 		// tangent
-		vector.x = mesh->mTangents[i].x;
-		vector.y = mesh->mTangents[i].y;
-		vector.z = mesh->mTangents[i].z;
-		vertex.Tangent = vector;
+		if (mesh->mTangents != NULL) {
+			std::cout << "Helpgoat";
+			vector.x = mesh->mTangents[i].x;
+			vector.y = mesh->mTangents[i].y;
+			vector.z = mesh->mTangents[i].z;
+			vertex.Tangent = vector;
+		} else {
+			vertex.Tangent = glm::vec3(0.0f);
+		}
+
 		// bitangent
-		vector.x = mesh->mBitangents[i].x;
-		vector.y = mesh->mBitangents[i].y;
-		vector.z = mesh->mBitangents[i].z;
-		vertex.Bitangent = vector;
-		vertices.push_back(vertex);
+		if (mesh->mBitangents != NULL) {
+			vector.x = mesh->mBitangents[i].x;
+			vector.y = mesh->mBitangents[i].y;
+			vector.z = mesh->mBitangents[i].z;
+			vertex.Bitangent = vector;
+			vertices.push_back(vertex);
+		} else {
+			vertex.Bitangent = glm::vec3(0.0f);
+		}
 	}
 	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -119,11 +134,15 @@ IRenderable Model::processMesh(aiMesh *mesh) {
 		pos.z = mesh->mVertices[i].z;
 		ret._vertices.push_back(pos);
 
-		glm::vec3 normal;
-		normal.x = mesh->mNormals[i].x;
-		normal.y = mesh->mNormals[i].y;
-		normal.z = mesh->mNormals[i].z;
-		ret._normals.push_back(normal);
+		if (mesh->mNormals != NULL) {
+			glm::vec3 normal;
+			normal.x = mesh->mNormals[i].x;
+			normal.y = mesh->mNormals[i].y;
+			normal.z = mesh->mNormals[i].z;
+			ret._normals.push_back(normal);
+		} else {
+			ret._normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+		}
 
 		ret._colors.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 	}
