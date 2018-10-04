@@ -25,6 +25,7 @@ void Model::processNode(aiNode *node, const aiScene *scene) {
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(processMesh(mesh, scene));
+		renderables.push_back(processMesh(mesh));
 	}
 	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -107,6 +108,32 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
 	// return a mesh object created from the extracted mesh data
 	return Mesh(vertices, indices, textures);
+}
+
+IRenderable Model::processMesh(aiMesh *mesh) {
+	IRenderable ret;
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		glm::vec3 pos;
+		pos.x = mesh->mVertices[i].x;
+		pos.y = mesh->mVertices[i].y;
+		pos.z = mesh->mVertices[i].z;
+		ret._vertices.push_back(pos);
+
+		glm::vec3 normal;
+		normal.x = mesh->mNormals[i].x;
+		normal.y = mesh->mNormals[i].y;
+		normal.z = mesh->mNormals[i].z;
+		ret._normals.push_back(normal);
+
+		ret._colors.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	}
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; j++) {
+			ret._elements.push_back(face.mIndices[j]);
+		}
+	}
+	return ret;
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {

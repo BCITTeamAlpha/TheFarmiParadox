@@ -52,10 +52,10 @@ int main() {
 
 	// setup quad IRenderable
 	IRenderable quad;
-	quad._vertices = quadVertices;
-	quad._colors = quadColors;
-	quad._normals = quadNormals;
-	quad._elements = quadElements;
+	quad._vertices = model.renderables[0]._vertices;
+	quad._colors = model.renderables[0]._colors;
+	quad._normals = model.renderables[0]._normals;
+	quad._elements = model.renderables[0]._elements;
 	quad._position = { 64.0f, 32.0f, 0.0f };
 
 	// setup another quad IRenderable

@@ -14,18 +14,20 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "IRenderable.h"
 
 class Model {
 	public:
 		/*  Model Data */
 		std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 		std::vector<Mesh> meshes;
+		std::vector<IRenderable> renderables;
 		std::string directory;
 		bool gammaCorrection;
 
 		/*  Functions   */
 		// constructor, expects a filepath to a 3D model.
-		Model(std::string const &path, bool gamma = false) : gammaCorrection(gamma) {
+		Model(std::string const &path) {
 			loadModel(path);
 		}
 
@@ -38,6 +40,8 @@ class Model {
 		void processNode(aiNode *node, const aiScene *scene);
 
 		Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+
+		IRenderable processMesh(aiMesh * mesh);
 
 		// checks all material textures of a given type and loads the textures if they're not loaded yet.
 		// the required info is returned as a Texture struct.
