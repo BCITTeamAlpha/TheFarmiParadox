@@ -82,6 +82,7 @@ class Mesh {
 		unsigned int VBO, EBO;
 
 		void setupMesh() {
+			/*
 			// create buffers/arrays
 			glGenVertexArrays(1, &VAO);
 			glGenBuffers(1, &VBO);
@@ -116,5 +117,6 @@ class Mesh {
 			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
 			glBindVertexArray(0); //this line breaks stuff
+			*/
 		}
 };
