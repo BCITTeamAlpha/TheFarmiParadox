@@ -9,10 +9,17 @@
 #include "Renderer.h"
 #include "Planetoid.h"
 #include "Map.h"
+#include "Character.h"
+#include "PhysicsManager.h"
 
 IRenderable empty;
 IRenderable *p = &empty;
 IRenderable ** const pp = &p;
+
+Renderer *renderer;
+PhysicsManager *physics;
+Map *map;
+
 
 void SendToRenderer(IRenderable &renderable) {
 	while (*pp != NULL) {
@@ -29,7 +36,7 @@ std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
 
 int main() {
 	// start Renderer in own thread
-	Renderer renderer = Renderer(pp);
+	renderer = new Renderer(pp);
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -39,50 +46,38 @@ int main() {
 	planets.push_back(Planetoid(8.0f, 120.0f, 12.0f));
 	planets.push_back(Planetoid(120.0f, 120.0f, 48.0f));
 	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
-	Map map = Map(planets, 128, 128);
-	map._vertices = MarchingSquares::GenerateMesh(map);
-	map._position = { 0, 0, 0 };
-	for (GLuint i = 0; i < map._vertices.size(); i++) {
-		map._colors.push_back({ 0, 1, 0, 1 });
-		map._normals.push_back(glm::vec3(0, 0, 1));
-		map._elements.push_back(i);
+
+	map = new Map(planets, 128, 128);
+	map->_vertices = MarchingSquares::GenerateMesh(*map);
+	map->_position = { 0, 0, 0 };
+	for (GLuint i = 0; i < map->_vertices.size(); i++) {
+		map->_colors.push_back({ 0, 1, 0, 1 });
+		map->_normals.push_back(glm::vec3(0, 0, 1));
+		map->_elements.push_back(i);
 	}
 
-	// setup quad IRenderable
-	IRenderable quad;
-	quad._vertices = quadVertices;
-	quad._colors = quadColors;
-	quad._normals = quadNormals;
-	quad._elements = quadElements;
-	quad._position = { 64.0f, 32.0f, 0.0f };
+	physics = new PhysicsManager(&planets, map);
 
-	// setup another quad IRenderable
-	IRenderable quad1;
-	quad1._vertices = quadVertices;
-	quad1._colors = quadColors;
-	quad1._normals = quadNormals;
-	quad1._elements = quadElements;
-	quad1._position = { 64.0f, 32.0f, 0.0f };
+	//set up a square test character
+	Character *c = new Character();
+	c->_vertices = quadVertices;
+	c->_colors = quadColors;
+	c->_normals = quadNormals;
+	c->_elements = quadElements;
+	c->_position = { 64.0f, 32.0f, 0.0f };
 
 	// send IRenderables to renderer
-	SendToRenderer(map);
-	SendToRenderer(quad);
-	SendToRenderer(quad1);
+	SendToRenderer(*map);
+	SendToRenderer(*c);
+
+	// send physicsobjects to physicsmanager
+	physics->addObject(c);
 
 	for (int tick = 0;; tick++) {
 		//
 		// Colt, put your stuff somewhere around here for now
 		//
-		quad1._position.x += 0.05f;
-		if (quad1._position.x > 125.5f) {
-			quad1._position.x = -2.5f;
-		}
-		quad1._position.y += 0.1f;
-		if (quad1._position.y > 125.5f) {
-			quad1._position.y = -2.5f;
-		}
-		quad._position.x = quad1._position.x + 16*sin(tick * 0.01f);
-		quad._position.y = quad1._position.y + 16*cos(tick * 0.01f);
+		physics->calcPhysics();
 
 		Sleep(1000 / 59.94);
 	}
