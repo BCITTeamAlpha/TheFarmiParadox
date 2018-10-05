@@ -5,7 +5,8 @@
 class GameObject {
 public:
 	GameObject();
-	glm_f64vec2 getPos();
+	glm::vec2 getPos();
+	void setPos(glm::vec2 p);
 private:
-	glm_f64vec2 pos;
+	glm::vec2 pos;
 };

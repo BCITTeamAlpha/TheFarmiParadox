@@ -11,6 +11,7 @@
 #include "Map.h"
 #include "Character.h"
 #include "PhysicsManager.h"
+#include "Model.h"
 
 IRenderable empty;
 IRenderable *p = &empty;
@@ -21,7 +22,8 @@ PhysicsManager *physics;
 Map *map;
 
 
-void SendToRenderer(IRenderable &renderable) {
+void SendToRenderer(IRenderable &renderable)
+{
 	while (*pp != NULL) {
 		Sleep(1);
 	}
@@ -34,7 +36,9 @@ std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1
 std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
 std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
 
-int main() {
+int main()
+{
+	Model model = Model("teapot.obj");
 	// start Renderer in own thread
 	renderer = new Renderer(pp);
 
@@ -50,7 +54,8 @@ int main() {
 	map = new Map(planets, 128, 128);
 	map->_vertices = MarchingSquares::GenerateMesh(*map);
 	map->_position = { 0, 0, 0 };
-	for (GLuint i = 0; i < map->_vertices.size(); i++) {
+	for (GLuint i = 0; i < map->_vertices.size(); i++)
+	{
 		map->_colors.push_back({ 0, 1, 0, 1 });
 		map->_normals.push_back(glm::vec3(0, 0, 1));
 		map->_elements.push_back(i);
@@ -73,10 +78,8 @@ int main() {
 	// send physicsobjects to physicsmanager
 	physics->addObject(c);
 
-	for (int tick = 0;; tick++) {
-		//
-		// Colt, put your stuff somewhere around here for now
-		//
+	for (int tick = 0;; tick++)
+	{
 		physics->calcPhysics();
 
 		Sleep(1000 / 59.94);
