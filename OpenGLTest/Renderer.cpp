@@ -1,11 +1,10 @@
 #include "Renderer.h"
 
-
 const GLint WIDTH = 1280, HEIGHT = 720;
 
 std::thread renderThread;
 
-std::list<IRenderable*> renderables;
+std::list<Renderable*> renderables;
 
 GLuint mainProgram, VAO;
 GLuint mLoc, vLoc, pLoc, lightPosLoc;
@@ -15,7 +14,7 @@ GLuint mLoc, vLoc, pLoc, lightPosLoc;
 glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
-void DrawRenderable(IRenderable& renderable) {
+void DrawRenderable(Renderable& renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
@@ -27,7 +26,7 @@ void DrawRenderable(IRenderable& renderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
 
-	glm::mat4 m = glm::translate(glm::mat4(1.0), renderable._position);
+	glm::mat4 m = glm::translate(glm::mat4(1.0), *(renderable._position));
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 
 	glDrawElements(GL_TRIANGLES, renderable._elements.size(), GL_UNSIGNED_INT, (void*)0);
@@ -51,14 +50,14 @@ void draw() {
 	}
 }
 
-void GenerateBuffers(IRenderable &renderable) {
+void GenerateBuffers(Renderable &renderable) {
 	glGenBuffers(1, &renderable._vertexBufferLocation);
 	glGenBuffers(1, &renderable._colorBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
 }
 
-void PopulateBuffers(IRenderable &renderable) {
+void PopulateBuffers(Renderable &renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
 
@@ -72,13 +71,13 @@ void PopulateBuffers(IRenderable &renderable) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
 }
 
-void AddToRenderables(IRenderable& renderable) {
+void AddToRenderables(Renderable& renderable) {
 	GenerateBuffers(renderable);
 	PopulateBuffers(renderable);
 	renderables.push_back(&renderable);
 }
 
-int notMain(IRenderable **pp) {
+int notMain(Renderable **pp) {
 	//Setup GLFW
 	glfwInit();
 
@@ -188,7 +187,7 @@ int notMain(IRenderable **pp) {
 	std::terminate();
 }
 
-Renderer::Renderer(IRenderable **pp) {
+Renderer::Renderer(Renderable **pp) {
 	renderThread = std::thread(notMain, pp);
 }
 

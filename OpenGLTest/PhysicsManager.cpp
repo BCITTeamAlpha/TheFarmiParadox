@@ -11,12 +11,12 @@ void PhysicsManager::calcPhysics()
 {
 	float x, y;
 
-	for (int i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 	{
 		//do physics on each object
 		PhysicsObject *object = objects.at(i);
 		glm::vec2 pos = object->getPos();
-		object->setPos(glm::vec2(pos.x + 1, pos.y + 0));
+		object->setPos(glm::vec3(pos.x + 1, pos.y + 0, 0));
 		x = object->getPos().x;
 		y = object->getPos().y;
 	}

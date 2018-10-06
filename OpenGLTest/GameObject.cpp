@@ -5,12 +5,27 @@ GameObject::GameObject()
 
 }
 
-glm::vec2 GameObject::getPos()
+glm::vec3 GameObject::getPos()
 {
-	return pos;
+	return position;
 }
 
-void GameObject::setPos(glm::vec2 p)
+void GameObject::setPos(glm::vec3 p)
 {
-	pos = p;
+	position = p;
+}
+
+glm::vec3 GameObject::getRot()
+{
+	return rotation;
+}
+
+void GameObject::setRot(glm::vec3 p)
+{
+	rotation = p;
+}
+
+void GameObject::setRenderable(Renderable *r)
+{
+	renderable = r;
 }

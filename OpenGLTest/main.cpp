@@ -13,16 +13,16 @@
 #include "PhysicsManager.h"
 #include "Model.h"
 
-IRenderable empty;
-IRenderable *p = &empty;
-IRenderable ** const pp = &p;
+Renderable empty;
+Renderable *p = &empty;
+Renderable ** const pp = &p;
 
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
 
 
-void SendToRenderer(IRenderable &renderable)
+void SendToRenderer(Renderable &renderable)
 {
 	while (*pp != NULL) {
 		Sleep(1);
@@ -52,28 +52,36 @@ int main()
 	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
 
 	map = new Map(planets, 128, 128);
-	map->_vertices = MarchingSquares::GenerateMesh(*map);
-	map->_position = { 0, 0, 0 };
-	for (GLuint i = 0; i < map->_vertices.size(); i++)
+
+	Renderable *mapSkin = new Renderable();
+	mapSkin->_vertices = MarchingSquares::GenerateMesh(*map);
+
+	for (GLuint i = 0; i < mapSkin->_vertices.size(); i++)
 	{
-		map->_colors.push_back({ 0, 1, 0, 1 });
-		map->_normals.push_back(glm::vec3(0, 0, 1));
-		map->_elements.push_back(i);
+		mapSkin->_colors.push_back({ 0, 1, 0, 1 });
+		mapSkin->_normals.push_back(glm::vec3(0, 0, 1));
+		mapSkin->_elements.push_back(i);
 	}
+
+	map->setRenderable(mapSkin);
 
 	physics = new PhysicsManager(&planets, map);
 
 	//set up a square test character
 	Character *c = new Character();
-	c->_vertices = quadVertices;
-	c->_colors = quadColors;
-	c->_normals = quadNormals;
-	c->_elements = quadElements;
-	c->_position = { 64.0f, 32.0f, 0.0f };
+	c->setPos({ 64.0f, 32.0f, 0.0f });
+
+	Renderable *cSkin = new Renderable();
+	cSkin->_vertices = quadVertices;
+	cSkin->_colors = quadColors;
+	cSkin->_normals = quadNormals;
+	cSkin->_elements = quadElements;
+
+	c->setRenderable(cSkin);
 
 	// send IRenderables to renderer
-	SendToRenderer(*map);
-	SendToRenderer(*c);
+	SendToRenderer(*mapSkin);
+	SendToRenderer(*cSkin);
 
 	// send physicsobjects to physicsmanager
 	physics->addObject(c);

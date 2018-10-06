@@ -57,3 +57,10 @@ void Map::explosion(Planetoid p) {
 		}
 	}
 }
+
+void Map::setRenderable(Renderable *r)
+{
+	renderable = r;
+	renderable->_position = new glm::vec3(0, 0, 0);
+	renderable->_rotation = new glm::vec3(0, 0, 0);
+}
