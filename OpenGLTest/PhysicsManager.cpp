@@ -1,5 +1,7 @@
 #include "PhysicsManager.h"
 
+int dir = 1;
+
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
 	map = m;
@@ -16,7 +18,12 @@ void PhysicsManager::calcPhysics()
 		//do physics on each object
 		PhysicsObject *object = objects.at(i);
 		glm::vec2 pos = object->getPos();
-		object->setPos(glm::vec3(pos.x + 1, pos.y + 0, 0));
+
+		if (pos.x > 100 || pos.x < 50)
+			dir = -dir;
+
+		object->setPos(glm::vec3(pos.x + dir, pos.y + 0, 0));
+
 		x = object->getPos().x;
 		y = object->getPos().y;
 	}
