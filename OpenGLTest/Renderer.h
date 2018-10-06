@@ -14,14 +14,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "IRenderable.h"
+#include "Renderable.h"
 #include "shader.h"
 
 extern GLFWwindow *window;
 
 class Renderer {
 	public:
-		Renderer(IRenderable **pp);
+		Renderer(Renderable **pp);
 		~Renderer();
 };
 

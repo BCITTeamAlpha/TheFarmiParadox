@@ -4,6 +4,7 @@
 class PhysicsObject : public GameObject {
 public:
 	PhysicsObject();
+	float getMass();
 private:
-
+	float mass;
 };

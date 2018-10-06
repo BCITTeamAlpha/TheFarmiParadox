@@ -124,8 +124,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 	return Mesh(vertices, indices, textures);
 }
 
-IRenderable Model::processMesh(aiMesh *mesh) {
-	IRenderable ret;
+Renderable Model::processMesh(aiMesh *mesh) {
+	Renderable ret;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		glm::vec3 pos;
 		pos.x = mesh->mVertices[i].x;

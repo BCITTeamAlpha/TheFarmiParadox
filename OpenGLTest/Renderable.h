@@ -6,10 +6,11 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-class IRenderable {
+class Renderable {
 	public:
-		glm::vec3 _position;
-		glm::vec3 _rotation;
+		Renderable();
+		glm::vec3 *_position;
+		glm::vec3 *_rotation;
 		std::vector<glm::vec3> _vertices;
 		std::vector<glm::vec4> _colors;
 		std::vector<glm::vec3> _normals;
