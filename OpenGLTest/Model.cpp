@@ -72,7 +72,6 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
 		// tangent
 		if (mesh->mTangents != NULL) {
-			std::cout << "Helpgoat";
 			vector.x = mesh->mTangents[i].x;
 			vector.y = mesh->mTangents[i].y;
 			vector.z = mesh->mTangents[i].z;

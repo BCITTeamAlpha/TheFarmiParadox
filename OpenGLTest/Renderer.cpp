@@ -78,6 +78,8 @@ void AddToRenderables(IRenderable& renderable) {
 	renderables.push_back(&renderable);
 }
 
+
+
 int notMain(IRenderable **pp) {
 	//Setup GLFW
 	glfwInit();
@@ -88,7 +90,7 @@ int notMain(IRenderable **pp) {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "The Farmi Paradox", nullptr, nullptr);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "The Farmi Paradox", nullptr, nullptr);
 
 	//Ensure window was created
 	if (window == nullptr) {
@@ -168,6 +170,9 @@ int notMain(IRenderable **pp) {
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
+
+
+
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.

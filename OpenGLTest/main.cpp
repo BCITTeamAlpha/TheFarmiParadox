@@ -10,10 +10,13 @@
 #include "Planetoid.h"
 #include "Map.h"
 #include "Model.h"
+#include "Input.h"
 
 IRenderable empty;
 IRenderable *p = &empty;
 IRenderable ** const pp = &p;
+GLFWwindow* window;
+Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
 
 void SendToRenderer(IRenderable &renderable) {
 	while (*pp != NULL) {
@@ -23,15 +26,49 @@ void SendToRenderer(IRenderable &renderable) {
 	std::cout << "passed IRenderable to Renderer" << std::endl;
 }
 
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	switch (key) {
+	case GLFW_KEY_W:
+		if (action == GLFW_RELEASE)
+		{
+			std::cout << "W key released" << std::endl;
+		}
+		if (action == GLFW_PRESS)
+		{
+			std::cout << "W key pressed" << std::endl;
+		}
+		if (action == GLFW_REPEAT)
+		{
+			std::cout << "W key REPEATED" << std::endl;
+		}
+		break;
+	case GLFW_KEY_A:
+		break;
+
+	default:
+
+		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
+		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
+
+		break;
+	}
+}
+
+void TestFunction() {
+	std::cout << "TestFunction called" << std::endl;
+}
+
+
 std::vector<glm::vec3> quadVertices = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
 std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
 std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
 std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
 
 int main() {
-	Model model = Model("teapot.obj");
+	Model model = Model("m4a1.obj");
 	// start Renderer in own thread
 	Renderer renderer = Renderer(pp);
+
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -70,6 +107,11 @@ int main() {
 	SendToRenderer(map);
 	SendToRenderer(quad);
 	SendToRenderer(quad1);
+
+
+	//Set input handling callbacks
+	glfwSetKeyCallback(window, KeyCallback);
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
 	for (int tick = 0;; tick++) {
 		//
