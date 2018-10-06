@@ -1,8 +1,7 @@
 #pragma once
-#include "IRenderable.h"
 #include "PhysicsObject.h"
 
-class Pickup : public IRenderable, public PhysicsObject {
+class Pickup : public PhysicsObject {
 public:
 	Pickup();
 private:

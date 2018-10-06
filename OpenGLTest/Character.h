@@ -1,8 +1,7 @@
 #pragma once
 #include "PhysicsObject.h"
-#include "IRenderable.h"
 
-class Character : public IRenderable, public PhysicsObject {
+class Character : public PhysicsObject {
 public:
 	Character();
 private:
