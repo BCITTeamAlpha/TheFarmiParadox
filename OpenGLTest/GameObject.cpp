@@ -28,4 +28,6 @@ void GameObject::setRot(glm::vec3 p)
 void GameObject::setRenderable(Renderable *r)
 {
 	renderable = r;
+	renderable->_position = &position;
+	renderable->_rotation = &rotation;
 }

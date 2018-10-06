@@ -13,8 +13,7 @@
 #include "PhysicsManager.h"
 #include "Model.h"
 
-Renderable empty;
-Renderable *p = &empty;
+Renderable *p;
 Renderable ** const pp = &p;
 
 Renderer *renderer;

@@ -14,22 +14,22 @@ GLuint mLoc, vLoc, pLoc, lightPosLoc;
 glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
 float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
 
-void DrawRenderable(Renderable& renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
+void DrawRenderable(Renderable* renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_vertexBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_colorBufferLocation);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_normalBufferLocation);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
 
-	glm::mat4 m = glm::translate(glm::mat4(1.0), *(renderable._position));
+	glm::mat4 m = glm::translate(glm::mat4(1.0), *(renderable->_position));
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 
-	glDrawElements(GL_TRIANGLES, renderable._elements.size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
 void draw() {
@@ -46,7 +46,7 @@ void draw() {
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPosition));
 
 	for (auto renderable : renderables) {
-		DrawRenderable(*renderable);
+		DrawRenderable(renderable);
 	}
 }
 
