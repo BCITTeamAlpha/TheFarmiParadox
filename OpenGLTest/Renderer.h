@@ -17,6 +17,8 @@
 #include "IRenderable.h"
 #include "shader.h"
 
+extern GLFWwindow *window;
+
 class Renderer {
 	public:
 		Renderer(IRenderable **pp);
