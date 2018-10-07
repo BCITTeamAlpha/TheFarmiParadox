@@ -1,7 +1,5 @@
 #include "PhysicsManager.h"
 
-int dir = 1;
-
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
 	map = m;
@@ -9,24 +7,32 @@ PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 	objects = std::vector<PhysicsObject*>();
 }
 
-void PhysicsManager::calcPhysics()
+void PhysicsManager::calcPhysics(float dTime)
 {
-	float x, y;
-
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		//do physics on each object
 		PhysicsObject *object = objects.at(i);
-		glm::vec2 pos = object->getPos();
+		glm::vec3 pos = object->getPos();
+		glm::vec3 v = object->getVelocity();
 
-		if (pos.x > 100 || pos.x < 50)
-			dir = -dir;
+		glm::vec3 f = netForce(pos);
+		glm::vec3 a = f / object->getMass();
 
-		object->setPos(glm::vec3(pos.x + dir, pos.y + 0, 0));
+		glm::vec3 move = v * dTime + a * dTime * dTime / 2.0f;
 
-		x = object->getPos().x;
-		y = object->getPos().y;
+		//set new position
+		object->setPos(pos + move);
+
+		//set new velocity
+		object->setVelocity(v + a * dTime);
 	}
+}
+
+//Finds the net force on a given point in space
+glm::vec3 PhysicsManager::netForce(glm::vec3 pos)
+{
+
 }
 
 void PhysicsManager::addObject(PhysicsObject *obj)

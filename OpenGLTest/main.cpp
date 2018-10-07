@@ -14,6 +14,8 @@
 #include "Model.h"
 #include "Input.h"
 
+const int physUpdates = 30;
+
 GLFWwindow* window;
 Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
 
@@ -127,9 +129,10 @@ int main()
 	glfwSetKeyCallback(window, KeyCallback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
-	for (int tick = 0;; tick++) {
-		physics->calcPhysics();
+	for (int tick = 0;; tick++)
+	{
+		physics->calcPhysics(1000.0 / 59.94);
 
-		Sleep(1000 / 59.94);
+		Sleep(1000.0 / 59.94);
 	}
 }
