@@ -1,6 +1,5 @@
 #include "Renderable.h"
 
-Renderable::Renderable()
-{
+GLuint Renderable::count = 0;
 
-}
+Renderable::Renderable() : _id(Renderable::count++) {}

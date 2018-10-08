@@ -19,6 +19,8 @@ class Renderable {
 		GLuint _colorBufferLocation;
 		GLuint _normalBufferLocation;
 		GLuint _elementBufferLocation;
-		GLuint _id; // use ID for signalling renderer to remove from rendering list?
+		const GLuint _id; // use ID for signalling renderer to remove from rendering list?
 		// or maybe have a setable flag that tells Renderer to delete it?
+	private:
+		static GLuint count; // monotically incrementing variable used to setting renderable IDs 
 };

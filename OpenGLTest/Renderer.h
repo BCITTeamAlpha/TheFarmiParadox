@@ -44,6 +44,5 @@ class Renderer {
 		GLfloat cameraFOV = 90.0f;
 		GLfloat nearClip = 0.1f;
 		GLfloat farClip = 100.0f;
-		GLuint count = 0; // monotically incrementing variable used to setting renderable IDs 
 };
 

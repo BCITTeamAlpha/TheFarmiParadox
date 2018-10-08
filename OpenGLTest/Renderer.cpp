@@ -66,7 +66,6 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 void Renderer::AddToRenderables(Renderable& renderable) {
 	GenerateBuffers(renderable);
 	PopulateBuffers(renderable);
-	renderable._id = count++;
 	renderables.push_back(&renderable);
 }
 
