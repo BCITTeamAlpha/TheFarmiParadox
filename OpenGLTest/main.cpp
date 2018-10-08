@@ -115,6 +115,7 @@ int main()
 
 	//set up a square test character
 	Character *c = new Character();
+	c->setMass(50);
 	c->setPos({ 64.0f, 32.0f });
 
 	Renderable *cSkin = new Renderable();
@@ -128,7 +129,7 @@ int main()
 	c->setRenderable(cSkin);
 
 	// send Renderables to renderer
-	//SendToRenderer(*mapSkin);
+	SendToRenderer(*mapSkin);
 	SendToRenderer(*cSkin);
 
 	// send physicsobjects to physicsmanager
