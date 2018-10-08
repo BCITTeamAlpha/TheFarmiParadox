@@ -39,11 +39,11 @@ class Renderer {
 		GLuint mLoc;
 		GLuint vLoc;
 		GLuint pLoc;
+		GLuint u_colorLoc;
 		GLuint lightPosLoc;
 		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
 		GLfloat cameraFOV = 90.0f;
 		GLfloat nearClip = 0.1f;
 		GLfloat farClip = 100.0f;
-		GLuint count = 0; // monotically incrementing variable used to setting renderable IDs 
 };
 

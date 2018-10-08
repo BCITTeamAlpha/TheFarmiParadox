@@ -1,11 +1,11 @@
 #include "Renderer.h"
 
 void Renderer::DrawRenderable(Renderable* renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_vertexBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_colorBufferLocation);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_normalBufferLocation);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -20,6 +20,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(u_colorLoc, 1, glm::value_ptr(renderable->_color));
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -43,18 +44,18 @@ void Renderer::draw() {
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
-	glGenBuffers(1, &renderable._vertexBufferLocation);
-	glGenBuffers(1, &renderable._colorBufferLocation);
+	glGenBuffers(1, &renderable._positionBufferLocation);
+	glGenBuffers(1, &renderable._texCoordBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
 }
 
 void Renderer::PopulateBuffers(Renderable &renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._positionBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._positions.size() * sizeof(glm::vec3), renderable._positions.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, renderable._colors.size() * sizeof(glm::vec4), renderable._colors.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._texCoordBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._texCoords.size() * sizeof(glm::vec2), renderable._texCoords.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._normals.size() * sizeof(glm::vec3), renderable._normals.data(), GL_STATIC_DRAW);
@@ -66,13 +67,12 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 void Renderer::AddToRenderables(Renderable& renderable) {
 	GenerateBuffers(renderable);
 	PopulateBuffers(renderable);
-	renderable._id = count++;
 	renderables.push_back(&renderable);
 }
 
 void Renderer::RemoveFromRenderables(Renderable& renderable) {
-	glDeleteBuffers(1, &renderable._vertexBufferLocation);
-	glDeleteBuffers(1, &renderable._colorBufferLocation);
+	glDeleteBuffers(1, &renderable._positionBufferLocation);
+	glDeleteBuffers(1, &renderable._texCoordBufferLocation);
 	glDeleteBuffers(1, &renderable._normalBufferLocation);
 	glDeleteBuffers(1, &renderable._elementBufferLocation);
 	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
@@ -151,6 +151,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	mLoc = glGetUniformLocation(mainProgram, "model");
 	vLoc = glGetUniformLocation(mainProgram, "view");
 	pLoc = glGetUniformLocation(mainProgram, "projection");
+	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
 	// wireframe mode if we want to enable it for debugging
