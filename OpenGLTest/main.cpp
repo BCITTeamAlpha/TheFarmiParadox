@@ -7,6 +7,7 @@
 
 #include "MarchingSquares.h"
 #include "Renderer.h"
+#include "Renderable.h"
 #include "Planetoid.h"
 #include "Map.h"
 #include "Character.h"

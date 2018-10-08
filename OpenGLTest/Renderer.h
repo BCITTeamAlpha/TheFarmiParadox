@@ -5,7 +5,6 @@
 #include <list>
 #define _USE_MATH_DEFINES
 #include <Math.h>
-#include <thread>
 #include <vector>
 
 #define GLEW_STATIC
