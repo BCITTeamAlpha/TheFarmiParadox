@@ -33,16 +33,17 @@ class Renderer {
 		void RemoveFromRenderables(Renderable & renderable);
 
 		std::list<Renderable*> renderables;
-		const GLint WIDTH = 1280;
-		const GLint HEIGHT = 720;
+		const GLuint WIDTH = 1280;
+		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
 		GLuint mLoc;
 		GLuint vLoc;
 		GLuint pLoc;
 		GLuint lightPosLoc;
 		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
-		float cameraFOV = 90.0f;
-		float nearClip = 0.1f;
-		float farClip = 100.0f;
+		GLfloat cameraFOV = 90.0f;
+		GLfloat nearClip = 0.1f;
+		GLfloat farClip = 100.0f;
+		GLuint count = 0; // monotically incrementing variable used to setting renderable IDs 
 };
 
