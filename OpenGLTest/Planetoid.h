@@ -1,6 +1,7 @@
 #pragma once
 //created by Map
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <Math.h>
 
 class Planetoid {
 	public:
@@ -10,5 +11,7 @@ class Planetoid {
 		const float _r;
 		const float _m;
 		float distanceFunction(int x, int y);
+		const float G = 15000000000;
+		const float DENSITY = 5500000000;
 	private:
 };

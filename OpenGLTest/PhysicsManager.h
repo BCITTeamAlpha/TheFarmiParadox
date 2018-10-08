@@ -10,7 +10,7 @@ public:
 	void PhysicsManager::calcPhysics(float dTime);
 	void addObject(PhysicsObject *obj);
 private:
-	glm::vec3 netForce(glm::vec3 pos);
+	glm::vec2 netForce(glm::vec2 pos, float m);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	Map *map;

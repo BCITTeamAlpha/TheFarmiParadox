@@ -9,7 +9,7 @@
 class Renderable {
 	public:
 		Renderable();
-		glm::vec3 *_position;
+		glm::vec2 *_position;
 		glm::vec3 *_rotation;
 		std::vector<glm::vec3> _vertices;
 		std::vector<glm::vec4> _colors;
