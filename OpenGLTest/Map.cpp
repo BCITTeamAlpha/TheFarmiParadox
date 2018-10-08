@@ -16,7 +16,7 @@ Map::Map(vector<Planetoid> planets, int width, int height) {
 	for (int x = 0; x < _width; x++) {
 		for (int y = 0; y < _height; y++) {
 			_mapArray[_index(x, y)] = numeric_limits<float>::max();
-			for (int i = 0; i < planets.size(); i++) {
+			for (unsigned int i = 0; i < planets.size(); i++) {
 				_mapArray[_index(x, y)] = min(
 					_mapArray[_index(x, y)], 
 					planets[i].distanceFunction(x, y)

@@ -7,12 +7,14 @@
 
 #include "MarchingSquares.h"
 #include "Renderer.h"
+#include "Renderable.h"
 #include "Planetoid.h"
 #include "Map.h"
 #include "Character.h"
 #include "PhysicsManager.h"
 #include "Model.h"
 #include "Input.h"
+#include <thread>
 
 GLFWwindow* window;
 Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
@@ -67,7 +69,7 @@ void TestFunction() {
 }
 
 
-std::vector<glm::vec3> quadVertices = { { 0, 5, 0 },{ 5, 5, 0 },{ 0, 0, 0 },{ 5, 0, 0 } };
+std::vector<glm::vec3> quadVertices = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5, -2.5, 0 },{ 2.5, -2.5, 0 } };
 std::vector<glm::vec4> quadColors = { { 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 },{ 1, 0, 0, 1 } };
 std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
 std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
@@ -76,8 +78,8 @@ int main()
 {
 	Model model = Model("teapot.obj");
 	// start Renderer in own thread
-	renderer = new Renderer(pp);
-
+	renderer = new Renderer();
+	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -129,7 +131,7 @@ int main()
 
 	for (int tick = 0;; tick++) {
 		physics->calcPhysics();
-
-		Sleep(1000 / 59.94);
+		(*cSkin->_rotation).z += 1.0f;
+		Sleep(1000.0f / 59.94f);
 	}
 }
