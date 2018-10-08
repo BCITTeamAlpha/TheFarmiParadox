@@ -131,7 +131,7 @@ Renderable Model::processMesh(aiMesh *mesh) {
 		pos.x = mesh->mVertices[i].x;
 		pos.y = mesh->mVertices[i].y;
 		pos.z = mesh->mVertices[i].z;
-		ret._vertices.push_back(pos);
+		ret._positions.push_back(pos);
 
 		if (mesh->mNormals != NULL) {
 			glm::vec3 normal;
@@ -143,7 +143,16 @@ Renderable Model::processMesh(aiMesh *mesh) {
 			ret._normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
 		}
 
-		ret._colors.push_back(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		if (mesh->mTextureCoords[0]) {
+			glm::vec2 texCoord;
+			texCoord.x = mesh->mTextureCoords[0][i].x;
+			texCoord.y = mesh->mTextureCoords[0][i].y;
+			ret._texCoords.push_back(texCoord);
+		}
+		else {
+			ret._texCoords.push_back(glm::vec2(0,0));
+		}
+
 	}
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];

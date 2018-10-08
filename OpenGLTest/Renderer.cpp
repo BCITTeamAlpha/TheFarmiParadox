@@ -1,38 +1,31 @@
 #include "Renderer.h"
 
-const GLint WIDTH = 1280, HEIGHT = 720;
-
-std::thread renderThread;
-
-std::list<Renderable*> renderables;
-
-GLuint mainProgram, VAO;
-GLuint mLoc, vLoc, pLoc, lightPosLoc;
-
-// camera variables
-// TODO: extract camera into its own class
-glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
-float cameraFOV = 90.0f, nearClip = 0.1f, farClip = 100.0f;
-
-void DrawRenderable(Renderable* renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_vertexBufferLocation);
+void Renderer::DrawRenderable(Renderable* renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_colorBufferLocation);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_normalBufferLocation);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
 
-	glm::mat4 m = glm::translate(glm::mat4(1.0), *(renderable->_position));
+	glm::mat4 m = glm::mat4(1.0);
+	m = glm::translate(m, renderable->getPosition3());
+	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
+
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(u_colorLoc, 1, glm::value_ptr(renderable->_color));
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void draw() {
+void Renderer::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainProgram);
@@ -50,19 +43,19 @@ void draw() {
 	}
 }
 
-void GenerateBuffers(Renderable &renderable) {
-	glGenBuffers(1, &renderable._vertexBufferLocation);
-	glGenBuffers(1, &renderable._colorBufferLocation);
+void Renderer::GenerateBuffers(Renderable &renderable) {
+	glGenBuffers(1, &renderable._positionBufferLocation);
+	glGenBuffers(1, &renderable._texCoordBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
 }
 
-void PopulateBuffers(Renderable &renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._vertexBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, renderable._vertices.size() * sizeof(glm::vec3), renderable._vertices.data(), GL_STATIC_DRAW);
+void Renderer::PopulateBuffers(Renderable &renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._positionBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._positions.size() * sizeof(glm::vec3), renderable._positions.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable._colorBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, renderable._colors.size() * sizeof(glm::vec4), renderable._colors.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable._texCoordBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, renderable._texCoords.size() * sizeof(glm::vec2), renderable._texCoords.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, renderable._normalBufferLocation);
 	glBufferData(GL_ARRAY_BUFFER, renderable._normals.size() * sizeof(glm::vec3), renderable._normals.data(), GL_STATIC_DRAW);
@@ -71,13 +64,21 @@ void PopulateBuffers(Renderable &renderable) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
 }
 
-void AddToRenderables(Renderable& renderable) {
+void Renderer::AddToRenderables(Renderable& renderable) {
 	GenerateBuffers(renderable);
 	PopulateBuffers(renderable);
 	renderables.push_back(&renderable);
 }
 
-int notMain(Renderable **pp) {
+void Renderer::RemoveFromRenderables(Renderable& renderable) {
+	glDeleteBuffers(1, &renderable._positionBufferLocation);
+	glDeleteBuffers(1, &renderable._texCoordBufferLocation);
+	glDeleteBuffers(1, &renderable._normalBufferLocation);
+	glDeleteBuffers(1, &renderable._elementBufferLocation);
+	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
+}
+
+int Renderer::RenderLoop(Renderable **pp) {
 	//Setup GLFW
 	glfwInit();
 
@@ -150,6 +151,7 @@ int notMain(Renderable **pp) {
 	mLoc = glGetUniformLocation(mainProgram, "model");
 	vLoc = glGetUniformLocation(mainProgram, "view");
 	pLoc = glGetUniformLocation(mainProgram, "projection");
+	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
 	// wireframe mode if we want to enable it for debugging
@@ -168,9 +170,6 @@ int notMain(Renderable **pp) {
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
-
-
-
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
@@ -187,11 +186,10 @@ int notMain(Renderable **pp) {
 	}
 
 	glfwTerminate();
-	std::terminate();
+	return EXIT_SUCCESS;
 }
 
-Renderer::Renderer(Renderable **pp) {
-	renderThread = std::thread(notMain, pp);
+Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
