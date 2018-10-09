@@ -12,6 +12,8 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
 
+	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
+
 	glm::mat4 m = glm::mat4(1.0);
 	m = glm::translate(m, *renderable->_position);
 	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
@@ -28,19 +30,19 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 void Renderer::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// draw 3d stuff
 	glUseProgram(mainProgram);
-
 	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
 	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
 	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
-
 	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPosition));
-
 	for (auto renderable : renderables) {
 		DrawRenderable(renderable);
 	}
+
+	// draw 2d stuff
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
