@@ -1,5 +1,12 @@
 #include "Renderer.h"
 
+Renderable text;
+
+std::vector<glm::vec3> quadPositions1 = { { 0, 720, 0 },{ 1280, 720, 0 },{ 0, 0, 0 },{ 1280, 0, 0 } };
+std::vector<glm::vec2> quadTexCoords1 = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
+std::vector<glm::vec3> quadNormals1 = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
+std::vector<GLuint> quadElements1 = { 1, 0, 2, 1, 2, 3 };
+
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -27,6 +34,30 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
+void Renderer::DrawUIRenderable(Renderable* renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
+
+	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
+
+	glm::mat4 m = glm::mat4(1.0);
+	m = glm::translate(m, *renderable->_position);
+	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
+
+	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(renderable->_color));
+
+	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
+}
+
 void Renderer::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -43,6 +74,10 @@ void Renderer::draw() {
 	}
 
 	// draw 2d stuff
+	glUseProgram(uiProgram);
+	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT);
+	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
+	DrawUIRenderable(&text);
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
@@ -78,6 +113,32 @@ void Renderer::RemoveFromRenderables(Renderable& renderable) {
 	glDeleteBuffers(1, &renderable._normalBufferLocation);
 	glDeleteBuffers(1, &renderable._elementBufferLocation);
 	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
+}
+
+GLuint createTexture(const char* filename) {
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+	if (!data) {
+		std::cout << "Failed to load texture" << std::endl;
+		return 0;
+	}
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if (nrChannels == 3) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	} else if (nrChannels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
+	std::cout << "Successfully loaded texture" << std::endl;
+	return texture;
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -139,6 +200,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glViewport(0, 0, scrnWidth, scrnHeight);
 
 	CreateShaderProgram(mainProgram, "./VertexShader", "./FragmentShader");
+	CreateShaderProgram(uiProgram, "./VertexShader2", "./FragmentShader2");
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -153,6 +215,10 @@ int Renderer::RenderLoop(Renderable **pp) {
 	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
+	mLocUI = glGetUniformLocation(uiProgram, "model");
+	vpLocUI = glGetUniformLocation(uiProgram, "viewProjection");
+	u_colorLocUI = glGetUniformLocation(uiProgram, "u_color");
+
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -161,6 +227,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 	// don't draw polygons if they are behind other polygons
 	glEnable(GL_DEPTH_TEST);
+
 	// don't draw polygons if they are facing away from the camera
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -172,6 +239,19 @@ int Renderer::RenderLoop(Renderable **pp) {
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
+
+	glm::vec3 goat = glm::vec3(0, -500, 0);
+	glm::vec3 lord = glm::vec3(0, 0, 0);
+	text._position = &goat;
+	text._rotation = &lord;
+	text._positions = quadPositions1;
+	text._texCoords = quadTexCoords1;
+	text._normals = quadNormals1;
+	text._elements = quadElements1;
+	text._color = glm::vec4(1, 1, 1, 1);
+	text._textureLocation = createTexture("./font.png");
+	GenerateBuffers(text);
+	PopulateBuffers(text);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.

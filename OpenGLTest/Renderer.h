@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <stb_image.h>
 
 #include "Renderable.h"
 #include "shader.h"
@@ -26,6 +27,7 @@ class Renderer {
 		~Renderer();
 	private:
 		void DrawRenderable(Renderable * renderable);
+		void DrawUIRenderable(Renderable * renderable);
 		void draw();
 		void GenerateBuffers(Renderable & renderable);
 		void PopulateBuffers(Renderable & renderable);
@@ -37,6 +39,7 @@ class Renderer {
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
+		GLuint uiProgram;
 		GLuint mLoc;
 		GLuint vLoc;
 		GLuint pLoc;
@@ -46,5 +49,9 @@ class Renderer {
 		GLfloat cameraFOV = 90.0f;
 		GLfloat nearClip = 0.1f;
 		GLfloat farClip = 100.0f;
+
+		GLuint mLocUI;
+		GLuint vpLocUI;
+		GLuint u_colorLocUI;
 };
 
