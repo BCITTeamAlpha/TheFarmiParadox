@@ -24,7 +24,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLoc, 1, glm::value_ptr(renderable->_color));
+	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -48,7 +48,7 @@ void Renderer::DrawUIRenderable(Renderable* renderable) {
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(renderable->_color));
+	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -126,9 +126,9 @@ GLuint createTexture(const char* filename) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	if (nrChannels == 3) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	} else if (nrChannels == 4) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
