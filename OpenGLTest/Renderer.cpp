@@ -2,11 +2,6 @@
 
 Renderable text;
 
-std::vector<glm::vec3> quadPositions1 = { { 0, 720, 0 },{ 1280, 720, 0 },{ 0, 0, 0 },{ 1280, 0, 0 } };
-std::vector<glm::vec2> quadTexCoords1 = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
-std::vector<glm::vec3> quadNormals1 = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements1 = { 1, 0, 2, 1, 2, 3 };
-
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -162,6 +157,43 @@ void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderP
 	}
 }
 
+glm::vec2 charToVec2(char c) {
+	int c_value = int(c);
+
+	int index = 47; // default to ' '
+	if (c_value>64 && c_value<91) // A-Z
+		index = c_value - 65;
+	else if (c_value>96 && c_value<123) // a-z
+		index = c_value - 97;
+	else if (c_value>47 && c_value<58) // 0-9
+		index = c_value - 22;
+	else if (c_value == 33) // !
+		index = 36;
+	else if (c_value == 63) // ?
+		index = 37;
+	else if (c_value == 43) // +
+		index = 38;
+	else if (c_value == 45) // -
+		index = 39;
+	else if (c_value == 61) // =
+		index = 40;
+	else if (c_value == 58) // :
+		index = 41;
+	else if (c_value == 46) // .
+		index = 42;
+	else if (c_value == 44) // ,
+		index = 43;
+	else if (c_value == 42) // *
+		index = 44;
+	else if (c_value == 36) // $
+		index = 45;
+
+	glm::vec2 ret;
+	ret.x = 0.0f + 0.125f * (index % 8);
+	ret.y = 1.0f - 0.125f * (index / 8);
+	return ret;
+}
+
 int Renderer::RenderLoop(Renderable **pp) {
 	//Setup GLFW
 	glfwInit();
@@ -240,14 +272,29 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
-	glm::vec3 goat = glm::vec3(0, -500, 0);
-	glm::vec3 lord = glm::vec3(0, 0, 0);
-	text._position = &goat;
-	text._rotation = &lord;
-	text._positions = quadPositions1;
-	text._texCoords = quadTexCoords1;
-	text._normals = quadNormals1;
-	text._elements = quadElements1;
+	glm::vec3 pos = glm::vec3(0, 0, 0);
+	glm::vec3 rot = glm::vec3(0, 0, 0);
+	text._position = &pos;
+	text._rotation = &rot;
+	std::string string = "Text rendering kind of working?";
+	for (int i = 0; i < string.size(); i++) {
+		glm::vec2 UV_topLeft = charToVec2(string[i]);
+		UV_topLeft;
+		text._positions.push_back(glm::vec3(32 * i, 32, 0)); // top-left
+		text._positions.push_back(glm::vec3(32 * i + 32, 32, 0)); //top-right
+		text._positions.push_back(glm::vec3(32 * i, 0, 0)); // bottom-left
+		text._positions.push_back(glm::vec3(32 * i + 32, 0, 0)); // bottom-right
+		text._texCoords.push_back(UV_topLeft);
+		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, 0));
+		text._texCoords.push_back(UV_topLeft + glm::vec2(0, -0.125));
+		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, -0.125));
+		text._elements.push_back(i * 4 + 1);
+		text._elements.push_back(i * 4 + 0);
+		text._elements.push_back(i * 4 + 2);
+		text._elements.push_back(i * 4 + 1);
+		text._elements.push_back(i * 4 + 2);
+		text._elements.push_back(i * 4 + 3);
+	}
 	text._color = glm::vec4(1, 1, 1, 1);
 	text._textureLocation = createTexture("./font.png");
 	GenerateBuffers(text);
