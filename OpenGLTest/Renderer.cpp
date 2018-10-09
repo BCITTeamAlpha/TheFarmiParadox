@@ -166,6 +166,10 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	// use alpha for transperancy
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
