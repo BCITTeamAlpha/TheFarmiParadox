@@ -31,6 +31,7 @@ class Renderer {
 		void PopulateBuffers(Renderable & renderable);
 		void AddToRenderables(Renderable & renderable);
 		void RemoveFromRenderables(Renderable & renderable);
+		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
 		std::list<Renderable*> renderables;
 		const GLuint WIDTH = 1280;

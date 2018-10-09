@@ -80,6 +80,27 @@ void Renderer::RemoveFromRenderables(Renderable& renderable) {
 	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
 }
 
+void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
+	//Create shader program
+	programLoc = glCreateProgram();
+	Shader *vShader = new Shader(vertexShaderPath, GL_VERTEX_SHADER);
+	glAttachShader(programLoc, vShader->GetShader());
+	delete(vShader);
+	Shader *fShader = new Shader(fragmentShaderPath, GL_FRAGMENT_SHADER);
+	glAttachShader(programLoc, fShader->GetShader());
+	delete(fShader);
+	glLinkProgram(programLoc);
+
+	//Check for shader program linking errors
+	GLint success;
+	GLchar infoLog[512];
+	glGetProgramiv(programLoc, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(programLoc, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+}
+
 int Renderer::RenderLoop(Renderable **pp) {
 	//Setup GLFW
 	glfwInit();
@@ -117,24 +138,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	//Create the viewport
 	glViewport(0, 0, scrnWidth, scrnHeight);
 
-	//Create shader program
-	mainProgram = glCreateProgram();
-	Shader *vShader = new Shader("./VertexShader", GL_VERTEX_SHADER);
-	glAttachShader(mainProgram, vShader->GetShader());
-	delete(vShader);
-	Shader *fShader = new Shader("./FragmentShader", GL_FRAGMENT_SHADER);
-	glAttachShader(mainProgram, fShader->GetShader());
-	delete(fShader);
-	glLinkProgram(mainProgram);
-
-	//Check for shader program linking errors
-	GLint success;
-	GLchar infoLog[512];
-	glGetProgramiv(mainProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(mainProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
+	CreateShaderProgram(mainProgram, "./VertexShader", "./FragmentShader");
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
