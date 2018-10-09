@@ -117,31 +117,24 @@ int Renderer::RenderLoop(Renderable **pp) {
 	//Create the viewport
 	glViewport(0, 0, scrnWidth, scrnHeight);
 
-	//Load vertex shader
-	Shader *vShader = new Shader("./VertexShader", GL_VERTEX_SHADER);
-
-	//Load fragment shader
-	Shader *fShader = new Shader("./FragmentShader", GL_FRAGMENT_SHADER);
-
-	//Link shaders to program
+	//Create shader program
 	mainProgram = glCreateProgram();
+	Shader *vShader = new Shader("./VertexShader", GL_VERTEX_SHADER);
 	glAttachShader(mainProgram, vShader->GetShader());
+	delete(vShader);
+	Shader *fShader = new Shader("./FragmentShader", GL_FRAGMENT_SHADER);
 	glAttachShader(mainProgram, fShader->GetShader());
+	delete(fShader);
 	glLinkProgram(mainProgram);
 
-	//Check for linking errors
+	//Check for shader program linking errors
 	GLint success;
 	GLchar infoLog[512];
-
 	glGetProgramiv(mainProgram, GL_LINK_STATUS, &success);
-
 	if (!success) {
 		glGetProgramInfoLog(mainProgram, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
-
-	delete(vShader);
-	delete(fShader);
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
