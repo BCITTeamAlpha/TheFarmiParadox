@@ -142,9 +142,6 @@ int main()
 	for (int tick = 0;; tick++)
 	{
 		physics->calcPhysics(1.0 / 59.94);
-
-		(*cSkin->_rotation).z += 1.0f;
-
 		Sleep(1000.0 / 59.94);
 	}
 }
