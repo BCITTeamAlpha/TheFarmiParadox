@@ -115,8 +115,8 @@ int main()
 
 	//set up a square test character
 	Character *c = new Character();
-	c->setMass(50);
-	c->setPos({ 60.0f, 70.0f });
+	c->mass = 50;
+	c->position = { 75.0f, 60.0f };
 
 	Renderable *cSkin = new Renderable();
 	cSkin->_z = 1;
@@ -141,7 +141,7 @@ int main()
 
 	for (int tick = 0;; tick++)
 	{
-		physics->calcPhysics(1000.0 / 59.94);
+		physics->calcPhysics(1.0 / 59.94);
 
 		(*cSkin->_rotation).z += 1.0f;
 
