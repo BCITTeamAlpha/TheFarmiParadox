@@ -9,7 +9,7 @@ public:
 	Weapon(std::string name, int charges, int damage);
 	std::string _name;
 	int _charges;
-	int _damage;s
+	int _damage;
 	void use();
 private:
 };
