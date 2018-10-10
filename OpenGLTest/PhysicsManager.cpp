@@ -39,8 +39,6 @@ void PhysicsManager::calcPhysics(float dTime)
 			v = glm::normalize(v) * VELOCITY_CAP;
 		}
 
-		std::cout << "V = " << glm::length(v) << std::endl;
-
 		object->velocity = v;
 	}
 }
