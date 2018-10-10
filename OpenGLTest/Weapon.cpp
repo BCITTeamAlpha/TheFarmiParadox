@@ -10,7 +10,7 @@ Weapon::Weapon(std::string name, int charges, int damage) {
 	_damage = damage;
 }
 
+// Uses a charge when used by player
 void Weapon::use() {
-	// Uses charge when used by player
 	_charges--;
 }
