@@ -41,7 +41,7 @@ void Renderer::DrawUIRenderable(Renderable* renderable) {
 	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, *renderable->_position);
+	m = glm::translate(m, renderable->getPosition3());
 	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
@@ -272,7 +272,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
-	glm::vec3 pos = glm::vec3(0, 0, 0);
+	glm::vec2 pos = glm::vec2(0, 0);
 	glm::vec3 rot = glm::vec3(0, 0, 0);
 	text._position = &pos;
 	text._rotation = &rot;
