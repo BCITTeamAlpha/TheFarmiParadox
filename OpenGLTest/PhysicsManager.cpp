@@ -16,7 +16,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		//do physics on each object
 		PhysicsObject *object = objects.at(i);
 		glm::vec2 pos = object->position;
-		glm::vec2 v = object->velocity;
+		glm::vec2 vel = object->velocity;
 
 		if (object->mass == 0)
 		{
@@ -25,21 +25,33 @@ void PhysicsManager::calcPhysics(float dTime)
 		}
 
 		glm::vec2 a = gravAcceleration(pos);
+		glm::vec2 move = vel * dTime + a * dTime * dTime / 2.0f;
+		vel += a * dTime;
+		pos += move;
 
-		glm::vec2 move = v * dTime + a * dTime * dTime / 2.0f;
-
-		//set new position
-		object->position = pos + move;
-
-		//cap maximum velocity
-		v += a * dTime;
-		
-		if (glm::length(v) > VELOCITY_CAP)
-		{
-			v = glm::normalize(v) * VELOCITY_CAP;
+		for (Planetoid planet : *planets) {
+			glm::vec2 planet_to_obj = pos - planet._pos;
+			GLfloat len = glm::length(planet_to_obj) - 3;
+			if (len < planet._r) {
+				planet_to_obj /= len;
+				pos = planet._pos + planet._r * planet_to_obj;
+				if (glm::dot(vel, planet_to_obj) < 0) {
+					vel = 10.0f * glm::vec2(-planet_to_obj.y, planet_to_obj.x);
+				}
+				break;
+			}
 		}
 
-		object->velocity = v;
+		//set new position
+		object->position = pos;
+
+		//cap maximum velocity
+		if (glm::length(vel) > VELOCITY_CAP)
+		{
+			vel = glm::normalize(vel) * VELOCITY_CAP;
+		}
+
+		object->velocity = vel;
 	}
 }
 
