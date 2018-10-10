@@ -1,0 +1,18 @@
+#version 330 core
+
+in vec4 v_color;
+in vec2 v_texCoord;
+
+out vec4 o_fragColor;
+
+uniform sampler2D u_textureSampler;
+
+void main() {
+	vec4 color = v_color;
+
+	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
+		color *= texture(u_textureSampler, v_texCoord);
+	}
+
+	o_fragColor = color;
+}

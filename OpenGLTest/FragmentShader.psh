@@ -7,6 +7,7 @@ in vec3 v_normal;
 
 out vec4 o_fragColor;
 
+uniform sampler2D u_textureSampler;
 uniform vec3 lightPosition;
 uniform float attenuationCoefficient = 0.1f;
 
@@ -35,5 +36,11 @@ void main() {
 	float attenuation = 1.0f / length(L * attenuationCoefficient);
 	attenuation *= attenuation;
 
-	o_fragColor = vec4(v_color.xyz * lambert * attenuation * proceduralTile(v_texCoord, 1.0, 0.5), v_color.w);
+	vec4 color = vec4(v_color.xyz * lambert * attenuation * proceduralTile(v_texCoord, 1.0, 0.5), v_color.w);
+
+	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
+		color *= texture(u_textureSampler, v_texCoord);
+	}
+	
+	o_fragColor = color;
 }

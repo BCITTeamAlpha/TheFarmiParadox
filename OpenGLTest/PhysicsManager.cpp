@@ -16,7 +16,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		//do physics on each object
 		PhysicsObject *object = objects.at(i);
 		glm::vec2 pos = object->position;
-		glm::vec2 v = object->velocity;
+		glm::vec2 vel = object->velocity;
 
 		if (object->mass == 0)
 		{
@@ -25,21 +25,48 @@ void PhysicsManager::calcPhysics(float dTime)
 		}
 
 		glm::vec2 a = gravAcceleration(pos);
+		glm::vec2 move = vel * dTime + a * dTime * dTime / 2.0f;
+		vel += a * dTime;
+		pos += move;
 
-		glm::vec2 move = v * dTime + a * dTime * dTime / 2.0f;
+		// rotates object so bottom is in direction of acceleration
+		object->rotation = glm::vec3(0, 0, std::atan2(a.y, a.x) * 180.0f / M_PI);
+
+		// takes by reference and modifies character pos and vel
+		characterMovement(pos, vel);
 
 		//set new position
-		object->position = pos + move;
+		object->position = pos;
 
 		//cap maximum velocity
-		v += a * dTime;
-		
-		if (glm::length(v) > VELOCITY_CAP)
+		if (glm::length(vel) > VELOCITY_CAP)
 		{
-			v = glm::normalize(v) * VELOCITY_CAP;
+			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
-		object->velocity = v;
+		object->velocity = vel;
+	}
+}
+
+void PhysicsManager::characterMovement(glm::vec2 &pos, glm::vec2 &vel) {
+	float player_speed = 10.0f;
+	float player_radius = 3.5f;
+	float player_jump_speed = 10.0f;
+	float input_xAxis = -1.0f;
+	float input_jump = 1.0f;
+
+	for (Planetoid planet : *planets) {
+		glm::vec2 planet_to_obj = pos - planet._pos;
+		GLfloat len = glm::length(planet_to_obj) - player_radius;
+		if (len < planet._r) {
+			planet_to_obj /= len;
+			pos = planet._pos + planet._r * planet_to_obj;
+			if (glm::dot(vel, planet_to_obj) < 0.0f) {
+				vel = input_xAxis * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
+			}
+			vel += input_jump * player_jump_speed * planet_to_obj;
+			break;
+		}
 	}
 }
 
