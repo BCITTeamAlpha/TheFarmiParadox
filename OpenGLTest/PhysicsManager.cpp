@@ -22,8 +22,7 @@ void PhysicsManager::calcPhysics(float dTime)
 			return;
 		}
 
-		glm::vec2 f = netAcceleration(pos, object->getMass());
-		glm::vec2 a = f / object->getMass();
+		glm::vec2 a = gravAcceleration(pos);
 
 		glm::vec2 move = v * dTime + a * dTime * dTime / 2.0f;
 
@@ -36,18 +35,17 @@ void PhysicsManager::calcPhysics(float dTime)
 }
 
 //Finds the net force on a given point in space
-glm::vec2 PhysicsManager::netAcceleration(glm::vec2 pos, float m)
+glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos)
 {
 	glm::vec2 nAccel = glm::vec2(0, 0);
-	std::vector<float> accels = std::vector<float>();
 
 	//calculate the force of each planetoid and add them to the vector
 	for (Planetoid p : *planets)
 	{
 		//calculate distance between planet and object
-		glm::vec2 dir = glm::vec2(p._pos.x-pos.x, p._pos.y-pos.y);
-		std::cout << dir.x << ", " << dir.y << std::endl;
-		float dist = glm::length(dir) * p.C_DIST;
+		glm::vec2 dir = p._pos - pos;
+		
+		float dist = glm::length(dir) * p.C_SCALE;
 		
 		//ensure distance is not zero to prevent dividing by zero
 		if (dist == 0.0f)
@@ -59,7 +57,6 @@ glm::vec2 PhysicsManager::netAcceleration(glm::vec2 pos, float m)
 		float a = p._m / (dist * dist);
 
 		//add force to the total force
-		accels.push_back(a);
 		nAccel += dir * a;
 	}
 
