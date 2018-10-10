@@ -119,7 +119,7 @@ int main()
 	c->setPos({ 60.0f, 70.0f });
 
 	Renderable *cSkin = new Renderable();
-	cSkin->_z = 0;
+	cSkin->_z = 1;
 	cSkin->_positions = quadPositions;
 	cSkin->_texCoords = quadTexCoords;
 	cSkin->_normals = quadNormals;
