@@ -16,6 +16,8 @@
 #include "Input.h"
 #include <thread>
 
+const int physUpdates = 30;
+
 GLFWwindow* window;
 Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
 
@@ -93,6 +95,7 @@ int main()
 	map = new Map(planets, 128, 128);
 
 	Renderable *mapSkin = new Renderable();
+	mapSkin->_z = 0;
 	mapSkin->_positions = MarchingSquares::GenerateMesh(*map);
 	mapSkin->_color = glm::vec4(0, 1, 0, 1);
 
@@ -112,9 +115,11 @@ int main()
 
 	//set up a square test character
 	Character *c = new Character();
-	c->setPos({ 64.0f, 32.0f, 0.0f });
+	c->mass = 50;
+	c->position = { 75.0f, 60.0f };
 
 	Renderable *cSkin = new Renderable();
+	cSkin->_z = 1;
 	cSkin->_positions = quadPositions;
 	cSkin->_texCoords = quadTexCoords;
 	cSkin->_normals = quadNormals;
@@ -134,9 +139,12 @@ int main()
 	glfwSetKeyCallback(window, KeyCallback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
-	for (int tick = 0;; tick++) {
-		physics->calcPhysics();
+	for (int tick = 0;; tick++)
+	{
+		physics->calcPhysics(1.0 / 59.94);
+
 		(*cSkin->_rotation).z += 1.0f;
-		Sleep(1000.0f / 59.94f);
+
+		Sleep(1000.0 / 59.94);
 	}
 }

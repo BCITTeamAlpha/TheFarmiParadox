@@ -4,8 +4,3 @@ PhysicsObject::PhysicsObject()
 {
 
 }
-
-float PhysicsObject::getMass()
-{
-	return mass;
-}
