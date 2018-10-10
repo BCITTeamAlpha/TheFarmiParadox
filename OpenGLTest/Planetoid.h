@@ -13,7 +13,6 @@ class Planetoid {
 		const float _r;
 		const float _m;
 		float distanceFunction(int x, int y);
-		static const float C_GP;
-		static const float C_SCALE;
+		static const float C_MASS;
 	private:
 };
