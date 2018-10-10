@@ -5,12 +5,12 @@ GameObject::GameObject()
 
 }
 
-glm::vec3 GameObject::getPos()
+glm::vec2 GameObject::getPos()
 {
 	return position;
 }
 
-void GameObject::setPos(glm::vec3 p)
+void GameObject::setPos(glm::vec2 p)
 {
 	position = p;
 }
