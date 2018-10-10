@@ -116,7 +116,7 @@ int main()
 	//set up a square test character
 	Character *c = new Character();
 	c->setMass(50);
-	c->setPos({ 64.0f, 32.0f });
+	c->setPos({ 60.0f, 70.0f });
 
 	Renderable *cSkin = new Renderable();
 	cSkin->_z = 0;

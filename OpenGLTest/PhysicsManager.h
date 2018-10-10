@@ -3,6 +3,7 @@
 #include "Map.h"
 #include "PhysicsObject.h"
 #include <glm/glm.hpp>
+#include <iostream>
 
 class PhysicsManager {
 public:
@@ -10,7 +11,7 @@ public:
 	void PhysicsManager::calcPhysics(float dTime);
 	void addObject(PhysicsObject *obj);
 private:
-	glm::vec2 netForce(glm::vec2 pos, float m);
+	glm::vec2 netAcceleration(glm::vec2 pos, float m);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	Map *map;
