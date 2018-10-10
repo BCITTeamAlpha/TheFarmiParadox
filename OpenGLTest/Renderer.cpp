@@ -13,7 +13,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, *renderable->_position);
+	m = glm::translate(m, renderable->getPosition3());
 	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));

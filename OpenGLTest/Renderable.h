@@ -6,11 +6,14 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <iostream>
 
 class Renderable {
 	public:
 		Renderable();
-		glm::vec3 *_position;
+		glm::vec3 getPosition3();
+		float _z;
+		glm::vec2 *_position;
 		glm::vec3 *_rotation;
 		glm::vec4 _color = glm::vec4(1.0); // initialize color to white
 		std::vector<glm::vec3> _positions;
