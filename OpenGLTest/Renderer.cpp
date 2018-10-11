@@ -23,6 +23,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
+	glUniform1i(u_fullBrightLoc, renderable->_fullBright);
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -104,8 +105,8 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
 
 	glBindTexture(GL_TEXTURE_2D, renderable._textureLocation);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int size = std::sqrt((renderable._texture.size() / 4));
@@ -124,8 +125,8 @@ void Renderer::PopulateBuffers(UIRenderable& UIrenderable) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elements.size() * sizeof(GLuint), UIrenderable._elements.data(), GL_STATIC_DRAW);
 
 	glBindTexture(GL_TEXTURE_2D, UIrenderable._textureLocation);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int size = std::sqrt((UIrenderable._texture.size() / 4));
@@ -216,6 +217,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	mLoc = glGetUniformLocation(mainProgram, "model");
 	vLoc = glGetUniformLocation(mainProgram, "view");
 	pLoc = glGetUniformLocation(mainProgram, "projection");
+	u_fullBrightLoc = glGetUniformLocation(mainProgram, "u_fullBright");
 	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
@@ -242,7 +244,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
-	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	UIRenderable text;
 	text.BuildWithString("Text rendering kind of working?");

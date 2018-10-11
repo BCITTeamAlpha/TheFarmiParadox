@@ -51,6 +51,7 @@ class Renderer {
 		GLuint mLoc;
 		GLuint vLoc;
 		GLuint pLoc;
+		GLuint u_fullBrightLoc;
 		GLuint u_colorLoc;
 		GLuint lightPosLoc;
 		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
