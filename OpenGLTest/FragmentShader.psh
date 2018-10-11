@@ -19,12 +19,21 @@ vec3 markusToneMap(vec3 c) {
 	return clamp(c, 0.0f, 1.0f);
 }
 
-#define TileScale 10.0
+#define scale 10.0
 
 float proceduralTile(vec2 uv, float light, float dark) {
-	float U = floor(uv.x * TileScale);
-	float V = floor(uv.y * TileScale);
+	float U = floor(uv.x * scale);
+	float V = floor(uv.y * scale);
 	return max(dark, light * mod((U + V), 2.0));
+}
+
+float proceduralDot(vec2 uv, float light, float dark) {
+	uv *= scale;
+	if (mod(uv.x, 2) < 1) {
+		uv.y += 0.5;
+	}
+	uv = fract(uv) - vec2(0.5);
+	return (dot(uv, uv) > 0.1) ? light : dark;
 }
 
 void main() {
@@ -44,7 +53,7 @@ void main() {
 	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
 		color *= texture(u_textureSampler, v_texCoord);
 	} else {
-		color.xyz *= proceduralTile(v_texCoord, 1.0, 0.5);
+		color.xyz *= proceduralDot(v_texCoord, 1.0, 0.5);
 	}
 	
 	o_fragColor = color;
