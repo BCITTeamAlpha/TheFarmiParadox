@@ -20,6 +20,7 @@ const int physUpdates = 30;
 
 GLFWwindow* window;
 Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
+double xpos, ypos;
 
 Renderable *p;
 Renderable ** const pp = &p;
@@ -65,6 +66,23 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		break;
 	}
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+
+	glfwGetCursorPos(window, &xpos, &ypos);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
+	{
+		printf("Right mouse button clicked at: ");
+		printf("%lf %lf\n", xpos, ypos);
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
+	{
+		printf("left mouse button clicked at: ");
+		printf("%lf %lf\n", xpos, ypos);
+	}
+}
+
 
 void TestFunction() {
 	std::cout << "TestFunction called" << std::endl;
@@ -115,8 +133,8 @@ int main()
 
 	//set up a square test character
 	Character *c = new Character();
-	c->setMass(50);
-	c->setPos({ 60.0f, 70.0f });
+	c->mass = 50;
+	c->position = { 75.0f, 60.0f };
 
 	Renderable *cSkin = new Renderable();
 	cSkin->_z = 1;
@@ -136,15 +154,12 @@ int main()
 	physics->addObject(c);
 
 	//Set input handling callbacks
-	glfwSetKeyCallback(window, KeyCallback);
+	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
 	for (int tick = 0;; tick++)
 	{
-		physics->calcPhysics(1000.0 / 59.94);
-
-		(*cSkin->_rotation).z += 1.0f;
-
+		physics->calcPhysics(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
 	}
 }
