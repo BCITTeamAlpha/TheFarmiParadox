@@ -5,8 +5,8 @@
 class Pickup : public PhysicsObject {
 public:
 	Pickup();
-	Pickup(Weapon weapon);
-	Weapon pickedUp();
+	Pickup(Weapon* weapon);
+	Weapon* pickedUp();
 private:
-	Weapon _weapon;
+	Weapon* _weapon;
 };

@@ -10,15 +10,14 @@
 class Inventory : public GameObject {
 public:
 	Inventory();
-	Inventory(std::vector<Weapon> slots);
-	std::vector<Weapon> _slots;
+	std::vector<Weapon*> _slots;
+	Weapon* currentSlot;
 
-	Weapon selectSlot();
+	Weapon* selectSlot();
 	Pickup dropSlot();
 	void emptySlot();
 	void addItem(Pickup item);
 
 private:
-	Weapon currentSlot;
 	const int capacity = 5;
 };
