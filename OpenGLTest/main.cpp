@@ -151,22 +151,22 @@ int main()
 	GLubyte backgroundImage[128][128][4];
 	glm::vec4 color1 = { 0, 249, 255, 255 };
 	glm::vec4 color2 = { 99, 0, 255, 255 };
-	glm::vec4 color3 = { 0, 0, 0, 255 };
+	glm::vec4 color3 = { 49, 0, 127, 0 };
 	for (int x = 0; x < 128; x++) {
 		for (int y = 0; y < 128; y++) {
 			glm::lowp_u8vec4 col;
 			float val = std::max(0.0f, map->value(x, y));
 			if (val < 6) {
 				col = glm::mix(color1, color2, (val) / 6.0f);
-			} else if (val < 12) {
-				col = glm::mix(color2, color3, (val - 6.0f) / 6.0f);
+			} else if (val < 10) {
+				col = glm::mix(color2, color3, (val - 6.0f) / 4.0f);
 			} else {
 				col = color3;
 			}
 			backgroundImage[y][x][0] = col.x / 2.0f;
 			backgroundImage[y][x][1] = col.y / 2.0f;
 			backgroundImage[y][x][2] = col.z / 2.0f;
-			backgroundImage[y][x][3] = col.w / 2.0f;
+			backgroundImage[y][x][3] = col.w;
 		}
 	}
 	Renderable* backgroundSkin = new Renderable();

@@ -167,6 +167,10 @@ void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderP
 	}
 }
 
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
+}
+
 int Renderer::RenderLoop(Renderable **pp) {
 	//Setup GLFW
 	glfwInit();
@@ -200,6 +204,12 @@ int Renderer::RenderLoop(Renderable **pp) {
 		glfwTerminate();
 		return EXIT_FAILURE;
 	}
+
+	// spew OpenGL errors to stderr
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, GL_FALSE);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, 0x826b, 0, NULL, GL_FALSE);
+	glDebugMessageCallback(MessageCallback, 0);
+	glEnable(GL_DEBUG_OUTPUT);
 
 	//Create the viewport
 	glViewport(0, 0, scrnWidth, scrnHeight);
