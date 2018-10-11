@@ -17,6 +17,7 @@
 #include <stb_image.h>
 
 #include "Renderable.h"
+#include "UIRenderable.h"
 #include "shader.h"
 
 extern GLFWwindow *window;
@@ -27,16 +28,22 @@ class Renderer {
 		int RenderLoop(Renderable ** pp);
 		~Renderer();
 	private:
-		void DrawRenderable(Renderable * renderable);
-		void DrawUIRenderable(Renderable * renderable);
 		void draw();
+
 		void GenerateBuffers(Renderable & renderable);
 		void PopulateBuffers(Renderable & renderable);
 		void AddToRenderables(Renderable & renderable);
-		void RemoveFromRenderables(Renderable & renderable);
+		void DrawRenderable(Renderable * renderable);
+
+		void GenerateBuffers(UIRenderable & UIrenderable);
+		void PopulateBuffers(UIRenderable & UIrenderable);
+		void AddToRenderables(UIRenderable & UIrenderable);
+		void DrawUIRenderable(UIRenderable * UIrenderable);
+
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
 		std::list<Renderable*> renderables;
+		std::list<UIRenderable*> UIrenderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;

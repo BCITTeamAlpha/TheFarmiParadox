@@ -184,6 +184,7 @@
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="UIComponent.cpp" />
     <ClCompile Include="UIManager.cpp" />
+    <ClCompile Include="UIRenderable.cpp" />
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +220,7 @@
     <ClInclude Include="ISubscriber.h" />
     <ClInclude Include="UIComponent.h" />
     <ClInclude Include="UIManager.h" />
+    <ClInclude Include="UIRenderable.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

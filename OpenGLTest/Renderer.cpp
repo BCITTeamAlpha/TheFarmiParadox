@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-Renderable text;
-
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -29,9 +27,9 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void Renderer::DrawUIRenderable(Renderable* renderable) {
+void Renderer::DrawUIRenderable(UIRenderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
@@ -41,7 +39,7 @@ void Renderer::DrawUIRenderable(Renderable* renderable) {
 	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, renderable->getPosition3());
+	m = glm::translate(m, *renderable->_position);
 	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
@@ -72,7 +70,9 @@ void Renderer::draw() {
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-	DrawUIRenderable(&text);
+	for (auto UIrenderable : UIrenderables) {
+		DrawUIRenderable(UIrenderable);
+	}
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
@@ -80,6 +80,12 @@ void Renderer::GenerateBuffers(Renderable &renderable) {
 	glGenBuffers(1, &renderable._texCoordBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
+}
+
+void Renderer::GenerateBuffers(UIRenderable &UIrenderable) {
+	glGenBuffers(1, &UIrenderable._positionBufferLocation);
+	glGenBuffers(1, &UIrenderable._texCoordBufferLocation);
+	glGenBuffers(1, &UIrenderable._elementBufferLocation);
 }
 
 void Renderer::PopulateBuffers(Renderable &renderable) {
@@ -96,18 +102,27 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
 }
 
+void Renderer::PopulateBuffers(UIRenderable& UIrenderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable._positionBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, UIrenderable._positions.size() * sizeof(glm::vec2), UIrenderable._positions.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable._texCoordBufferLocation);
+	glBufferData(GL_ARRAY_BUFFER, UIrenderable._texCoords.size() * sizeof(glm::vec2), UIrenderable._texCoords.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elementBufferLocation);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elements.size() * sizeof(GLuint), UIrenderable._elements.data(), GL_STATIC_DRAW);
+}
+
 void Renderer::AddToRenderables(Renderable& renderable) {
 	GenerateBuffers(renderable);
 	PopulateBuffers(renderable);
 	renderables.push_back(&renderable);
 }
 
-void Renderer::RemoveFromRenderables(Renderable& renderable) {
-	glDeleteBuffers(1, &renderable._positionBufferLocation);
-	glDeleteBuffers(1, &renderable._texCoordBufferLocation);
-	glDeleteBuffers(1, &renderable._normalBufferLocation);
-	glDeleteBuffers(1, &renderable._elementBufferLocation);
-	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
+void Renderer::AddToRenderables(UIRenderable& UIrenderable) {
+	GenerateBuffers(UIrenderable);
+	PopulateBuffers(UIrenderable);
+	UIrenderables.push_back(&UIrenderable);
 }
 
 GLuint createTexture(const char* filename) {
@@ -155,43 +170,6 @@ void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderP
 		glGetProgramInfoLog(programLoc, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
-}
-
-glm::vec2 charToVec2(char c) {
-	int c_value = int(c);
-
-	int index = 47; // default to ' '
-	if (c_value>64 && c_value<91) // A-Z
-		index = c_value - 65;
-	else if (c_value>96 && c_value<123) // a-z
-		index = c_value - 97;
-	else if (c_value>47 && c_value<58) // 0-9
-		index = c_value - 22;
-	else if (c_value == 33) // !
-		index = 36;
-	else if (c_value == 63) // ?
-		index = 37;
-	else if (c_value == 43) // +
-		index = 38;
-	else if (c_value == 45) // -
-		index = 39;
-	else if (c_value == 61) // =
-		index = 40;
-	else if (c_value == 58) // :
-		index = 41;
-	else if (c_value == 46) // .
-		index = 42;
-	else if (c_value == 44) // ,
-		index = 43;
-	else if (c_value == 42) // *
-		index = 44;
-	else if (c_value == 36) // $
-		index = 45;
-
-	glm::vec2 ret;
-	ret.x = 0.0f + 0.125f * (index % 8);
-	ret.y = 1.0f - 0.125f * (index / 8);
-	return ret;
 }
 
 int Renderer::RenderLoop(Renderable **pp) {
@@ -272,33 +250,14 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
-	glm::vec2 pos = glm::vec2(0, 0);
+	UIRenderable text;
+	text.BuildWithString("Text rendering kind of working?");
+	glm::vec3 pos = glm::vec3(0, 0, 0);
 	glm::vec3 rot = glm::vec3(0, 0, 0);
 	text._position = &pos;
 	text._rotation = &rot;
-	std::string string = "Text rendering kind of working?";
-	for (int i = 0; i < string.size(); i++) {
-		glm::vec2 UV_topLeft = charToVec2(string[i]);
-		UV_topLeft;
-		text._positions.push_back(glm::vec3(32 * i, 32, 0)); // top-left
-		text._positions.push_back(glm::vec3(32 * i + 32, 32, 0)); //top-right
-		text._positions.push_back(glm::vec3(32 * i, 0, 0)); // bottom-left
-		text._positions.push_back(glm::vec3(32 * i + 32, 0, 0)); // bottom-right
-		text._texCoords.push_back(UV_topLeft);
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, 0));
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0, -0.125));
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, -0.125));
-		text._elements.push_back(i * 4 + 1);
-		text._elements.push_back(i * 4 + 0);
-		text._elements.push_back(i * 4 + 2);
-		text._elements.push_back(i * 4 + 1);
-		text._elements.push_back(i * 4 + 2);
-		text._elements.push_back(i * 4 + 3);
-	}
-	text._color = glm::vec4(1, 1, 1, 1);
 	text._textureLocation = createTexture("./font.png");
-	GenerateBuffers(text);
-	PopulateBuffers(text);
+	AddToRenderables(text);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
