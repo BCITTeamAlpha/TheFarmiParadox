@@ -16,6 +16,7 @@ class UIRenderable {
 		std::vector<glm::vec2> _positions;
 		std::vector<glm::vec2> _texCoords;
 		std::vector<GLuint> _elements;
+		std::vector<GLubyte> _texture;
 		GLuint _positionBufferLocation;
 		GLuint _texCoordBufferLocation;
 		GLuint _elementBufferLocation;

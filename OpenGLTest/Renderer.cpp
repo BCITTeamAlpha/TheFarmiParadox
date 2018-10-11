@@ -27,28 +27,28 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void Renderer::DrawUIRenderable(UIRenderable* renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
+void Renderer::DrawUIRenderable(UIRenderable* UIrenderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable->_elementBufferLocation);
 
-	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
+	glBindTexture(GL_TEXTURE_2D, UIrenderable->_textureLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, *renderable->_position);
-	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::translate(m, *UIrenderable->_position);
+	m = glm::rotate(m, (*UIrenderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, (*UIrenderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, (*UIrenderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
+	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->_color)));
 
-	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, UIrenderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
 void Renderer::draw() {
@@ -80,12 +80,14 @@ void Renderer::GenerateBuffers(Renderable &renderable) {
 	glGenBuffers(1, &renderable._texCoordBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
+	glGenTextures(1, &renderable._textureLocation);
 }
 
 void Renderer::GenerateBuffers(UIRenderable &UIrenderable) {
 	glGenBuffers(1, &UIrenderable._positionBufferLocation);
 	glGenBuffers(1, &UIrenderable._texCoordBufferLocation);
 	glGenBuffers(1, &UIrenderable._elementBufferLocation);
+	glGenTextures(1, &UIrenderable._textureLocation);
 }
 
 void Renderer::PopulateBuffers(Renderable &renderable) {
@@ -100,6 +102,15 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
+
+	glBindTexture(GL_TEXTURE_2D, renderable._textureLocation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int size = std::sqrt((renderable._texture.size() / 4));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Renderer::PopulateBuffers(UIRenderable& UIrenderable) {
@@ -111,6 +122,15 @@ void Renderer::PopulateBuffers(UIRenderable& UIrenderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elementBufferLocation);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elements.size() * sizeof(GLuint), UIrenderable._elements.data(), GL_STATIC_DRAW);
+
+	glBindTexture(GL_TEXTURE_2D, UIrenderable._textureLocation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int size = std::sqrt((UIrenderable._texture.size() / 4));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, UIrenderable._texture.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Renderer::AddToRenderables(Renderable& renderable) {
@@ -123,32 +143,6 @@ void Renderer::AddToRenderables(UIRenderable& UIrenderable) {
 	GenerateBuffers(UIrenderable);
 	PopulateBuffers(UIrenderable);
 	UIrenderables.push_back(&UIrenderable);
-}
-
-GLuint createTexture(const char* filename) {
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
-	if (!data) {
-		std::cout << "Failed to load texture" << std::endl;
-		return 0;
-	}
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if (nrChannels == 3) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	} else if (nrChannels == 4) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	}
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
-	std::cout << "Successfully loaded texture" << std::endl;
-	return texture;
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -252,11 +246,12 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 	UIRenderable text;
 	text.BuildWithString("Text rendering kind of working?");
-	glm::vec3 pos = glm::vec3(0, 0, 0);
-	glm::vec3 rot = glm::vec3(0, 0, 0);
-	text._position = &pos;
-	text._rotation = &rot;
-	text._textureLocation = createTexture("./font.png");
+	text._position = &glm::vec3();
+	text._rotation = &glm::vec3();
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	GLubyte* goat = stbi_load("./font.png", &width, &height, &nrChannels, 0);
+	text._texture.assign(goat, goat + width * height * 4);
 	AddToRenderables(text);
 
 	while (!glfwWindowShouldClose(window)) {

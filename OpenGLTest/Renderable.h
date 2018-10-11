@@ -20,6 +20,7 @@ class Renderable {
 		std::vector<glm::vec3> _normals;
 		std::vector<glm::vec2> _texCoords;
 		std::vector<GLuint> _elements;
+		std::vector<GLubyte> _texture;
 		GLuint _positionBufferLocation;
 		GLuint _texCoordBufferLocation;
 		GLuint _normalBufferLocation;
