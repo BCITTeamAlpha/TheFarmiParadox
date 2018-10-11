@@ -53,7 +53,7 @@ void main() {
 	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
 		color *= texture(u_textureSampler, v_texCoord);
 	} else {
-		color.xyz *= proceduralDot(v_texCoord, 1.0, 0.5);
+		color.xyz *= proceduralTile(v_texCoord, 1.0, 0.5);
 	}
 	
 	o_fragColor = color;
