@@ -93,6 +93,7 @@ std::vector<glm::vec3> quadPositions = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5
 std::vector<glm::vec2> quadTexCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
 std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
 std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
+std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0, 0, 0 },{ 128, 0, 0 } };
 
 int main()
 {
@@ -115,7 +116,7 @@ int main()
 	Renderable *mapSkin = new Renderable();
 	mapSkin->_z = 0;
 	mapSkin->_positions = MarchingSquares::GenerateMesh(*map);
-	mapSkin->_color = glm::vec4(0, 1, 0, 1);
+	mapSkin->_color = glm::vec4(0.5, 1, 0, 1);
 
 	for (GLuint i = 0; i < mapSkin->_positions.size(); i++)
 	{
@@ -146,9 +147,36 @@ int main()
 
 	c->setRenderable(cSkin);
 
+	// setup background
+	GLubyte backgroundImage[128][128][4];
+	for (int x = 0; x < 128; x++) {
+		for (int y = 0; y < 128; y++) {
+			float val = map->value(x, y) * 0.1f;
+			val = std::max(0.0f, val);
+			val = std::min(1.0f, val);
+			val = 1.0f - val;
+			val = val * val;
+			backgroundImage[y][x][0] = 63;
+			backgroundImage[y][x][1] = 127;
+			backgroundImage[y][x][2] = 255;
+			backgroundImage[y][x][3] = 255 * val;
+		}
+	}
+	Renderable* backgroundSkin = new Renderable();
+	GameObject background;
+	background.setRenderable(backgroundSkin);
+	backgroundSkin->_z = -1;
+	backgroundSkin->_positions = backgroundPositions;
+	backgroundSkin->_texCoords = quadTexCoords;
+	backgroundSkin->_normals = quadNormals;
+	backgroundSkin->_elements = quadElements;
+	backgroundSkin->_texture.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
+	backgroundSkin->_fullBright = true;
+
 	// send Renderables to renderer
 	SendToRenderer(*mapSkin);
 	SendToRenderer(*cSkin);
+	SendToRenderer(*backgroundSkin);
 
 	// send physicsobjects to physicsmanager
 	physics->addObject(c);
