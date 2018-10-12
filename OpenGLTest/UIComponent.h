@@ -21,19 +21,24 @@ enum AnchorType {
 
 class UIComponent : public Renderable {
 public:
-    UIComponent(float width, float height, float x, float y, float z = 0.0f);
+    UIComponent(UIComponent *parent, float width, float height, float x, float y, float z = 0.0f);
+    ~UIComponent();
+
+    void resize();
 
     bool                visible;
     glm::vec2           size;
-    glm::vec3           anchor;
+    glm::vec2           anchor;
     VerticalAnchor      vAnchor;
     HorizontalAnchor    hAnchor;
     AnchorType          anchorType;
     UIComponent         *parent;
 
-    std::vector<UIComponent*> children;
-private:
+    glm::vec2           screenPosition;
+    glm::vec2           screenSize;
+    glm::vec3           rotation;
 
+    std::vector<UIComponent*> children;
 };
 
 #endif

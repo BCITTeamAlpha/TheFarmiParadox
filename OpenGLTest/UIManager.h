@@ -10,14 +10,13 @@
 
 class UIManager {
 public:
-	UIManager();
+	UIManager(float width, float height);
 
     void resize();
     void add(const UIComponent* component);
 private:
-    void sizeChildren(const UIComponent* parent);
-
-    UIComponent                                         _root;
+    UIComponent _root;
+    glm::vec2   _screenSize;
 };
 
 #endif
