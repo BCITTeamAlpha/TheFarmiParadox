@@ -42,22 +42,46 @@ void SendToRenderer(Renderable &renderable)
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
 	case GLFW_KEY_W:
-		if (action == GLFW_RELEASE)
-		{
-			std::cout << "W key released" << std::endl;
-		}
 		if (action == GLFW_PRESS)
 		{
-			std::cout << "W key pressed" << std::endl;
+			//std::cout << "W key pressed" << std::endl;
+			TypeParam<float> param(-1.0f);
+			EventManager::notify(PLAYER_MOVE, &param, false);
 		}
-		if (action == GLFW_REPEAT)
+		if (action == GLFW_REPEAT) {
+			//std::cout << "W key REPEATED" << std::endl;
+		}
+		if (action == GLFW_RELEASE)
 		{
-			std::cout << "W key REPEATED" << std::endl;
+			//std::cout << "W key released" << std::endl;
+			TypeParam<float> param(0.0f);
+			EventManager::notify(PLAYER_MOVE, &param, false);
 		}
 		break;
-	case GLFW_KEY_A:
+	case GLFW_KEY_S:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<float> param(1.0f);
+			EventManager::notify(PLAYER_MOVE, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<float> param(0.0f);
+			EventManager::notify(PLAYER_MOVE, &param, false);
+		}
 		break;
-
+	case GLFW_KEY_SPACE:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<float> param(2.0f);
+			EventManager::notify(PLAYER_JUMP, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<float> param(0.0f);
+			EventManager::notify(PLAYER_JUMP, &param, false);
+		}
+		break;
 	default:
 
 		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
@@ -184,6 +208,11 @@ int main()
 	//Set input handling callbacks
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
+
+	EventManager::subscribe(PLAYER_MOVE, physics); //Subscribe player move to EventManager
+	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+
+
 
 	for (int tick = 0;; tick++)
 	{
