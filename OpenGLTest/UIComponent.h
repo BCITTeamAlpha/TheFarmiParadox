@@ -1,6 +1,4 @@
 #pragma once
-#ifndef UICOMPONENT_H
-#define UICOMPONENT_H
 
 #include "Renderable.h"
 #include <vector>
@@ -24,7 +22,7 @@ public:
     UIComponent(UIComponent *parent, float width, float height, float x, float y, float z = 0.0f);
     ~UIComponent();
 
-    void resize();
+    void Resize();
 
     bool                visible;
     glm::vec2           size;
@@ -40,5 +38,3 @@ public:
 
     std::vector<UIComponent*> children;
 };
-
-#endif

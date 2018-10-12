@@ -19,7 +19,7 @@ UIComponent::~UIComponent() {
         delete child;
 }
 
-void UIComponent::resize() {
+void UIComponent::Resize() {
     if (parent != nullptr) {
         screenSize = parent->screenSize * (size / 100.0f);
 
@@ -49,5 +49,5 @@ void UIComponent::resize() {
     }
 
     for (UIComponent *child : children)
-        child->resize();
+        child->Resize();
 }

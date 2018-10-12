@@ -1,6 +1,4 @@
 #pragma once
-#ifndef UIMANAGER_H
-#define UIMANAGER_H
 
 #include "UIComponent.h"
 #include <map>
@@ -12,11 +10,8 @@ class UIManager {
 public:
 	UIManager(float width, float height);
 
-    void resize();
-    void add(const UIComponent* component);
+    void Resize(float width, float height);
+    void AddToRoot(UIComponent *component);
 private:
     UIComponent _root;
-    glm::vec2   _screenSize;
 };
-
-#endif
