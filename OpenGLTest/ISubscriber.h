@@ -18,5 +18,5 @@ struct TypeParam:Param {
 class ISubscriber {
 public:
     // Action to take when notified by an event
-    virtual void notify(EventName eventName, Param* params) = 0;
+    virtual void notify(EventName eventName, Param *params) = 0;
 };

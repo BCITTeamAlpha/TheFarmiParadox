@@ -1,17 +1,21 @@
 #include "UIManager.h"
 
 UIManager::UIManager(float width, float height) : 
-    _root(nullptr, 100, 100, 0, 0) {
-    _root.screenPosition = glm::vec2(0, 0);
-    _root.screenSize = glm::vec2(width, height);
+    _root(100, 100, 0, 0) {
+    _root._color = {1,0,0,0.1};
+    _root.screenSize = {width/2, height/2};
+    _root.screenPosition = {0, 0};
+
+    Resize();
+
+    TypeParam<UIComponent*> param(&_root);
+    EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
 }
 
-void UIManager::Resize(float width, float height) {
-    _root.screenSize = glm::vec2(width, height);
+void UIManager::Resize() {
     _root.Resize();
 }
 
 void UIManager::AddToRoot(UIComponent *component) {
-    component->parent = &_root;
-    _root.children.push_back(component);
+    _root.Add(component);
 }

@@ -14,6 +14,7 @@
 #include "PhysicsManager.h"
 #include "Model.h"
 #include "Input.h"
+#include "UIManager.h"
 #include <thread>
 
 const int physUpdates = 30;
@@ -27,7 +28,6 @@ Renderable ** const pp = &p;
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
-
 
 void SendToRenderer(Renderable &renderable)
 {
@@ -138,6 +138,9 @@ int main()
 	//Set input handling callbacks
 	glfwSetKeyCallback(window, KeyCallback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
+
+    //Create UIManager
+    //uim = new UIManager(1280, 720);
 
 	for (int tick = 0;; tick++)
 	{

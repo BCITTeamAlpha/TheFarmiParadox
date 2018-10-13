@@ -18,10 +18,13 @@
 
 #include "Renderable.h"
 #include "shader.h"
+#include "EventManager.h"
+#include "UIComponent.h"
+#include "UIManager.h"
 
 extern GLFWwindow *window;
 
-class Renderer {
+class Renderer : public ISubscriber {
 	public:
 		Renderer();
 		int RenderLoop(Renderable ** pp);
@@ -32,11 +35,16 @@ class Renderer {
 		void draw();
 		void GenerateBuffers(Renderable & renderable);
 		void PopulateBuffers(Renderable & renderable);
-		void AddToRenderables(Renderable & renderable);
-		void RemoveFromRenderables(Renderable & renderable);
+        void AddToRenderables(Renderable & renderable);
+        void AddToUIRenderables(UIComponent * renderable);
+        void RemoveFromRenderables(Renderable & renderable);
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
+        void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
+        void traverseUITree(UIComponent *component);
+
 		std::list<Renderable*> renderables;
+        std::list<UIComponent*> uiRenderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
@@ -54,5 +62,7 @@ class Renderer {
 		GLuint mLocUI;
 		GLuint vpLocUI;
 		GLuint u_colorLocUI;
+
+        UIManager *uim;
 };
 

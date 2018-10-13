@@ -70,9 +70,11 @@ void Renderer::draw() {
 
 	// draw 2d stuff
 	glUseProgram(uiProgram);
-	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT);
+	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-	DrawUIRenderable(&text);
+
+    traverseUITree(&(uim->_root));
+    DrawUIRenderable(&text);
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
@@ -97,9 +99,15 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 }
 
 void Renderer::AddToRenderables(Renderable& renderable) {
-	GenerateBuffers(renderable);
-	PopulateBuffers(renderable);
-	renderables.push_back(&renderable);
+    GenerateBuffers(renderable);
+    PopulateBuffers(renderable);
+    renderables.push_back(&renderable);
+}
+
+void Renderer::AddToUIRenderables(UIComponent* renderable) {
+    GenerateBuffers(*renderable);
+    PopulateBuffers(*renderable);
+    std::cout << "Added UI Renderable" << std::endl;
 }
 
 void Renderer::RemoveFromRenderables(Renderable& renderable) {
@@ -276,6 +284,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glm::vec3 rot = glm::vec3(0, 0, 0);
 	text._position = &pos;
 	text._rotation = &rot;
+    text._z = 1;
 	std::string string = "Text rendering kind of working?";
 	for (int i = 0; i < string.size(); i++) {
 		glm::vec2 UV_topLeft = charToVec2(string[i]);
@@ -300,6 +309,21 @@ int Renderer::RenderLoop(Renderable **pp) {
 	GenerateBuffers(text);
 	PopulateBuffers(text);
 
+    uim = new UIManager(WIDTH, HEIGHT);
+
+    UIComponent centerBox(50, 50, 0, 0);
+    centerBox._color = { 1,1,1,1 };
+    centerBox.hAnchor = ANCHOR_HCENTER;
+    centerBox.vAnchor = ANCHOR_VCENTER;
+
+    UIComponent centerBox2(50, 50, 0, 0);
+    centerBox2._color = { 0,0,1,0.2 };
+    centerBox2.hAnchor = ANCHOR_HCENTER;
+    centerBox2.vAnchor = ANCHOR_VCENTER;
+    
+    //centerBox.Add(&centerBox2);
+    uim->AddToRoot(&centerBox);
+
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
@@ -319,8 +343,31 @@ int Renderer::RenderLoop(Renderable **pp) {
 	return EXIT_SUCCESS;
 }
 
+void Renderer::notify(EventName eventName, Param* params) {
+    switch (eventName) {
+    case RENDERER_ADD_TO_UIRENDERABLES: {
+        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+        AddToUIRenderables(p->Param);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void Renderer::traverseUITree(UIComponent *component) {
+    DrawUIRenderable(component);
+
+    for (UIComponent *child : component->children) {
+        traverseUITree(child);
+    }
+}
+
+
 Renderer::Renderer() {
+    EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
 }
 
 Renderer::~Renderer() {
+    delete uim;
 }

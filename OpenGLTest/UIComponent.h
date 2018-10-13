@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderable.h"
+#include "EventManager.h"
 #include <vector>
 
 //created by UIManager/AssetLoader?; used by Renderer
@@ -19,10 +20,11 @@ enum AnchorType {
 
 class UIComponent : public Renderable {
 public:
-    UIComponent(UIComponent *parent, float width, float height, float x, float y, float z = 0.0f);
+    UIComponent(float width, float height, float x, float y);
     ~UIComponent();
 
     void Resize();
+    void Add(UIComponent* child);
 
     bool                visible;
     glm::vec2           size;
