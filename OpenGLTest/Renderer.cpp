@@ -72,8 +72,7 @@ void Renderer::draw() {
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-
-    traverseUITree(&(uim->_root));
+    traverseUITree(uim->_root);
     DrawUIRenderable(&text);
 }
 
@@ -107,6 +106,7 @@ void Renderer::AddToRenderables(Renderable& renderable) {
 void Renderer::AddToUIRenderables(UIComponent* renderable) {
     GenerateBuffers(*renderable);
     PopulateBuffers(*renderable);
+    //uiRenderables.push_back(renderable);
     std::cout << "Added UI Renderable" << std::endl;
 }
 
@@ -322,7 +322,7 @@ int Renderer::RenderLoop(Renderable **pp) {
     centerBox2.vAnchor = ANCHOR_VCENTER;
     
     //centerBox.Add(&centerBox2);
-    uim->AddToRoot(&centerBox);
+    uim->AddToRoot(&centerBox2);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -359,7 +359,9 @@ void Renderer::traverseUITree(UIComponent *component) {
     DrawUIRenderable(component);
 
     for (UIComponent *child : component->children) {
-        traverseUITree(child);
+        if (child->visible) {
+            traverseUITree(child);
+        }
     }
 }
 

@@ -11,9 +11,10 @@
 class UIManager {
 public:
 	UIManager(float width, float height);
+    ~UIManager();
 
     void Resize();
     void AddToRoot(UIComponent *component);
 
-    UIComponent _root;
+    UIComponent *_root;
 };
