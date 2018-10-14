@@ -41,7 +41,7 @@ void SendToRenderer(Renderable &renderable)
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
-	case GLFW_KEY_W:
+	case GLFW_KEY_A:
 		if (action == GLFW_PRESS)
 		{
 			//std::cout << "W key pressed" << std::endl;
@@ -58,7 +58,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			EventManager::notify(PLAYER_MOVE, &param, false);
 		}
 		break;
-	case GLFW_KEY_S:
+	case GLFW_KEY_D:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<float> param(1.0f);
@@ -73,7 +73,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	case GLFW_KEY_SPACE:
 		if (action == GLFW_PRESS)
 		{
-			TypeParam<float> param(2.0f);
+			TypeParam<float> param(1.0f);
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
 		if (action == GLFW_RELEASE)
@@ -99,6 +99,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		printf("Right mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
+	{
+		printf("Right mouse button released\n");
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
@@ -162,7 +166,7 @@ int main()
 	c->position = { 75.0f, 60.0f };
 
 	Renderable *cSkin = new Renderable();
-	cSkin->_z = 1;
+	cSkin->_z = 0;
 	cSkin->_positions = quadPositions;
 	cSkin->_texCoords = quadTexCoords;
 	cSkin->_normals = quadNormals;
