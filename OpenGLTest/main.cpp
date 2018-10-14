@@ -44,41 +44,36 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	case GLFW_KEY_A:
 		if (action == GLFW_PRESS)
 		{
-			//std::cout << "W key pressed" << std::endl;
-			TypeParam<float> param(-1.0f);
-			EventManager::notify(PLAYER_MOVE, &param, false);
-		}
-		if (action == GLFW_REPEAT) {
-			//std::cout << "W key REPEATED" << std::endl;
+			TypeParam<bool> param(true);
+			EventManager::notify(PLAYER_LEFT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			//std::cout << "W key released" << std::endl;
-			TypeParam<float> param(0.0f);
-			EventManager::notify(PLAYER_MOVE, &param, false);
+			TypeParam<bool> param(false);
+			EventManager::notify(PLAYER_LEFT, &param, false);
 		}
 		break;
 	case GLFW_KEY_D:
 		if (action == GLFW_PRESS)
 		{
-			TypeParam<float> param(1.0f);
-			EventManager::notify(PLAYER_MOVE, &param, false);
+			TypeParam<bool> param(true);
+			EventManager::notify(PLAYER_RIGHT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			TypeParam<float> param(0.0f);
-			EventManager::notify(PLAYER_MOVE, &param, false);
+			TypeParam<bool> param(false);
+			EventManager::notify(PLAYER_RIGHT, &param, false);
 		}
 		break;
 	case GLFW_KEY_SPACE:
 		if (action == GLFW_PRESS)
 		{
-			TypeParam<float> param(1.0f);
+			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			TypeParam<float> param(0.0f);
+			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
 		break;
@@ -213,7 +208,8 @@ int main()
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
-	EventManager::subscribe(PLAYER_MOVE, physics); //Subscribe player move to EventManager
+	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 
 

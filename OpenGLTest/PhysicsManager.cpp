@@ -64,20 +64,25 @@ void PhysicsManager::characterMovement(PhysicsObject *object) {
 	for (Planetoid planet : *planets) {
 		glm::vec2 planet_to_obj = pos - planet._pos;
 		GLfloat len = glm::length(planet_to_obj) - player_radius;
-		// if character is inside planet
-		if (len < planet._r) {
-			planet_to_obj /= len;
-			// push character out of planet
-			pos = planet._pos + planet._r * planet_to_obj;
+		// if character close to planet
+		if (len - 1 < planet._r) {
 			// allign character with surface
 			object->rotation.z = atan2(planet_to_obj.y, planet_to_obj.x) * 180.0f / M_PI;
-			// horizontal movement
-			if (glm::dot(vel, planet_to_obj) < 0.0f) {
-				vel = this->input_X * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
+			// if character is inside planet
+			if (len < planet._r) {
+				planet_to_obj /= len;
+				// push character out of planet
+				pos = planet._pos + planet._r * planet_to_obj;
+				// set velocity to 0 if still moving towards planet
+				if (glm::dot(vel, planet_to_obj) < 0.0f) {
+					vel = glm::vec2(0);
+				}
+				// horizontal movement
+				vel += (-player_left_input + player_right_input) * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
+				// jumping
+				vel += player_jump_input * player_jump_speed * planet_to_obj;
+				break;
 			}
-			// jumping
-			vel += this->player_jump_input * player_jump_speed * planet_to_obj;
-			break;
 		}
 	}
 
@@ -120,18 +125,23 @@ void PhysicsManager::addObject(PhysicsObject *obj)
 
 void PhysicsManager::notify(EventName eventName, Param* param) {
 	switch (eventName) {
-	case PLAYER_MOVE: {
-		TypeParam<float> *p = dynamic_cast<TypeParam<float> *>(param); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) this->input_X = p->Param;
-		break;
-	}
-	case PLAYER_JUMP: {
-		printf("jump!\n");
-		TypeParam<float> *p = dynamic_cast<TypeParam<float> *>(param); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) this->player_jump_input = p->Param;
-		break;
-	}
-	default:
-		break;
-	}
+		case PLAYER_LEFT: {
+			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+			if (p != nullptr) this->player_left_input = p->Param;
+			break;
+		}
+		case PLAYER_RIGHT: {
+			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+			if (p != nullptr) this->player_right_input = p->Param;
+			break;
+		}
+		case PLAYER_JUMP: {
+			printf("jump!\n");
+			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+			if (p != nullptr) this->player_jump_input = p->Param;
+			break;
+		}
+		default:
+			break;
+		}
 }
