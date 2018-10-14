@@ -22,6 +22,7 @@ private:
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	Map *map;
-	float input_X;
-	float player_jump_input;
+	bool player_left_input;
+	bool player_right_input;
+	bool player_jump_input;
 };
