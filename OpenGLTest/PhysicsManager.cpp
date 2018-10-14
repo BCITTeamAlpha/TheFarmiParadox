@@ -45,7 +45,7 @@ void PhysicsManager::calcPhysics(float dTime)
 
 		object->position = pos;
 		object->velocity = vel;
-		object->rotation = glm::vec3(0, 0, std::atan2(acc.y, acc.x) * 180.0f / M_PI);
+		object->rotation.z = atan2(acc.y, acc.x) * 180.0f / M_PI;
 	}
 
 	// takes by reference and modifies character's pos and vel
@@ -56,22 +56,26 @@ void PhysicsManager::characterMovement(PhysicsObject *object) {
 	float player_speed = 10.0f;
 	float player_radius = 2.5f;
 	float player_jump_speed = 20.0f;
-	float input_xAxis = -1.0f;
-	float input_jump = 1.0f;
 
 	glm::vec2 pos = object->position;
 	glm::vec2 vel = object->velocity;
+
+	// loop over planets, check if character is inside any of them them
 	for (Planetoid planet : *planets) {
 		glm::vec2 planet_to_obj = pos - planet._pos;
 		GLfloat len = glm::length(planet_to_obj) - player_radius;
+		// if character is inside planet
 		if (len < planet._r) {
 			planet_to_obj /= len;
+			// push character out of planet
 			pos = planet._pos + planet._r * planet_to_obj;
+			// allign character with surface
+			object->rotation.z = atan2(planet_to_obj.y, planet_to_obj.x) * 180.0f / M_PI;
+			// horizontal movement
 			if (glm::dot(vel, planet_to_obj) < 0.0f) {
-				//vel = input_xAxis * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
 				vel = this->input_X * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
 			}
-			//vel += input_jump * player_jump_speed * planet_to_obj;
+			// jumping
 			vel += this->player_jump_input * player_jump_speed * planet_to_obj;
 			break;
 		}
