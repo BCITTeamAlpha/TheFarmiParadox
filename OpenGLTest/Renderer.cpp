@@ -72,8 +72,8 @@ void Renderer::draw() {
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-    traverseUITree(uim->_root);
     DrawUIRenderable(&text);
+    DrawUITree();
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
@@ -106,8 +106,6 @@ void Renderer::AddToRenderables(Renderable& renderable) {
 void Renderer::AddToUIRenderables(UIComponent* renderable) {
     GenerateBuffers(*renderable);
     PopulateBuffers(*renderable);
-    //uiRenderables.push_back(renderable);
-    std::cout << "Added UI Renderable" << std::endl;
 }
 
 void Renderer::RemoveFromRenderables(Renderable& renderable) {
@@ -284,7 +282,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glm::vec3 rot = glm::vec3(0, 0, 0);
 	text._position = &pos;
 	text._rotation = &rot;
-    text._z = 1;
+    text._z = 0.5;
 	std::string string = "Text rendering kind of working?";
 	for (int i = 0; i < string.size(); i++) {
 		glm::vec2 UV_topLeft = charToVec2(string[i]);
@@ -311,18 +309,44 @@ int Renderer::RenderLoop(Renderable **pp) {
 
     uim = new UIManager(WIDTH, HEIGHT);
 
-    UIComponent centerBox(50, 50, 0, 0);
-    centerBox._color = { 1,1,1,1 };
-    centerBox.hAnchor = ANCHOR_HCENTER;
+    UIComponent tlBox(25, 25, 0, 0);
+    tlBox._color = { 1,0,0,0.2 };
+    tlBox.vAnchor = ANCHOR_TOP;
+    tlBox.hAnchor = ANCHOR_LEFT;
+
+    UIComponent trBox(25, 25, 0, 0);
+    trBox._color = { 0,1,0,0.2 };
+    trBox.vAnchor = ANCHOR_TOP;
+    trBox.hAnchor = ANCHOR_RIGHT;
+
+    UIComponent blBox(25, 25, 0, 0);
+    blBox._color = { 0,0,1,0.5 };
+    blBox.vAnchor = ANCHOR_BOTTOM;
+    blBox.hAnchor = ANCHOR_LEFT;
+
+    UIComponent brBox(25, 25, 0, 0);
+    brBox._color = { 1,0,1,0.5 };
+    brBox.vAnchor = ANCHOR_BOTTOM;
+    brBox.hAnchor = ANCHOR_RIGHT;
+
+    UIComponent centerBox(25, 25, 0, 0);
+    centerBox._color = { 0,1,1,0.2 };
     centerBox.vAnchor = ANCHOR_VCENTER;
+    centerBox.hAnchor = ANCHOR_HCENTER;
+    centerBox.visible = true;
 
     UIComponent centerBox2(50, 50, 0, 0);
-    centerBox2._color = { 0,0,1,0.2 };
-    centerBox2.hAnchor = ANCHOR_HCENTER;
+    centerBox2._color = {1, 1, 0, 1};
     centerBox2.vAnchor = ANCHOR_VCENTER;
-    
-    //centerBox.Add(&centerBox2);
-    uim->AddToRoot(&centerBox2);
+    centerBox2.hAnchor = ANCHOR_HCENTER;
+
+    centerBox.Add(&centerBox2);
+
+    uim->AddToRoot(&tlBox);
+    uim->AddToRoot(&trBox);
+    uim->AddToRoot(&blBox);
+    uim->AddToRoot(&brBox);
+    uim->AddToRoot(&centerBox);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -344,23 +368,39 @@ int Renderer::RenderLoop(Renderable **pp) {
 }
 
 void Renderer::notify(EventName eventName, Param* params) {
+    TypeParam<UIComponent*> *p;
     switch (eventName) {
-    case RENDERER_ADD_TO_UIRENDERABLES: {
-        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+    case RENDERER_ADD_TO_UIRENDERABLES:
+        p = dynamic_cast<TypeParam<UIComponent*> *>(params);
         AddToUIRenderables(p->Param);
         break;
-    }
+    case RENDERER_POPULATE_BUFFERS:
+        p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+        PopulateBuffers(*p->Param);
     default:
         break;
     }
 }
 
-void Renderer::traverseUITree(UIComponent *component) {
-    DrawUIRenderable(component);
+void Renderer::DrawUITree() {
+    transparentList.clear();
+    traverseChild(uim->_root);
+
+    for (UIComponent *t : transparentList) {
+        DrawUIRenderable(t);
+    }
+}
+
+void Renderer::traverseChild(UIComponent *component) {
+    if (component->_color.a < 1) {
+        transparentList.push_back(component);
+    } else {
+        DrawUIRenderable(component);
+    }
 
     for (UIComponent *child : component->children) {
         if (child->visible) {
-            traverseUITree(child);
+            traverseChild(child);
         }
     }
 }
@@ -368,6 +408,7 @@ void Renderer::traverseUITree(UIComponent *component) {
 
 Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
+    EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
 }
 
 Renderer::~Renderer() {

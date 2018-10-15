@@ -41,10 +41,12 @@ class Renderer : public ISubscriber {
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
         void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
-        void traverseUITree(UIComponent *component);
+        void DrawUITree();
+        void traverseChild(UIComponent *component);
+
+        std::list<UIComponent*> transparentList;
 
 		std::list<Renderable*> renderables;
-        std::list<UIComponent*> uiRenderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;

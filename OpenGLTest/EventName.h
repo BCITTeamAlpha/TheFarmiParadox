@@ -4,4 +4,5 @@
 enum EventName {
     EVENT_EXAMPLE, // Example event type for demonstration purposes
     RENDERER_ADD_TO_UIRENDERABLES, // Tell renderer to add renderable to list
+    RENDERER_POPULATE_BUFFERS
 };

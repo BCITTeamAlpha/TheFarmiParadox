@@ -2,8 +2,8 @@
 
 UIManager::UIManager(float width, float height) {
     _root = new UIComponent(100, 100, 0, 0);
-    _root->_color = {0.5,0,0,0.5};
-    _root->screenSize = {width/2, height/2};
+    _root->_color = {0,0,0,0};
+    _root->screenSize = {width, height};
     _root->screenPosition = {0, 0};
 
     Resize();
