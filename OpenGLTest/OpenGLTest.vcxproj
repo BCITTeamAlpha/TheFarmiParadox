@@ -199,6 +199,7 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="EventName.h" />
+    <ClInclude Include="FontType.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Input.h" />

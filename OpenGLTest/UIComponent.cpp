@@ -3,22 +3,28 @@
 UIComponent::UIComponent(float width, float height, float x, float y) :
     size(width, height), anchor(x, y) {
 
+    // Set default values for a panel
     visible = true;
     vAnchor = ANCHOR_TOP;
     hAnchor = ANCHOR_LEFT;
-    anchorType = ANCHOR_PIXEL;
+    anchorXType = ANCHOR_PIXEL;
+    anchorYType = ANCHOR_PIXEL;
+    xType = UNIT_PERCENT;
+    yType = UNIT_PERCENT;
     parent = nullptr;
 
     _position = &screenPosition;
     _rotation = &rotation;
     _z = 0;
 
+    // Initialize Renderable data with a standard quad
     _normals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
     _elements = { 1, 0, 2, 1, 2, 3 };
     _texCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
     _positions = { {-2.5,2.5,0},{2.5,2.5,0}, {-2.5,-2.5,0}, {2.5,-2.5,0} };
     _color = {0,0,0,0};
 
+    // Generate buffers for this panel
     TypeParam<UIComponent*> param(this);
     EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
 }
@@ -30,9 +36,36 @@ UIComponent::~UIComponent() {
 
 void UIComponent::Resize() {
     if (parent != nullptr) {
-        screenSize = parent->screenSize * (size / 100.0f);
-        glm::vec2 screenAnchor = anchorType == ANCHOR_PERCENT ? anchor / 100.0f * parent->screenSize / 2.0f : anchor;
+        // Calculate pixel size of panel based on Unit Type
+        switch (xType) {
+        case UNIT_PIXEL:
+            screenSize.x = size.x;
+            break;
+        case UNIT_PERCENT:
+            screenSize.x = parent->screenSize.x * (size.x / 100.0f);
+            break;
+        }
+        switch(yType) {
+        case UNIT_PIXEL:
+            screenSize.y = size.y;
+            break;
+        case UNIT_PERCENT:
+            screenSize.y = parent->screenSize.y * (size.y / 100.0f);
+            break;
+        case UNIT_SCALE:
+            screenSize.y = screenSize.x / aspectRatio;
+            break;
+        }
+        if (xType == UNIT_SCALE) {
+            screenSize.x = screenSize.y * aspectRatio;
+        }
 
+        // Calculate Anchor Position of panel based on anchor unit type
+        glm::vec2 screenAnchor;
+        screenAnchor.x = anchorXType == ANCHOR_PERCENT ? anchor.x / 100.0f * parent->screenSize.x / 2.0f : anchor.x;
+        screenAnchor.y = anchorYType == ANCHOR_PERCENT ? anchor.y / 100.0f * parent->screenSize.y / 2.0f : anchor.y;
+
+        // Calculate absolute position of panel based on parent panel and anchor types
         switch (hAnchor) {
         case ANCHOR_LEFT:
             screenPosition.x = parent->screenPosition.x + screenAnchor.x;
@@ -60,6 +93,7 @@ void UIComponent::Resize() {
         _z = parent->_z + 1;
     }
     
+    // Generate vertices of quad from position and size of panel
     _positions = {
         { screenPosition.x, screenPosition.y + screenSize.y, 0 }, // Top Left
         { screenPosition + screenSize, 0 }, // Top Right
@@ -67,9 +101,11 @@ void UIComponent::Resize() {
         { screenPosition.x + screenSize.x, screenPosition.y, 0 }  // Bottom Right
     };
 
+    // Tell Renderer to recreate buffers with new position data
     TypeParam<UIComponent*> param(this);
     EventManager::notify(RENDERER_POPULATE_BUFFERS, &param, false);
 
+    // Iterate resize on child panels
     for (UIComponent *child : children) {
         child->Resize();
     }

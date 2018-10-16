@@ -6,7 +6,7 @@ class TextComponent : public UIComponent {
 public:
     static const std::string DEFAULT_FONT;
 
-    TextComponent(std::string text, float fontSize, float x, float y);
+    TextComponent(std::string text, float fontSize, float x, float y, std::string fontType = DEFAULT_FONT);
 
     void Resize();
     bool IsTransparent();
@@ -18,4 +18,5 @@ private:
 
     std::string _text;
     float       _fontSize;
+    FontType    _font;
 };

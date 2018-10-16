@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-Renderable text;
-
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -72,7 +70,6 @@ void Renderer::draw() {
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-    DrawUIRenderable(&text);
     DrawUITree();
 }
 
@@ -278,35 +275,6 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glfwSwapInterval(1);
 	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
-	glm::vec2 pos = glm::vec2(0, 0);
-	glm::vec3 rot = glm::vec3(0, 0, 0);
-	text._position = &pos;
-	text._rotation = &rot;
-    text._z = 0.5;
-	std::string string = "Text rendering kind of working?";
-	for (int i = 0; i < string.size(); i++) {
-		glm::vec2 UV_topLeft = charToVec2(string[i]);
-		UV_topLeft;
-		text._positions.push_back(glm::vec3(32 * i, 32, 0)); // top-left
-		text._positions.push_back(glm::vec3(32 * i + 32, 32, 0)); //top-right
-		text._positions.push_back(glm::vec3(32 * i, 0, 0)); // bottom-left
-		text._positions.push_back(glm::vec3(32 * i + 32, 0, 0)); // bottom-right
-		text._texCoords.push_back(UV_topLeft);
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, 0));
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0, -0.125));
-		text._texCoords.push_back(UV_topLeft + glm::vec2(0.125, -0.125));
-		text._elements.push_back(i * 4 + 1);
-		text._elements.push_back(i * 4 + 0);
-		text._elements.push_back(i * 4 + 2);
-		text._elements.push_back(i * 4 + 1);
-		text._elements.push_back(i * 4 + 2);
-		text._elements.push_back(i * 4 + 3);
-	}
-	text._color = glm::vec4(1, 1, 1, 1);
-	text._textureLocation = createTexture("./font.png");
-	GenerateBuffers(text);
-	PopulateBuffers(text);
-
     uim = new UIManager(WIDTH, HEIGHT);
 
     UIComponent tlBox(25, 25, 0, 0);
@@ -400,9 +368,13 @@ void Renderer::notify(EventName eventName, Param* params) {
         break;
     }
     case RENDERER_INIT_FONT: {
-        TypeParam<std::string> *p = dynamic_cast<TypeParam<std::string> *>(params);
-        GLuint fontLocation = createTexture(("./" + p->Param + ".png").c_str());
-        UIManager::FontTextures.insert(std::pair<std::string,GLuint>(p->Param, fontLocation));
+        TypeParam<std::pair<std::string, std::string>> 
+            *p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
+        std::string fontName = p->Param.first;
+        std::string fontPath = p->Param.second;
+
+        GLuint fontLocation = createTexture(fontPath.c_str());
+        UIManager::FontLibrary[fontName].TextureLocation = fontLocation;
         break;
     }
     default:

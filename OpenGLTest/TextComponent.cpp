@@ -2,9 +2,9 @@
 
 const std::string TextComponent::DEFAULT_FONT = "ShareTechMono";
 
-TextComponent::TextComponent(std::string text, float fontSize, float x, float y) :
+TextComponent::TextComponent(std::string text, float fontSize, float x, float y, std::string fontType) :
     UIComponent(0, 0, x, y), _text(text), _fontSize(fontSize) {
-    _textureLocation = UIManager::FontTextures[DEFAULT_FONT];
+    _font = UIManager::FontLibrary[fontType];
 }
 
 void TextComponent::SetText(std::string text) {
@@ -14,12 +14,16 @@ void TextComponent::SetText(std::string text) {
 
 void TextComponent::Resize() {
     if (parent != nullptr) {
-        float fontWidth = _fontSize * 0.538f;
+        _textureLocation = _font.TextureLocation;
+
+        float fontWidth = _fontSize * _font.AspectRatio;
 
         screenSize.y = _fontSize;
         screenSize.x = fontWidth * _text.length();
 
-        glm::vec2 screenAnchor = anchorType == ANCHOR_PERCENT ? anchor / 100.0f * parent->screenSize / 2.0f : anchor;
+        glm::vec2 screenAnchor;
+        screenAnchor.x = anchorXType == ANCHOR_PERCENT ? anchor.x / 100.0f * parent->screenSize.x / 2.0f : anchor.x;
+        screenAnchor.y = anchorYType == ANCHOR_PERCENT ? anchor.y / 100.0f * parent->screenSize.y / 2.0f : anchor.y;
 
         switch (hAnchor) {
         case ANCHOR_LEFT:
@@ -79,7 +83,7 @@ glm::vec2 TextComponent::getUVfromChar(const char c) {
 
 void TextComponent::generateVertices() {
     glm::vec2 uv;
-    float fontWidth = _fontSize * 0.538f;
+    float fontWidth = _fontSize * _font.AspectRatio;
 
     _positions.clear();
     _texCoords.clear();

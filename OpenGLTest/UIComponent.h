@@ -18,6 +18,10 @@ enum AnchorType {
     ANCHOR_PERCENT, ANCHOR_PIXEL
 };
 
+enum UnitType {
+    UNIT_PIXEL, UNIT_PERCENT, UNIT_SCALE
+};
+
 class UIComponent : public Renderable {
 public:
     UIComponent(float width, float height, float x, float y);
@@ -33,7 +37,11 @@ public:
     glm::vec2           anchor;
     VerticalAnchor      vAnchor;
     HorizontalAnchor    hAnchor;
-    AnchorType          anchorType;
+    AnchorType          anchorXType;
+    AnchorType          anchorYType;
+    UnitType            xType;
+    UnitType            yType;
+    float               aspectRatio;
     UIComponent         *parent;
 
     glm::vec2           screenPosition;
