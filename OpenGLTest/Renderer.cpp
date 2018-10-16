@@ -323,12 +323,22 @@ int Renderer::RenderLoop(Renderable **pp) {
     smallText.hAnchor = ANCHOR_HCENTER;
     smallText._color = { 0,0,0,1 };
 
+    UIComponent imageTest(350, 0, 0, 0);
+    imageTest.vAnchor = ANCHOR_BOTTOM;
+    imageTest.hAnchor = ANCHOR_LEFT;
+    imageTest.xType = UNIT_PIXEL;
+    imageTest.yType = UNIT_SCALE;
+    imageTest.aspectRatio = 484.0f / 800.0f;
+    imageTest.SetImage("./araragi_karen.png");
+    imageTest._color = {1,1,1,1};
+
     centerBox2.Add(&testText);
 
     centerBox.Add(&centerBox2);
 
     tlBox.Add(&bigText);
     trBox.Add(&smallText);
+    blBox.Add(&imageTest);
 
     uim->AddToRoot(&tlBox);
     uim->AddToRoot(&trBox);
@@ -368,13 +378,22 @@ void Renderer::notify(EventName eventName, Param* params) {
         break;
     }
     case RENDERER_INIT_FONT: {
-        TypeParam<std::pair<std::string, std::string>> 
+        TypeParam<std::pair<std::string, std::string>>
             *p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
         std::string fontName = p->Param.first;
         std::string fontPath = p->Param.second;
 
         GLuint fontLocation = createTexture(fontPath.c_str());
         UIManager::FontLibrary[fontName].TextureLocation = fontLocation;
+        break;
+    }
+    case RENDERER_CREATE_UI_TEXTURE: {
+        TypeParam<std::pair<UIComponent*, std::string>>
+            *p = dynamic_cast<TypeParam<std::pair<UIComponent*, std::string>> *>(params);
+        UIComponent *component = p->Param.first;
+        std::string texturePath = p->Param.second;
+
+        component->_textureLocation = createTexture(texturePath.c_str());
         break;
     }
     default:
@@ -410,6 +429,7 @@ Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
     EventManager::subscribe(RENDERER_INIT_FONT, this);
+    EventManager::subscribe(RENDERER_CREATE_UI_TEXTURE, this);
 }
 
 Renderer::~Renderer() {

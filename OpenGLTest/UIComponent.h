@@ -29,6 +29,7 @@ public:
 
     virtual void Resize();
     virtual bool IsTransparent();
+    virtual void SetImage(std::string path);
 
     void Add(UIComponent* child);
 

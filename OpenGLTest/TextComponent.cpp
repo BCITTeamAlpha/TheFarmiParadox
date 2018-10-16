@@ -62,6 +62,8 @@ bool TextComponent::IsTransparent() {
     return true;
 }
 
+void TextComponent::SetImage(std::string path) { /* Do Nothing */ }
+
 glm::vec2 TextComponent::getUVfromChar(const char c) {
     int ascii = int(c);
 

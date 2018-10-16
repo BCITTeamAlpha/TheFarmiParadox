@@ -10,6 +10,7 @@ public:
 
     void Resize();
     bool IsTransparent();
+    void SetImage(std::string path);
 
     void SetText(std::string text);
 private:
