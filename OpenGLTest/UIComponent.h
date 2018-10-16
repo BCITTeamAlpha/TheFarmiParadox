@@ -23,7 +23,9 @@ public:
     UIComponent(float width, float height, float x, float y);
     ~UIComponent();
 
-    void Resize();
+    virtual void Resize();
+    virtual bool IsTransparent();
+
     void Add(UIComponent* child);
 
     bool                visible;

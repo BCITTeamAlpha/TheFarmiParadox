@@ -182,6 +182,7 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="TextComponent.cpp" />
     <ClCompile Include="UIComponent.cpp" />
     <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="ISubscriber.h" />
+    <ClInclude Include="TextComponent.h" />
     <ClInclude Include="UIComponent.h" />
     <ClInclude Include="UIManager.h" />
     <ClInclude Include="Weapon.h" />

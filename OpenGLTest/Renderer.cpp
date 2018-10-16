@@ -336,11 +336,31 @@ int Renderer::RenderLoop(Renderable **pp) {
     centerBox.visible = true;
 
     UIComponent centerBox2(50, 50, 0, 0);
-    centerBox2._color = {1, 1, 0, 1};
+    centerBox2._color = {1, 1, 1, 1};
     centerBox2.vAnchor = ANCHOR_VCENTER;
     centerBox2.hAnchor = ANCHOR_HCENTER;
 
+    TextComponent testText("This is a test!", 32, 0, 0);
+    testText.vAnchor = ANCHOR_VCENTER;
+    testText.hAnchor = ANCHOR_HCENTER;
+    testText._color = { 0,0,0,1 };
+
+    TextComponent bigText("BIG TEXT", 64, 0, 0);
+    bigText.vAnchor = ANCHOR_VCENTER;
+    bigText.hAnchor = ANCHOR_HCENTER;
+    bigText._color = { 0,0,0,1 };
+
+    TextComponent smallText("smol boi", 12, 0, 0);
+    smallText.vAnchor = ANCHOR_VCENTER;
+    smallText.hAnchor = ANCHOR_HCENTER;
+    smallText._color = { 0,0,0,1 };
+
+    centerBox2.Add(&testText);
+
     centerBox.Add(&centerBox2);
+
+    tlBox.Add(&bigText);
+    trBox.Add(&smallText);
 
     uim->AddToRoot(&tlBox);
     uim->AddToRoot(&trBox);
@@ -368,15 +388,23 @@ int Renderer::RenderLoop(Renderable **pp) {
 }
 
 void Renderer::notify(EventName eventName, Param* params) {
-    TypeParam<UIComponent*> *p;
     switch (eventName) {
-    case RENDERER_ADD_TO_UIRENDERABLES:
-        p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+    case RENDERER_ADD_TO_UIRENDERABLES: {
+        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
         AddToUIRenderables(p->Param);
         break;
-    case RENDERER_POPULATE_BUFFERS:
-        p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+    }
+    case RENDERER_POPULATE_BUFFERS: {
+        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
         PopulateBuffers(*p->Param);
+        break;
+    }
+    case RENDERER_INIT_FONT: {
+        TypeParam<std::string> *p = dynamic_cast<TypeParam<std::string> *>(params);
+        GLuint fontLocation = createTexture(("./" + p->Param + ".png").c_str());
+        UIManager::FontTextures.insert(std::pair<std::string,GLuint>(p->Param, fontLocation));
+        break;
+    }
     default:
         break;
     }
@@ -392,7 +420,7 @@ void Renderer::DrawUITree() {
 }
 
 void Renderer::traverseChild(UIComponent *component) {
-    if (component->_color.a < 1) {
+    if (component->IsTransparent()) {
         transparentList.push_back(component);
     } else {
         DrawUIRenderable(component);
@@ -409,6 +437,7 @@ void Renderer::traverseChild(UIComponent *component) {
 Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+    EventManager::subscribe(RENDERER_INIT_FONT, this);
 }
 
 Renderer::~Renderer() {

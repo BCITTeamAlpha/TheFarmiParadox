@@ -21,6 +21,7 @@
 #include "EventManager.h"
 #include "UIComponent.h"
 #include "UIManager.h"
+#include "TextComponent.h"
 
 extern GLFWwindow *window;
 

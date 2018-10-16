@@ -81,3 +81,7 @@ void UIComponent::Add(UIComponent* child) {
     child->Resize();
 }
 
+bool UIComponent::IsTransparent() {
+    return _color.a < 1.0f;
+}
+
