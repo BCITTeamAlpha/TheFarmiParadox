@@ -5,7 +5,7 @@
 #include <string>
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 
 class Shader
 {

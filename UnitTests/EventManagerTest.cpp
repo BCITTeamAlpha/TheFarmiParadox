@@ -16,7 +16,7 @@ namespace UnitTests
 
         ExampleSubscriber(int data) : storedData(data) {}
 
-        void ISubscriber::notify(EventName eventName, Param* param) {
+        void ExampleSubscriber::notify(EventName eventName, Param *param) {
             // Switch based on event type
             switch (eventName) {
             case EVENT_EXAMPLE: {

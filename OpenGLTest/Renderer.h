@@ -8,7 +8,7 @@
 #include <vector>
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/color_space.hpp>
@@ -17,12 +17,16 @@
 #include <stb_image.h>
 
 #include "Renderable.h"
-#include "UIRenderable.h"
 #include "shader.h"
+#include "EventManager.h"
+#include "UIComponent.h"
+#include "UIManager.h"
+#include "TextComponent.h"
+#include "ImageComponent.h"
 
 extern GLFWwindow *window;
 
-class Renderer {
+class Renderer : public ISubscriber {
 	public:
 		Renderer();
 		int RenderLoop(Renderable ** pp);
@@ -32,18 +36,22 @@ class Renderer {
 
 		void GenerateBuffers(Renderable & renderable);
 		void PopulateBuffers(Renderable & renderable);
-		void AddToRenderables(Renderable & renderable);
-		void DrawRenderable(Renderable * renderable);
 
-		void GenerateBuffers(UIRenderable & UIrenderable);
-		void PopulateBuffers(UIRenderable & UIrenderable);
-		void AddToRenderables(UIRenderable & UIrenderable);
-		void DrawUIRenderable(UIRenderable * UIrenderable);
+        void AddToRenderables(Renderable & renderable);
+        void AddToUIRenderables(UIComponent * renderable);
+
+		void DrawRenderable(Renderable * renderable);
+        void DrawUIRenderable(Renderable * renderable);
 
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
+        void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
+        void DrawUITree();
+        void traverseChild(UIComponent *component);
+
+        std::list<UIComponent*> transparentList;
+
 		std::list<Renderable*> renderables;
-		std::list<UIRenderable*> UIrenderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
@@ -62,5 +70,7 @@ class Renderer {
 		GLuint mLocUI;
 		GLuint vpLocUI;
 		GLuint u_colorLocUI;
+
+        UIManager *uim;
 };
 
