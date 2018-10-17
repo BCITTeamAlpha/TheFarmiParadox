@@ -4,17 +4,25 @@
 #include "PhysicsObject.h"
 #include <glm/glm.hpp>
 #include <iostream>
+#include "EventManager.h"
 
-class PhysicsManager {
+class PhysicsManager : public ISubscriber {
 public:
 	PhysicsManager(std::vector<Planetoid> *p, Map *m);
 	void PhysicsManager::calcPhysics(float dTime);
 	void addObject(PhysicsObject *obj);
 	static const float VELOCITY_CAP;
+
+	void ISubscriber::notify(EventName eventName, Param* param);
+
+	
 private:
-	void characterMovement(glm::vec2 & pos, glm::vec2 & vel);
+	void characterMovement(PhysicsObject *object);
 	glm::vec2 gravAcceleration(glm::vec2 pos);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	Map *map;
+	bool player_left_input;
+	bool player_right_input;
+	bool player_jump_input;
 };

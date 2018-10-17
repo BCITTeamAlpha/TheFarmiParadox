@@ -2,6 +2,7 @@
 
 #include "Renderable.h"
 #include "EventManager.h"
+#include "stb_image.h"
 #include <vector>
 
 //created by UIManager/AssetLoader?; used by Renderer
@@ -29,7 +30,6 @@ public:
 
     virtual void Resize();
     virtual bool IsTransparent();
-    virtual void SetImage(std::string path);
 
     void Add(UIComponent* child);
 

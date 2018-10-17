@@ -118,11 +118,5 @@ void UIComponent::Add(UIComponent* child) {
 }
 
 bool UIComponent::IsTransparent() {
-    return (_color.a < 1.0f || _textureLocation != 0);
+    return _color.a < 1.0f;
 }
-
-void UIComponent::SetImage(std::string path) {
-    TypeParam<std::pair<UIComponent*, std::string>> param(std::pair<UIComponent*,std::string>(this, path));
-    EventManager::notify(RENDERER_CREATE_UI_TEXTURE, &param, false);
-}
-

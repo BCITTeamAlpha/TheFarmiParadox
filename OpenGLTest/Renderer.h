@@ -22,6 +22,7 @@
 #include "UIComponent.h"
 #include "UIManager.h"
 #include "TextComponent.h"
+#include "ImageComponent.h"
 
 extern GLFWwindow *window;
 
@@ -31,14 +32,17 @@ class Renderer : public ISubscriber {
 		int RenderLoop(Renderable ** pp);
 		~Renderer();
 	private:
-		void DrawRenderable(Renderable * renderable);
-		void DrawUIRenderable(Renderable * renderable);
 		void draw();
+
 		void GenerateBuffers(Renderable & renderable);
 		void PopulateBuffers(Renderable & renderable);
+
         void AddToRenderables(Renderable & renderable);
         void AddToUIRenderables(UIComponent * renderable);
-        void RemoveFromRenderables(Renderable & renderable);
+
+		void DrawRenderable(Renderable * renderable);
+        void DrawUIRenderable(Renderable * renderable);
+
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
         void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
@@ -55,6 +59,7 @@ class Renderer : public ISubscriber {
 		GLuint mLoc;
 		GLuint vLoc;
 		GLuint pLoc;
+		GLuint u_fullBrightLoc;
 		GLuint u_colorLoc;
 		GLuint lightPosLoc;
 		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };

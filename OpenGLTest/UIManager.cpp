@@ -15,7 +15,7 @@ UIManager::UIManager(float width, float height) {
     EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
 
     // Initialize our fonts (Maybe move this somewhere else because static?)
-    initFont("ShareTechMono", "./ShareTechMono.png", 0.53804348f);
+    initFont("ShareTechMono", "./ShareTechMono.png");
 }
 
 UIManager::~UIManager() {
@@ -30,10 +30,16 @@ void UIManager::AddToRoot(UIComponent *component) {
     _root->Add(component);
 }
 
-void UIManager::initFont(std::string fontName, std::string path, float aspectRatio) {
+void UIManager::initFont(std::string fontName, std::string path) {
     FontType newFont;
     newFont.Name = fontName;
-    newFont.AspectRatio = aspectRatio;
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    GLubyte* texData = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+    newFont.TextureData.assign(texData, texData + width * height * 4);
+    newFont.TexHeight = height;
+    newFont.TexWidth = width;
 
     UIManager::FontLibrary[fontName] = newFont;
 

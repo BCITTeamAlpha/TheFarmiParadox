@@ -16,7 +16,7 @@ void TextComponent::Resize() {
     if (parent != nullptr) {
         _textureLocation = _font.TextureLocation;
 
-        float fontWidth = _fontSize * _font.AspectRatio;
+        float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
 
         screenSize.y = _fontSize;
         screenSize.x = fontWidth * _text.length();
@@ -85,7 +85,7 @@ glm::vec2 TextComponent::getUVfromChar(const char c) {
 
 void TextComponent::generateVertices() {
     glm::vec2 uv;
-    float fontWidth = _fontSize * _font.AspectRatio;
+    float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
 
     _positions.clear();
     _texCoords.clear();

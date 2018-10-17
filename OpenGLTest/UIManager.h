@@ -22,5 +22,5 @@ public:
     
     static std::map<std::string, FontType> FontLibrary;
 private:
-    static void initFont(std::string fontName, std::string path, float aspectRatio);
+    static void initFont(std::string fontName, std::string path);
 };

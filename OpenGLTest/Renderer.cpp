@@ -23,32 +23,33 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
+	glUniform1i(u_fullBrightLoc, renderable->_fullBright);
 
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void Renderer::DrawUIRenderable(Renderable* renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_positionBufferLocation);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_positionBufferLocation);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable->_texCoordBufferLocation);
+	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->_elementBufferLocation);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable->_elementBufferLocation);
 
-	glBindTexture(GL_TEXTURE_2D, renderable->_textureLocation);
+	glBindTexture(GL_TEXTURE_2D, UIrenderable->_textureLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, renderable->getPosition3());
-	m = glm::rotate(m, (*renderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*renderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*renderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::translate(m, UIrenderable->getPosition3());
+	m = glm::rotate(m, (*UIrenderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, (*UIrenderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, (*UIrenderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->_color)));
+	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->_color)));
 
-	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, UIrenderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
 void Renderer::draw() {
@@ -78,6 +79,7 @@ void Renderer::GenerateBuffers(Renderable &renderable) {
 	glGenBuffers(1, &renderable._texCoordBufferLocation);
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
+	glGenTextures(1, &renderable._textureLocation);
 }
 
 void Renderer::PopulateBuffers(Renderable &renderable) {
@@ -92,6 +94,15 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable._elementBufferLocation);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable._elements.size() * sizeof(GLuint), renderable._elements.data(), GL_STATIC_DRAW);
+
+	glBindTexture(GL_TEXTURE_2D, renderable._textureLocation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int size = std::sqrt((renderable._texture.size() / 4));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Renderer::AddToRenderables(Renderable& renderable) {
@@ -103,40 +114,6 @@ void Renderer::AddToRenderables(Renderable& renderable) {
 void Renderer::AddToUIRenderables(UIComponent* renderable) {
     GenerateBuffers(*renderable);
     PopulateBuffers(*renderable);
-}
-
-void Renderer::RemoveFromRenderables(Renderable& renderable) {
-	glDeleteBuffers(1, &renderable._positionBufferLocation);
-	glDeleteBuffers(1, &renderable._texCoordBufferLocation);
-	glDeleteBuffers(1, &renderable._normalBufferLocation);
-	glDeleteBuffers(1, &renderable._elementBufferLocation);
-	renderables.erase(remove(renderables.begin(), renderables.end(), &renderable), renderables.end());
-}
-
-GLuint createTexture(const char* filename) {
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
-	if (!data) {
-		std::cout << "Failed to load texture" << std::endl;
-		return 0;
-	}
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if (nrChannels == 3) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	} else if (nrChannels == 4) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	}
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
-	std::cout << "Successfully loaded texture" << std::endl;
-	return texture;
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -160,41 +137,8 @@ void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderP
 	}
 }
 
-glm::vec2 charToVec2(char c) {
-	int c_value = int(c);
-
-	int index = 47; // default to ' '
-	if (c_value>64 && c_value<91) // A-Z
-		index = c_value - 65;
-	else if (c_value>96 && c_value<123) // a-z
-		index = c_value - 97;
-	else if (c_value>47 && c_value<58) // 0-9
-		index = c_value - 22;
-	else if (c_value == 33) // !
-		index = 36;
-	else if (c_value == 63) // ?
-		index = 37;
-	else if (c_value == 43) // +
-		index = 38;
-	else if (c_value == 45) // -
-		index = 39;
-	else if (c_value == 61) // =
-		index = 40;
-	else if (c_value == 58) // :
-		index = 41;
-	else if (c_value == 46) // .
-		index = 42;
-	else if (c_value == 44) // ,
-		index = 43;
-	else if (c_value == 42) // *
-		index = 44;
-	else if (c_value == 36) // $
-		index = 45;
-
-	glm::vec2 ret;
-	ret.x = 0.0f + 0.125f * (index % 8);
-	ret.y = 1.0f - 0.125f * (index / 8);
-	return ret;
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
 }
 
 int Renderer::RenderLoop(Renderable **pp) {
@@ -231,6 +175,12 @@ int Renderer::RenderLoop(Renderable **pp) {
 		return EXIT_FAILURE;
 	}
 
+	// spew OpenGL errors to stderr
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, GL_FALSE);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, 0x826b, 0, NULL, GL_FALSE);
+	glDebugMessageCallback(MessageCallback, 0);
+	glEnable(GL_DEBUG_OUTPUT);
+
 	//Create the viewport
 	glViewport(0, 0, scrnWidth, scrnHeight);
 
@@ -247,6 +197,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	mLoc = glGetUniformLocation(mainProgram, "model");
 	vLoc = glGetUniformLocation(mainProgram, "view");
 	pLoc = glGetUniformLocation(mainProgram, "projection");
+	u_fullBrightLoc = glGetUniformLocation(mainProgram, "u_fullBright");
 	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
 	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
 
@@ -273,7 +224,6 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
-	glClearColor(0.025f, 0.025f, 0.019f, 1.0f);
 
     uim = new UIManager(WIDTH, HEIGHT);
 
@@ -323,14 +273,11 @@ int Renderer::RenderLoop(Renderable **pp) {
     smallText.hAnchor = ANCHOR_HCENTER;
     smallText._color = { 0,0,0,1 };
 
-    UIComponent imageTest(350, 0, 0, 0);
+    ImageComponent imageTest("./araragi_karen.png", 350, 0, 0, 0);
     imageTest.vAnchor = ANCHOR_BOTTOM;
     imageTest.hAnchor = ANCHOR_LEFT;
     imageTest.xType = UNIT_PIXEL;
     imageTest.yType = UNIT_SCALE;
-    imageTest.aspectRatio = 484.0f / 800.0f;
-    imageTest.SetImage("./araragi_karen.png");
-    imageTest._color = {1,1,1,1};
 
     centerBox2.Add(&testText);
 
@@ -345,6 +292,8 @@ int Renderer::RenderLoop(Renderable **pp) {
     uim->AddToRoot(&blBox);
     uim->AddToRoot(&brBox);
     uim->AddToRoot(&centerBox);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -383,17 +332,17 @@ void Renderer::notify(EventName eventName, Param* params) {
         std::string fontName = p->Param.first;
         std::string fontPath = p->Param.second;
 
-        GLuint fontLocation = createTexture(fontPath.c_str());
-        UIManager::FontLibrary[fontName].TextureLocation = fontLocation;
-        break;
-    }
-    case RENDERER_CREATE_UI_TEXTURE: {
-        TypeParam<std::pair<UIComponent*, std::string>>
-            *p = dynamic_cast<TypeParam<std::pair<UIComponent*, std::string>> *>(params);
-        UIComponent *component = p->Param.first;
-        std::string texturePath = p->Param.second;
+        FontType *font = &UIManager::FontLibrary[fontName];
 
-        component->_textureLocation = createTexture(texturePath.c_str());
+        glGenTextures(1, &font->TextureLocation);
+
+        glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
+        glGenerateMipmap(GL_TEXTURE_2D);
         break;
     }
     default:
@@ -424,12 +373,10 @@ void Renderer::traverseChild(UIComponent *component) {
     }
 }
 
-
 Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
     EventManager::subscribe(RENDERER_INIT_FONT, this);
-    EventManager::subscribe(RENDERER_CREATE_UI_TEXTURE, this);
 }
 
 Renderer::~Renderer() {
