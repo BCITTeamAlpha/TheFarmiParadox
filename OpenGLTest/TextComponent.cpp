@@ -14,10 +14,10 @@ void TextComponent::SetText(std::string text) {
 
 void TextComponent::Resize() {
     if (parent != nullptr) {
-        _textureLocation = _font.TextureLocation;
-        _texWidth = _font.TexWidth;
-        _texHeight = _font.TexHeight;
-        _texture = _font.TextureData;
+        texture.loc = _font.TextureLocation;
+		texture.width = _font.TexWidth;
+		texture.height = _font.TexHeight;
+		texture.data = _font.TextureData;
 
         float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
 
@@ -52,7 +52,7 @@ void TextComponent::Resize() {
             break;
         }
 
-        _z = parent->_z + 1;
+        z = parent->z + 1;
 
         generateVertices();
 
@@ -90,25 +90,25 @@ void TextComponent::generateVertices() {
     glm::vec2 uv;
     float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
 
-    _positions.clear();
-    _texCoords.clear();
-    _elements.clear();
+	model.positions.clear();
+	model.UVs.clear();
+    model.elements.clear();
 
     for (int i = 0; i < _text.length(); i++) {
         uv = getUVfromChar(_text[i]);
-        _positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + _fontSize, 0)); // Top Left
-        _positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + _fontSize, 0)); // Top Right
-        _positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y, 0)); // Bottom Left
-        _positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0));
-        _texCoords.push_back(uv);
-        _texCoords.push_back(uv + glm::vec2(0.1, 0));
-        _texCoords.push_back(uv + glm::vec2(0, -0.1));
-        _texCoords.push_back(uv + glm::vec2(0.1, -0.1));
-        _elements.push_back(i * 4 + 1);
-        _elements.push_back(i * 4 + 0);
-        _elements.push_back(i * 4 + 2);
-        _elements.push_back(i * 4 + 1);
-        _elements.push_back(i * 4 + 2);
-        _elements.push_back(i * 4 + 3);
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + _fontSize, 0)); // Top Left
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + _fontSize, 0)); // Top Right
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y, 0)); // Bottom Left
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0));
+		model.UVs.push_back(uv);
+		model.UVs.push_back(uv + glm::vec2(0.1, 0));
+		model.UVs.push_back(uv + glm::vec2(0, -0.1));
+		model.UVs.push_back(uv + glm::vec2(0.1, -0.1));
+		model.elements.push_back(i * 4 + 1);
+		model.elements.push_back(i * 4 + 0);
+		model.elements.push_back(i * 4 + 2);
+		model.elements.push_back(i * 4 + 1);
+		model.elements.push_back(i * 4 + 2);
+		model.elements.push_back(i * 4 + 3);
     }
 }

@@ -16,7 +16,7 @@ uniform vec4 u_color = vec4(1.0);
 
 void main() {
 	v_color = u_color;
-	v_normal = normalize(normal);
+	v_normal = normalize(view * model * vec4(normal, 0.0)).xyz;
 	v_texCoord = texCoord;
 
 	vec4 temp_position = view * model * vec4(position, 1.0);

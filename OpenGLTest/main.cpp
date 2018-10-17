@@ -5,6 +5,7 @@
 #include <GLEW/glew.h>
 #include <glm/glm.hpp>
 
+#include "AssetLoader.h"
 #include "MarchingSquares.h"
 #include "Renderer.h"
 #include "Renderable.h"
@@ -12,7 +13,6 @@
 #include "Map.h"
 #include "Character.h"
 #include "PhysicsManager.h"
-#include "Model.h"
 #include "Input.h"
 #include "UIManager.h"
 #include "Sound.h"
@@ -122,7 +122,8 @@ std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0
 
 int main()
 {
-	Model model = Model("teapot.obj");
+	AssetLoader model;
+	model.loadModel("teapot.obj");
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
@@ -144,18 +145,18 @@ int main()
 	map = new Map(planets, 128, 128);
 
 	Renderable *mapSkin = new Renderable();
-	mapSkin->_z = 0;
-	mapSkin->_positions = MarchingSquares::GenerateMesh(*map);
-	mapSkin->_color = glm::vec4(0.5, 1, 0, 1);
+	mapSkin->z = 0;
+	mapSkin->model.positions = MarchingSquares::GenerateMesh(*map);
+	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
 
-	for (GLuint i = 0; i < mapSkin->_positions.size(); i++)
+	for (GLuint i = 0; i < mapSkin->model.positions.size(); i++)
 	{
 		glm::vec2 texCoord;
-		texCoord.x = mapSkin->_positions[i].x / 128;
-		texCoord.y = mapSkin->_positions[i].y / 128;
-		mapSkin->_texCoords.push_back(texCoord);
-		mapSkin->_normals.push_back(glm::vec3(0, 0, 1));
-		mapSkin->_elements.push_back(i);
+		texCoord.x = mapSkin->model.positions[i].x / 128;
+		texCoord.y = mapSkin->model.positions[i].y / 128;
+		mapSkin->model.UVs.push_back(texCoord);
+		mapSkin->model.normals.push_back(glm::vec3(0, 0, 1));
+		mapSkin->model.elements.push_back(i);
 	}
 
 	map->setRenderable(mapSkin);
@@ -168,12 +169,12 @@ int main()
 	c->position = { 75.0f, 60.0f };
 
 	Renderable *cSkin = new Renderable();
-	cSkin->_z = 0;
-	cSkin->_positions = quadPositions;
-	cSkin->_texCoords = quadTexCoords;
-	cSkin->_normals = quadNormals;
-	cSkin->_elements = quadElements;
-	cSkin->_color = glm::vec4(1, 0, 0, 1);
+	cSkin->z = 0;
+	cSkin->model.positions = quadPositions;
+	cSkin->model.UVs = quadTexCoords;
+	cSkin->model.normals = quadNormals;
+	cSkin->model.elements = quadElements;
+	cSkin->color = glm::vec4(1, 0, 0, 1);
 
 	c->setRenderable(cSkin);
 
@@ -195,15 +196,15 @@ int main()
 	Renderable* backgroundSkin = new Renderable();
 	GameObject background;
 	background.setRenderable(backgroundSkin);
-	backgroundSkin->_z = -1;
-	backgroundSkin->_positions = backgroundPositions;
-	backgroundSkin->_texCoords = quadTexCoords;
-	backgroundSkin->_normals = quadNormals;
-	backgroundSkin->_elements = quadElements;
-	backgroundSkin->_texture.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-    backgroundSkin->_texWidth = 128;
-    backgroundSkin->_texHeight = 128;
-    backgroundSkin->_fullBright = true;
+	backgroundSkin->z = -1;
+	backgroundSkin->model.positions = backgroundPositions;
+	backgroundSkin->model.UVs = quadTexCoords;
+	backgroundSkin->model.normals = quadNormals;
+	backgroundSkin->model.elements = quadElements;
+	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
+    backgroundSkin->texture.width = 128;
+    backgroundSkin->texture.height = 128;
+    backgroundSkin->fullBright = true;
 
 	// send Renderables to renderer
 	SendToRenderer(*mapSkin);

@@ -5,7 +5,7 @@ std::map<std::string, FontType> UIManager::FontLibrary;
 UIManager::UIManager(float width, float height) {
     // Create a transparent root element of the UI layout that covers the screen
     _root = new UIComponent(100, 100, 0, 0);
-    _root->_color = {0,0,0,0};
+    _root->color = {0,0,0,0};
     _root->screenSize = {width, height};
     _root->screenPosition = {0, 0};
 

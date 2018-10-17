@@ -8,6 +8,6 @@ GameObject::GameObject()
 void GameObject::setRenderable(Renderable *r)
 {
 	renderable = r;
-	renderable->_position = &position;
-	renderable->_rotation = &rotation;
+	renderable->position = &position;
+	renderable->rotation = &rotation;
 }

@@ -47,7 +47,7 @@ public:
 
     glm::vec2           screenPosition;
     glm::vec2           screenSize;
-    glm::vec3           rotation;
+    glm::vec3           screenRotation;
 
     std::vector<UIComponent*> children;
 };
