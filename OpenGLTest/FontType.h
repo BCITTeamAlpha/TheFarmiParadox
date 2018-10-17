@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 
 struct FontType {
     std::string             Name;

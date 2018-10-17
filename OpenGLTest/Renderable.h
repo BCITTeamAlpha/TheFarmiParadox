@@ -2,7 +2,7 @@
 //used by Renderer; has Models
 #include <vector>
 
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
