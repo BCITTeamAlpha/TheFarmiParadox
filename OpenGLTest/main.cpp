@@ -82,30 +82,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
 		break;
-	case GLFW_KEY_Q:
-		if (action == GLFW_PRESS)
-		{
-			TypeParam<bool> param(true);
-			EventManager::notify(WEAPON_PREV, &param, false);
-		}
-		if (action == GLFW_RELEASE)
-		{
-			TypeParam<bool> param(false);
-			EventManager::notify(WEAPON_PREV, &param, false);
-		}
-		break;
-	case GLFW_KEY_E:
-		if (action == GLFW_PRESS)
-		{
-			TypeParam<bool> param(true);
-			EventManager::notify(WEAPON_NEXT, &param, false);
-		}
-		if (action == GLFW_RELEASE)
-		{
-			TypeParam<bool> param(false);
-			EventManager::notify(WEAPON_NEXT, &param, false);
-		}
-		break;
 	default:
 		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
 		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
@@ -201,6 +177,13 @@ int main()
 	//set up a player with the test character
 	Player *player1 = new Player();
 
+	//set up a test pickup to give the player weapons
+	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+	player1->addItem(pickup1);
+	player1->addItem(pickup2);
+
 	// setup background
 	GLubyte backgroundImage[128][128][4];
 	for (int x = 0; x < 128; x++) {
@@ -241,6 +224,11 @@ int main()
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	
+	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, player1->prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, player1->nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, player1->fireWeapon);
 
 	for (int tick = 0;; tick++)
 	{

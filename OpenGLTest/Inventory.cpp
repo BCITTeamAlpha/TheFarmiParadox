@@ -6,7 +6,7 @@ Inventory::Inventory() {
 }
 
 //Selects Weapon in Inventory for use
-Weapon* Inventory::selectSlot() {
+Weapon* Inventory::selectSlot(int slot) {
 
 	// Rotate current Inventory slot to the left
 	//std::rotate(_slots.begin(), _slots.begin() + 1, _slots.end());
@@ -14,17 +14,21 @@ Weapon* Inventory::selectSlot() {
 	// Rotate current Inventory slot to the right
 	//std::rotate(_slots.rbegin(), _slots.rbegin() + 1, _slots.rend());
 
-	if (_slots.size() != 0)
-		currentSlot = _slots.at(0);
+	if (slot < 0)
+		currentSlot = _slots.size() - 1;
+	else if (slot >= _slots.size())
+		currentSlot = 0;
+	else
+		currentSlot = slot;
 
-	return currentSlot;
+	return _slots.at(currentSlot);
 }
 
 // Removes an item from the Inventory, making a Pickup
 Pickup Inventory::dropSlot() {
 
 	// Creates a Pickup for current selected slot
-	Pickup drop(currentSlot);
+	Pickup drop = Pickup(_slots.at(currentSlot));
 
 	// Deletes current selected slot from Inventory
 	_slots.erase(_slots.begin());

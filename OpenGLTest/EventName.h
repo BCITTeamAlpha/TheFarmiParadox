@@ -10,7 +10,8 @@ enum EventName {
 	PLAYER_LEFT,
 	PLAYER_RIGHT,
 	WEAPON_PREV,
-	WEAPON_NEXT
+	WEAPON_NEXT,
+	WEAPON_FIRE
 };
 
 #endif
