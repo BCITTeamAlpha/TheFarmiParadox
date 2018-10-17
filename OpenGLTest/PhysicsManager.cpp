@@ -45,7 +45,7 @@ void PhysicsManager::calcPhysics(float dTime)
 
 		object->position = pos;
 		object->velocity = vel;
-		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI;
+		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI + 90.0f;
 	}
 
 	// takes by reference and modifies character's pos and vel
@@ -67,7 +67,7 @@ void PhysicsManager::characterMovement(PhysicsObject *object) {
 		// if character close to planet
 		if (len - 1 < planet._r) {
 			// allign character with surface
-			object->rotation.z = atan2(-planet_to_obj.x, planet_to_obj.y) * 180.0f / M_PI;
+			object->rotation.z = atan2(-planet_to_obj.x, planet_to_obj.y) * 180.0f / M_PI + 90.0f;
 			// if character is inside planet
 			if (len < planet._r) {
 				planet_to_obj /= len;

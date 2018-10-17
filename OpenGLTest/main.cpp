@@ -174,10 +174,7 @@ int main()
 
 	Renderable *cSkin = new Renderable();
 	cSkin->z = 0;
-	cSkin->model.positions = quadPositions;
-	cSkin->model.UVs = quadTexCoords;
-	cSkin->model.normals = quadNormals;
-	cSkin->model.elements = quadElements;
+	cSkin->model = model.models[0];
 	cSkin->color = glm::vec4(1, 0, 0, 1);
 
 	c->setRenderable(cSkin);
