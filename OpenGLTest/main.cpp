@@ -14,6 +14,7 @@
 #include "PhysicsManager.h"
 #include "Model.h"
 #include "Input.h"
+#include "Sound.h"
 #include <thread>
 
 const int physUpdates = 30;
@@ -28,6 +29,7 @@ Renderable ** const pp = &p;
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
+Sound *sound;
 
 
 void SendToRenderer(Renderable &renderable)
@@ -124,6 +126,11 @@ int main()
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
+
+    //adding sound
+    sound = new Sound();
+    sound->SwitchTrack();
+    std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
