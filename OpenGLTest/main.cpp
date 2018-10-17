@@ -15,11 +15,14 @@
 #include "Model.h"
 #include "Input.h"
 #include <thread>
+#include "Player.h"
 
 const int physUpdates = 30;
 
 GLFWwindow* window;
-Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
+Input inputHandler;
+//If we want to bind a key directly to a function
+//inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
 double xpos, ypos;
 
 Renderable *p;
@@ -195,6 +198,9 @@ int main()
 
 	c->setRenderable(cSkin);
 
+	//set up a player with the test character
+	Player *player1 = new Player();
+
 	// setup background
 	GLubyte backgroundImage[128][128][4];
 	for (int x = 0; x < 128; x++) {
@@ -235,9 +241,6 @@ int main()
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
-
-	//If we want to bind a key directly to a function
-	//inputHandler.addKeyDownBinding(GLFW_KEY_Q, Class::func);
 
 	for (int tick = 0;; tick++)
 	{
