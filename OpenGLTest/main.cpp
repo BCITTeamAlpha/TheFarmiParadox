@@ -5,6 +5,7 @@
 #include <GLEW/glew.h>
 #include <glm/glm.hpp>
 
+#include "AssetLoader.h"
 #include "MarchingSquares.h"
 #include "Renderer.h"
 #include "Renderable.h"
@@ -12,7 +13,6 @@
 #include "Map.h"
 #include "Character.h"
 #include "PhysicsManager.h"
-#include "Model.h"
 #include "Input.h"
 #include "UIManager.h"
 #include "Sound.h"
@@ -122,7 +122,8 @@ std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0
 
 int main()
 {
-	Model model = Model("teapot.obj");
+	AssetLoader model;
+	model.loadModel("teapot.obj");
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);

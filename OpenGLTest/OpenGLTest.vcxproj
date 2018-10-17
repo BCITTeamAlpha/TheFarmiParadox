@@ -173,7 +173,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MarchingSquares.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="Pickup.cpp" />
@@ -211,8 +210,6 @@
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MarchingSquares.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="PhysicsObject.h" />
     <ClInclude Include="Pickup.h" />

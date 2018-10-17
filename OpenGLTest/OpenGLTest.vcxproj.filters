@@ -60,9 +60,6 @@
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -169,9 +166,6 @@
     <ClInclude Include="Pickup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -185,9 +179,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventName.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
