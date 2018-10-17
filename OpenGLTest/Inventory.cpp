@@ -14,6 +14,12 @@ Weapon* Inventory::selectSlot(int slot) {
 	// Rotate current Inventory slot to the right
 	//std::rotate(_slots.rbegin(), _slots.rbegin() + 1, _slots.rend());
 
+	if (currentSlot == -1)
+	{
+		std::cout << "No weapons available" << std::endl;
+		return NULL;
+	}
+
 	if (slot < 0)
 		currentSlot = _slots.size() - 1;
 	else if (slot >= _slots.size())
@@ -49,6 +55,11 @@ void Inventory::emptySlot() {
 	}*/
 
 	_slots.erase(_slots.begin() + currentSlot);
+	
+	if (_slots.size() == 0)
+		currentSlot = -1;
+	else
+		currentSlot = 0;
 }
 
 // Adds a picked up Item if there is room
@@ -63,6 +74,12 @@ void Inventory::addItem(Pickup item) {
 // Removes a charge from the current Item
 void Inventory::useWeapon()
 {
+	if (currentSlot == -1)
+	{
+		std::cout << "No weapons available" << std::endl;
+		return;
+	}
+
 	std::cout << "Remaining Charges: " << _slots[currentSlot]->_charges - 1 << std::endl;
 
 	if (_slots[currentSlot]->use() < 1)
