@@ -15,8 +15,6 @@ void AssetLoader::loadModel(std::string const &path) {
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
 		return;
 	}
-	// retrieve the directory path of the filepath
-	directory = path.substr(0, path.find_last_of('/'));
 
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene);
@@ -28,7 +26,7 @@ void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
 		// the node object only contains indices to index the actual objects in the scene. 
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		renderables.push_back(processMesh(mesh));
+		models.push_back(processMesh(mesh));
 	}
 	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -36,41 +34,41 @@ void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
 	}
 }
 
-Renderable AssetLoader::processMesh(aiMesh *mesh) {
-	Renderable ret;
+Model AssetLoader::processMesh(aiMesh *mesh) {
+	Model ret;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		glm::vec3 pos;
 		pos.x = mesh->mVertices[i].x;
 		pos.y = mesh->mVertices[i].y;
 		pos.z = mesh->mVertices[i].z;
-		ret._positions.push_back(pos);
+		ret.positions.push_back(pos);
 
 		if (mesh->mNormals != NULL) {
 			glm::vec3 normal;
 			normal.x = mesh->mNormals[i].x;
 			normal.y = mesh->mNormals[i].y;
 			normal.z = mesh->mNormals[i].z;
-			ret._normals.push_back(normal);
+			ret.normals.push_back(normal);
 		}
 		else {
-			ret._normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+			ret.normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
 		}
 
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 texCoord;
 			texCoord.x = mesh->mTextureCoords[0][i].x;
 			texCoord.y = mesh->mTextureCoords[0][i].y;
-			ret._texCoords.push_back(texCoord);
+			ret.UVs.push_back(texCoord);
 		}
 		else {
-			ret._texCoords.push_back(glm::vec2(0, 0));
+			ret.UVs.push_back(glm::vec2(0, 0));
 		}
 
 	}
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
-			ret._elements.push_back(face.mIndices[j]);
+			ret.elements.push_back(face.mIndices[j]);
 		}
 	}
 	return ret;

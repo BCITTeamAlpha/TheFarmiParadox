@@ -13,16 +13,16 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     yType = UNIT_PERCENT;
     parent = nullptr;
 
-    _position = &screenPosition;
-    _rotation = &rotation;
-    _z = 0;
+    position = &screenPosition;
+    rotation = &screenRotation;
+    z = 0;
 
     // Initialize Renderable data with a standard quad
-    _normals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-    _elements = { 1, 0, 2, 1, 2, 3 };
-    _texCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
-    _positions = { {-2.5,2.5,0},{2.5,2.5,0}, {-2.5,-2.5,0}, {2.5,-2.5,0} };
-    _color = {0,0,0,0};
+	model.positions = { { -2.5,2.5,0 },{ 2.5,2.5,0 },{ -2.5,-2.5,0 },{ 2.5,-2.5,0 } };
+    model.normals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
+    model.UVs = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
+	model.elements = { 1, 0, 2, 1, 2, 3 };
+    color = {0,0,0,0};
 
     // Generate buffers for this panel
     TypeParam<UIComponent*> param(this);
@@ -90,11 +90,11 @@ void UIComponent::Resize() {
             break;
         }
 
-        _z = parent->_z + 1;
+        z = parent->z + 1;
     }
     
     // Generate vertices of quad from position and size of panel
-    _positions = {
+    model.positions = {
         { screenPosition.x, screenPosition.y + screenSize.y, 0 }, // Top Left
         { screenPosition + screenSize, 0 }, // Top Right
         { screenPosition, 0 }, // Bottom Left
@@ -118,5 +118,5 @@ void UIComponent::Add(UIComponent* child) {
 }
 
 bool UIComponent::IsTransparent() {
-    return _color.a < 1.0f;
+    return color.a < 1.0f;
 }
