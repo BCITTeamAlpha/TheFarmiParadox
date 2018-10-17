@@ -166,6 +166,7 @@
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ImageComponent.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="main.cpp" />
@@ -183,9 +184,9 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="TextComponent.cpp" />
     <ClCompile Include="UIComponent.cpp" />
     <ClCompile Include="UIManager.cpp" />
-    <ClCompile Include="UIRenderable.cpp" />
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -200,8 +201,10 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="EventName.h" />
+    <ClInclude Include="FontType.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ImageComponent.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Renderable.h" />
@@ -220,9 +223,9 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="ISubscriber.h" />
+    <ClInclude Include="TextComponent.h" />
     <ClInclude Include="UIComponent.h" />
     <ClInclude Include="UIManager.h" />
-    <ClInclude Include="UIRenderable.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

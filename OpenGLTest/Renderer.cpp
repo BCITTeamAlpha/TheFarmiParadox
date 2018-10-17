@@ -28,9 +28,9 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->_elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void Renderer::DrawUIRenderable(UIRenderable* UIrenderable) {
+void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_positionBufferLocation);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
@@ -40,7 +40,7 @@ void Renderer::DrawUIRenderable(UIRenderable* UIrenderable) {
 	glBindTexture(GL_TEXTURE_2D, UIrenderable->_textureLocation);
 
 	glm::mat4 m = glm::mat4(1.0);
-	m = glm::translate(m, *UIrenderable->_position);
+	m = glm::translate(m, UIrenderable->getPosition3());
 	m = glm::rotate(m, (*UIrenderable->_rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*UIrenderable->_rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*UIrenderable->_rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
@@ -69,11 +69,9 @@ void Renderer::draw() {
 
 	// draw 2d stuff
 	glUseProgram(uiProgram);
-	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT);
+	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
 	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
-	for (auto UIrenderable : UIrenderables) {
-		DrawUIRenderable(UIrenderable);
-	}
+    DrawUITree();
 }
 
 void Renderer::GenerateBuffers(Renderable &renderable) {
@@ -82,13 +80,6 @@ void Renderer::GenerateBuffers(Renderable &renderable) {
 	glGenBuffers(1, &renderable._normalBufferLocation);
 	glGenBuffers(1, &renderable._elementBufferLocation);
 	glGenTextures(1, &renderable._textureLocation);
-}
-
-void Renderer::GenerateBuffers(UIRenderable &UIrenderable) {
-	glGenBuffers(1, &UIrenderable._positionBufferLocation);
-	glGenBuffers(1, &UIrenderable._texCoordBufferLocation);
-	glGenBuffers(1, &UIrenderable._elementBufferLocation);
-	glGenTextures(1, &UIrenderable._textureLocation);
 }
 
 void Renderer::PopulateBuffers(Renderable &renderable) {
@@ -109,41 +100,19 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	int size = std::sqrt((renderable._texture.size() / 4));
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
-	glGenerateMipmap(GL_TEXTURE_2D);
-}
-
-void Renderer::PopulateBuffers(UIRenderable& UIrenderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable._positionBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, UIrenderable._positions.size() * sizeof(glm::vec2), UIrenderable._positions.data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable._texCoordBufferLocation);
-	glBufferData(GL_ARRAY_BUFFER, UIrenderable._texCoords.size() * sizeof(glm::vec2), UIrenderable._texCoords.data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elementBufferLocation);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, UIrenderable._elements.size() * sizeof(GLuint), UIrenderable._elements.data(), GL_STATIC_DRAW);
-
-	glBindTexture(GL_TEXTURE_2D, UIrenderable._textureLocation);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	int size = std::sqrt((UIrenderable._texture.size() / 4));
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, UIrenderable._texture.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable._texWidth, renderable._texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Renderer::AddToRenderables(Renderable& renderable) {
-	GenerateBuffers(renderable);
-	PopulateBuffers(renderable);
-	renderables.push_back(&renderable);
+    GenerateBuffers(renderable);
+    PopulateBuffers(renderable);
+    renderables.push_back(&renderable);
 }
 
-void Renderer::AddToRenderables(UIRenderable& UIrenderable) {
-	GenerateBuffers(UIrenderable);
-	PopulateBuffers(UIrenderable);
-	UIrenderables.push_back(&UIrenderable);
+void Renderer::AddToUIRenderables(UIComponent* renderable) {
+    GenerateBuffers(*renderable);
+    PopulateBuffers(*renderable);
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -254,17 +223,56 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	UIRenderable text;
-	text.BuildWithString("Text rendering kind of working?");
-	text._position = &glm::vec3();
-	text._rotation = &glm::vec3();
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	GLubyte* goat = stbi_load("./font.png", &width, &height, &nrChannels, 0);
-	text._texture.assign(goat, goat + width * height * 4);
-	AddToRenderables(text);
+    uim = new UIManager(WIDTH, HEIGHT);
+
+    UIComponent lBox(22.35, 100, 0, 0);
+    lBox._color = { 0.4,0,0.8,1 };
+    lBox.vAnchor = ANCHOR_TOP;
+    lBox.hAnchor = ANCHOR_LEFT;
+
+    UIComponent lBoxInner(90, 96, 0, 0);
+    lBoxInner._color = { 0.45,0,0.91,0.8 };
+    lBoxInner.vAnchor = ANCHOR_VCENTER;
+    lBoxInner.hAnchor = ANCHOR_HCENTER;
+
+    UIComponent rBox(21.9, 100, 0, 0);
+    rBox._color = { 0.4,0,0.8,1 };
+    rBox.vAnchor = ANCHOR_TOP;
+    rBox.hAnchor = ANCHOR_RIGHT;
+
+    UIComponent rBoxInner(90, 96, 0, 0);
+    rBoxInner._color = { 0.45,0,0.91,0.8 };
+    rBoxInner.vAnchor = ANCHOR_VCENTER;
+    rBoxInner.hAnchor = ANCHOR_HCENTER;
+
+    TextComponent lText("T O P", 64, 0, 0);
+    lText.vAnchor = ANCHOR_TOP;
+    lText.hAnchor = ANCHOR_HCENTER;
+    lText._color = { 1,1,1,1 };
+
+    TextComponent rText("K E K", 64, 0, 0);
+    rText.vAnchor = ANCHOR_TOP;
+    rText.hAnchor = ANCHOR_HCENTER;
+    rText._color = { 1,1,1,1 };
+
+    ImageComponent imageTest("./araragi_karen.png", 95, 0, 0, 0);
+    imageTest.vAnchor = ANCHOR_BOTTOM;
+    imageTest.hAnchor = ANCHOR_HCENTER;
+    imageTest.xType = UNIT_PERCENT;
+    imageTest.yType = UNIT_SCALE;
+
+    lBoxInner.Add(&lText);
+    lBoxInner.Add(&imageTest);
+    rBoxInner.Add(&rText);
+
+    lBox.Add(&lBoxInner);
+    rBox.Add(&rBoxInner);
+
+    uim->AddToRoot(&lBox);
+    uim->AddToRoot(&rBox);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -285,8 +293,71 @@ int Renderer::RenderLoop(Renderable **pp) {
 	return EXIT_SUCCESS;
 }
 
+void Renderer::notify(EventName eventName, Param* params) {
+    switch (eventName) {
+    case RENDERER_ADD_TO_UIRENDERABLES: {
+        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+        AddToUIRenderables(p->Param);
+        break;
+    }
+    case RENDERER_POPULATE_BUFFERS: {
+        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+        PopulateBuffers(*p->Param);
+        break;
+    }
+    case RENDERER_INIT_FONT: {
+        TypeParam<std::pair<std::string, std::string>>
+            *p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
+        std::string fontName = p->Param.first;
+        std::string fontPath = p->Param.second;
+
+        FontType *font = &UIManager::FontLibrary[fontName];
+
+        glGenTextures(1, &font->TextureLocation);
+
+        glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
+        glGenerateMipmap(GL_TEXTURE_2D);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void Renderer::DrawUITree() {
+    transparentList.clear();
+    traverseChild(uim->_root);
+
+    for (UIComponent *t : transparentList) {
+        DrawUIRenderable(t);
+    }
+}
+
+void Renderer::traverseChild(UIComponent *component) {
+    if (component->IsTransparent()) {
+        transparentList.push_back(component);
+    } else {
+        DrawUIRenderable(component);
+    }
+
+    for (UIComponent *child : component->children) {
+        if (child->visible) {
+            traverseChild(child);
+        }
+    }
+}
+
 Renderer::Renderer() {
+    EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
+    EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+    EventManager::subscribe(RENDERER_INIT_FONT, this);
 }
 
 Renderer::~Renderer() {
+    delete uim;
 }

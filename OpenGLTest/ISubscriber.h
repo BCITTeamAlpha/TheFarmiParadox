@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef ISUBSCRIBER_H
-#define ISUBSCRIBER_H
 #include "EventName.h"
 
 // Custom generic parameter type that can be safely cast to other types using TypeParam template
@@ -20,7 +18,5 @@ struct TypeParam:Param {
 class ISubscriber {
 public:
     // Action to take when notified by an event
-    virtual void notify(EventName eventName, Param* params) = 0;
+    virtual void notify(EventName eventName, Param *params) = 0;
 };
-
-#endif

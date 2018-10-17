@@ -1,6 +1,4 @@
 #pragma once
-#ifndef EVENTMANAGER_H
-#define EVENTMANAGER_H
 
 //created by main
 
@@ -31,5 +29,3 @@ private:
 
     EventManager() {}
 };
-
-#endif

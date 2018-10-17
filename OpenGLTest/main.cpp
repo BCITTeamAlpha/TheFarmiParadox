@@ -14,6 +14,7 @@
 #include "PhysicsManager.h"
 #include "Model.h"
 #include "Input.h"
+#include "UIManager.h"
 #include "Sound.h"
 #include <thread>
 
@@ -30,7 +31,6 @@ Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
 Sound *sound;
-
 
 void SendToRenderer(Renderable &renderable)
 {
@@ -201,7 +201,9 @@ int main()
 	backgroundSkin->_normals = quadNormals;
 	backgroundSkin->_elements = quadElements;
 	backgroundSkin->_texture.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-	backgroundSkin->_fullBright = true;
+    backgroundSkin->_texWidth = 128;
+    backgroundSkin->_texHeight = 128;
+    backgroundSkin->_fullBright = true;
 
 	// send Renderables to renderer
 	SendToRenderer(*mapSkin);
@@ -218,8 +220,6 @@ int main()
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
-
-
 
 	for (int tick = 0;; tick++)
 	{
