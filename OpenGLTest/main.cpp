@@ -17,11 +17,14 @@
 #include "UIManager.h"
 #include "Sound.h"
 #include <thread>
+#include "Player.h"
 
 const int physUpdates = 30;
 
 GLFWwindow* window;
-Input inputHandler; //usage: inputHandler.addKeyDownBinding(GLFW_KEY_B, yourFunctionName); 
+Input inputHandler;
+//If we want to bind a key directly to a function
+//inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
 double xpos, ypos;
 
 Renderable *p;
@@ -44,6 +47,7 @@ void SendToRenderer(Renderable &renderable)
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
 	case GLFW_KEY_A:
+	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
@@ -56,6 +60,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		}
 		break;
 	case GLFW_KEY_D:
+	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
@@ -80,7 +85,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		}
 		break;
 	default:
-
 		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
 		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
 
@@ -178,6 +182,16 @@ int main()
 
 	c->setRenderable(cSkin);
 
+	//set up a player with the test character
+	Player *player1 = new Player();
+
+	//set up a test pickup to give the player weapons
+	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+	player1->addItem(pickup1);
+	player1->addItem(pickup2);
+
 	// setup background
 	GLubyte backgroundImage[128][128][4];
 	for (int x = 0; x < 128; x++) {
@@ -216,11 +230,15 @@ int main()
 
 	//Set input handling callbacks
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	
+	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
 
 	for (int tick = 0;; tick++)
 	{
