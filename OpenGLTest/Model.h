@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>

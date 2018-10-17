@@ -2,7 +2,7 @@
 #include <Windows.h>
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <glm/glm.hpp>
 
 #include "MarchingSquares.h"

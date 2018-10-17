@@ -1,8 +1,8 @@
 #pragma once
 //created by AssetLoader
 
-#include "al.h"
-#include "alc.h"
+#include "Al/al.h"
+#include "Al/alc.h"
 
 class Sound {
 public:

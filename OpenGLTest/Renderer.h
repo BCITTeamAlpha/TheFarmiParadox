@@ -8,7 +8,7 @@
 #include <vector>
 
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/color_space.hpp>

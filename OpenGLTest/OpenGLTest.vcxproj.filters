@@ -139,12 +139,6 @@
     <ClInclude Include="GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClCompile Include="ImageComponent.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Inventory.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -206,6 +200,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FontType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
