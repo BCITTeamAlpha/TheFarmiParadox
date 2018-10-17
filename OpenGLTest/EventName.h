@@ -8,5 +8,8 @@ enum EventName {
     RENDERER_INIT_FONT, // Initialize a font texture
 	PLAYER_JUMP,   // Used to trigger a player movement event
 	PLAYER_LEFT,
-	PLAYER_RIGHT
+	PLAYER_RIGHT,
+	WEAPON_PREV,
+	WEAPON_NEXT,
+	WEAPON_FIRE
 };
