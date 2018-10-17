@@ -1,123 +1,245 @@
-#include "openglstuff.h"
-#include "shader.h"
+#include <vector>
+#include <Windows.h>
 
-const GLint WIDTH = 800, HEIGHT = 600;
+#define GLEW_STATIC
+#include <GLEW/glew.h>
+#include <glm/glm.hpp>
 
-const GLfloat vertices[] =
+#include "AssetLoader.h"
+#include "MarchingSquares.h"
+#include "Renderer.h"
+#include "Renderable.h"
+#include "Planetoid.h"
+#include "Map.h"
+#include "Character.h"
+#include "PhysicsManager.h"
+#include "Input.h"
+#include "UIManager.h"
+#include "Sound.h"
+#include <thread>
+#include "Player.h"
+
+const int physUpdates = 30;
+
+GLFWwindow* window;
+Input inputHandler;
+//If we want to bind a key directly to a function
+//inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
+double xpos, ypos;
+
+Renderable *p;
+Renderable ** const pp = &p;
+
+Renderer *renderer;
+PhysicsManager *physics;
+Map *map;
+Sound *sound;
+
+void SendToRenderer(Renderable &renderable)
 {
-	-0.5f, -0.5f, 0.0f, //left
-	0.5f, -0.5f, 0.0f,  //right
-	0.0f, 0.5f, 0.0f    //top
-};
-
-GLuint mainProgram, VAO, VBO;
-
-void draw()
-{
-	glClearColor(0.2f, 0.9f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(mainProgram);
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
+	while (*pp != NULL) {
+		Sleep(1);
+	}
+	*pp = &renderable;
+	std::cout << "passed IRenderable to Renderer" << std::endl;
 }
+
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	switch (key) {
+	case GLFW_KEY_A:
+	case GLFW_KEY_LEFT:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(PLAYER_LEFT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(PLAYER_LEFT, &param, false);
+		}
+		break;
+	case GLFW_KEY_D:
+	case GLFW_KEY_RIGHT:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(PLAYER_RIGHT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(PLAYER_RIGHT, &param, false);
+		}
+		break;
+	case GLFW_KEY_SPACE:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(PLAYER_JUMP, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(PLAYER_JUMP, &param, false);
+		}
+		break;
+	default:
+		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
+		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
+
+		break;
+	}
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+
+	glfwGetCursorPos(window, &xpos, &ypos);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
+	{
+		printf("Right mouse button clicked at: ");
+		printf("%lf %lf\n", xpos, ypos);
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
+	{
+		printf("Right mouse button released\n");
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
+	{
+		printf("left mouse button clicked at: ");
+		printf("%lf %lf\n", xpos, ypos);
+	}
+}
+
+
+void TestFunction() {
+	std::cout << "TestFunction called" << std::endl;
+}
+
+
+std::vector<glm::vec3> quadPositions = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5, -2.5, 0 },{ 2.5, -2.5, 0 } };
+std::vector<glm::vec2> quadTexCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
+std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
+std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
+std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0, 0, 0 },{ 128, 0, 0 } };
 
 int main()
 {
-	//Setup GLFW
-	glfwInit();
+	AssetLoader model;
+	model.loadModel("teapot.obj");
+	// start Renderer in own thread
+	renderer = new Renderer();
+	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    //adding sound
+    sound = new Sound();
+    sound->SwitchTrack();
+    std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", nullptr, nullptr);
+	// setup Map IRenderable
+	std::vector<Planetoid> planets;
+	planets.push_back(Planetoid(48.0f, 88.0f, 16.0f));
+	planets.push_back(Planetoid(88.0f, 50.0f, 8.0f));
+	planets.push_back(Planetoid(32.0f, 32.0f, 32.0f));
+	planets.push_back(Planetoid(8.0f, 120.0f, 12.0f));
+	planets.push_back(Planetoid(120.0f, 120.0f, 48.0f));
+	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
 
-	//Ensure window was created
-	if (window == nullptr)
+	map = new Map(planets, 128, 128);
+
+	Renderable *mapSkin = new Renderable();
+	mapSkin->z = 0;
+	mapSkin->model.positions = MarchingSquares::GenerateMesh(*map);
+	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
+
+	for (GLuint i = 0; i < mapSkin->model.positions.size(); i++)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-
-		return EXIT_FAILURE;
+		glm::vec2 texCoord;
+		texCoord.x = mapSkin->model.positions[i].x / 128;
+		texCoord.y = mapSkin->model.positions[i].y / 128;
+		mapSkin->model.UVs.push_back(texCoord);
+		mapSkin->model.normals.push_back(glm::vec3(0, 0, 1));
+		mapSkin->model.elements.push_back(i);
 	}
 
-	//Adjust width and height based on pixel density
-	int scrnWidth, scrnHeight;
-	glfwGetFramebufferSize(window, &scrnWidth, &scrnHeight);
+	map->setRenderable(mapSkin);
 
-	glfwMakeContextCurrent(window);
+	physics = new PhysicsManager(&planets, map);
 
-	glewExperimental = GL_TRUE;
+	//set up a square test character
+	Character *c = new Character();
+	c->mass = 50;
+	c->position = { 75.0f, 60.0f };
 
-	//Check that GLEW is initialized
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		glfwTerminate();
+	Renderable *cSkin = new Renderable();
+	cSkin->z = 0;
+	cSkin->model = model.models[0];
+	cSkin->color = glm::vec4(1, 0, 0, 1);
 
-		return EXIT_FAILURE;
+	c->setRenderable(cSkin);
+
+	//set up a player with the test character
+	Player *player1 = new Player();
+
+	//set up a test pickup to give the player weapons
+	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+	player1->addItem(pickup1);
+	player1->addItem(pickup2);
+
+	// setup background
+	GLubyte backgroundImage[128][128][4];
+	for (int x = 0; x < 128; x++) {
+		for (int y = 0; y < 128; y++) {
+			float val = map->value(x, y) * 0.1f;
+			val = std::max(0.0f, val);
+			val = std::min(1.0f, val);
+			val = 1.0f - val;
+			val = val * val;
+			backgroundImage[y][x][0] = 63;
+			backgroundImage[y][x][1] = 127;
+			backgroundImage[y][x][2] = 255;
+			backgroundImage[y][x][3] = 255 * val;
+		}
 	}
+	Renderable* backgroundSkin = new Renderable();
+	GameObject background;
+	background.setRenderable(backgroundSkin);
+	backgroundSkin->z = -1;
+	backgroundSkin->model.positions = backgroundPositions;
+	backgroundSkin->model.UVs = quadTexCoords;
+	backgroundSkin->model.normals = quadNormals;
+	backgroundSkin->model.elements = quadElements;
+	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
+    backgroundSkin->texture.width = 128;
+    backgroundSkin->texture.height = 128;
+    backgroundSkin->fullBright = true;
 
-	//Create the viewport
-	glViewport(0, 0, scrnWidth, scrnHeight);
+	// send Renderables to renderer
+	SendToRenderer(*mapSkin);
+	SendToRenderer(*cSkin);
+	SendToRenderer(*backgroundSkin);
 
-	//Load vertex shader
-	Shader *vShader = new Shader("./VertexShader", GL_VERTEX_SHADER);
+	// send physicsobjects to physicsmanager
+	physics->addObject(c);
 
-	//Load fragment shader
-	Shader *fShader = new Shader("./FragmentShader", GL_FRAGMENT_SHADER);
+	//Set input handling callbacks
+	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	//Link shaders to program
-	mainProgram = glCreateProgram();
-	glAttachShader(mainProgram, vShader->GetShader());
-	glAttachShader(mainProgram, fShader->GetShader());
-	glLinkProgram(mainProgram);
+	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
+	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	
+	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
 
-	//Check for linking errors
-	GLint success;
-	GLchar infoLog[512];
-
-	glGetProgramiv(mainProgram, GL_LINK_STATUS, &success);
-
-	if (!success)
+	for (int tick = 0;; tick++)
 	{
-		glGetProgramInfoLog(mainProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		physics->calcPhysics(1.0 / 59.94);
+		Sleep(1000.0 / 59.94);
 	}
-
-	delete(vShader);
-	delete(fShader);
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	while (!glfwWindowShouldClose(window))
-	{
-		//Check for events like key pressed, mouse moves, etc.
-		glfwPollEvents();
-
-		//draw
-		draw();
-
-		glfwSwapBuffers(window);
-	}
-
-	glfwTerminate();
-
-	return EXIT_SUCCESS;
 }
