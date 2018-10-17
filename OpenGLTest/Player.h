@@ -6,7 +6,9 @@
 class Player {
 public:
 	Player();
+	void addCharacter(Character *c);
+	void addWeapon(Weapon w);
 private:
 	std::vector<Character> chars;
-	Inventory weaps;
+	Inventory *weaps;
 };
