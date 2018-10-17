@@ -30,7 +30,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_positionBufferLocation);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
@@ -295,37 +295,37 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
-    case RENDERER_ADD_TO_UIRENDERABLES: {
-        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-        AddToUIRenderables(p->Param);
-        break;
-    }
-    case RENDERER_POPULATE_BUFFERS: {
-        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-        PopulateBuffers(*p->Param);
-        break;
-    }
-    case RENDERER_INIT_FONT: {
-        TypeParam<std::pair<std::string, std::string>>
-            *p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
-        std::string fontName = p->Param.first;
-        std::string fontPath = p->Param.second;
+		case RENDERER_ADD_TO_UIRENDERABLES: {
+			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+			AddToUIRenderables(p->Param);
+			break;
+		}
+		case RENDERER_POPULATE_BUFFERS: {
+			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+			PopulateBuffers(*p->Param);
+			break;
+		}
+		case RENDERER_INIT_FONT: {
+			TypeParam<std::pair<std::string, std::string>>
+				*p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
+			std::string fontName = p->Param.first;
+			std::string fontPath = p->Param.second;
 
-        FontType *font = &UIManager::FontLibrary[fontName];
+			FontType *font = &UIManager::FontLibrary[fontName];
 
-        glGenTextures(1, &font->TextureLocation);
+			glGenTextures(1, &font->TextureLocation);
 
-        glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
-        glGenerateMipmap(GL_TEXTURE_2D);
-        break;
-    }
-    default:
-        break;
+			glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
+			glGenerateMipmap(GL_TEXTURE_2D);
+			break;
+		}
+		default:
+			break;
     }
 }
 
