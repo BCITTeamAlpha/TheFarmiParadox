@@ -13,5 +13,5 @@ uniform vec4 u_color = vec4(1.0);
 void main() {
 	v_color = u_color;
 	v_texCoord = texCoord;
-	gl_Position = viewProjection * model * vec4(position, 1.0);
+	gl_Position = viewProjection * model * vec4(position.xy, 0.0, 1.0);
 }

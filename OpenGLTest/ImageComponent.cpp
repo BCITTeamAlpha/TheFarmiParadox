@@ -10,7 +10,7 @@ ImageComponent::ImageComponent(std::string imagePath, float width, float height,
     _color = {1,1,1,1};
 
     TypeParam<UIComponent*> param(this);
-    EventManager::notify(RENDERER_POPULATE_BUFFERS, &param, false);
+    EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
 }
 
 bool ImageComponent::IsTransparent() { return true; }

@@ -30,7 +30,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_positionBufferLocation);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->_texCoordBufferLocation);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (GLvoid*)0);
@@ -100,8 +100,7 @@ void Renderer::PopulateBuffers(Renderable &renderable) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	int size = std::sqrt((renderable._texture.size() / 4));
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable._texWidth, renderable._texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable._texture.data());
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
@@ -227,71 +226,51 @@ int Renderer::RenderLoop(Renderable **pp) {
 
     uim = new UIManager(WIDTH, HEIGHT);
 
-    UIComponent tlBox(25, 25, 0, 0);
-    tlBox._color = { 1,0,0,0.2 };
-    tlBox.vAnchor = ANCHOR_TOP;
-    tlBox.hAnchor = ANCHOR_LEFT;
+    UIComponent lBox(22.35, 100, 0, 0);
+    lBox._color = { 0.4,0,0.8,1 };
+    lBox.vAnchor = ANCHOR_TOP;
+    lBox.hAnchor = ANCHOR_LEFT;
 
-    UIComponent trBox(25, 25, 0, 0);
-    trBox._color = { 0,1,0,0.2 };
-    trBox.vAnchor = ANCHOR_TOP;
-    trBox.hAnchor = ANCHOR_RIGHT;
+    UIComponent lBoxInner(90, 96, 0, 0);
+    lBoxInner._color = { 0.45,0,0.91,0.8 };
+    lBoxInner.vAnchor = ANCHOR_VCENTER;
+    lBoxInner.hAnchor = ANCHOR_HCENTER;
 
-    UIComponent blBox(25, 25, 0, 0);
-    blBox._color = { 0,0,1,0.5 };
-    blBox.vAnchor = ANCHOR_BOTTOM;
-    blBox.hAnchor = ANCHOR_LEFT;
+    UIComponent rBox(21.9, 100, 0, 0);
+    rBox._color = { 0.4,0,0.8,1 };
+    rBox.vAnchor = ANCHOR_TOP;
+    rBox.hAnchor = ANCHOR_RIGHT;
 
-    UIComponent brBox(25, 25, 0, 0);
-    brBox._color = { 1,0,1,0.5 };
-    brBox.vAnchor = ANCHOR_BOTTOM;
-    brBox.hAnchor = ANCHOR_RIGHT;
+    UIComponent rBoxInner(90, 96, 0, 0);
+    rBoxInner._color = { 0.45,0,0.91,0.8 };
+    rBoxInner.vAnchor = ANCHOR_VCENTER;
+    rBoxInner.hAnchor = ANCHOR_HCENTER;
 
-    UIComponent centerBox(25, 25, 0, 0);
-    centerBox._color = { 0,1,1,0.2 };
-    centerBox.vAnchor = ANCHOR_VCENTER;
-    centerBox.hAnchor = ANCHOR_HCENTER;
-    centerBox.visible = true;
+    TextComponent lText("T O P", 64, 0, 0);
+    lText.vAnchor = ANCHOR_TOP;
+    lText.hAnchor = ANCHOR_HCENTER;
+    lText._color = { 1,1,1,1 };
 
-    UIComponent centerBox2(50, 50, 0, 0);
-    centerBox2._color = {1, 1, 1, 1};
-    centerBox2.vAnchor = ANCHOR_VCENTER;
-    centerBox2.hAnchor = ANCHOR_HCENTER;
+    TextComponent rText("K E K", 64, 0, 0);
+    rText.vAnchor = ANCHOR_TOP;
+    rText.hAnchor = ANCHOR_HCENTER;
+    rText._color = { 1,1,1,1 };
 
-    TextComponent testText("This is a test!", 32, 0, 0);
-    testText.vAnchor = ANCHOR_VCENTER;
-    testText.hAnchor = ANCHOR_HCENTER;
-    testText._color = { 0,0,0,1 };
-
-    TextComponent bigText("BIG TEXT", 64, 0, 0);
-    bigText.vAnchor = ANCHOR_VCENTER;
-    bigText.hAnchor = ANCHOR_HCENTER;
-    bigText._color = { 0,0,0,1 };
-
-    TextComponent smallText("smol boi", 12, 0, 0);
-    smallText.vAnchor = ANCHOR_VCENTER;
-    smallText.hAnchor = ANCHOR_HCENTER;
-    smallText._color = { 0,0,0,1 };
-
-    ImageComponent imageTest("./araragi_karen.png", 350, 0, 0, 0);
+    ImageComponent imageTest("./araragi_karen.png", 95, 0, 0, 0);
     imageTest.vAnchor = ANCHOR_BOTTOM;
-    imageTest.hAnchor = ANCHOR_LEFT;
-    imageTest.xType = UNIT_PIXEL;
+    imageTest.hAnchor = ANCHOR_HCENTER;
+    imageTest.xType = UNIT_PERCENT;
     imageTest.yType = UNIT_SCALE;
 
-    centerBox2.Add(&testText);
+    lBoxInner.Add(&lText);
+    lBoxInner.Add(&imageTest);
+    rBoxInner.Add(&rText);
 
-    centerBox.Add(&centerBox2);
+    lBox.Add(&lBoxInner);
+    rBox.Add(&rBoxInner);
 
-    tlBox.Add(&bigText);
-    trBox.Add(&smallText);
-    blBox.Add(&imageTest);
-
-    uim->AddToRoot(&tlBox);
-    uim->AddToRoot(&trBox);
-    uim->AddToRoot(&blBox);
-    uim->AddToRoot(&brBox);
-    uim->AddToRoot(&centerBox);
+    uim->AddToRoot(&lBox);
+    uim->AddToRoot(&rBox);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 

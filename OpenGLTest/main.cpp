@@ -194,7 +194,9 @@ int main()
 	backgroundSkin->_normals = quadNormals;
 	backgroundSkin->_elements = quadElements;
 	backgroundSkin->_texture.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-	backgroundSkin->_fullBright = true;
+    backgroundSkin->_texWidth = 128;
+    backgroundSkin->_texHeight = 128;
+    backgroundSkin->_fullBright = true;
 
 	// send Renderables to renderer
 	SendToRenderer(*mapSkin);

@@ -15,6 +15,9 @@ void TextComponent::SetText(std::string text) {
 void TextComponent::Resize() {
     if (parent != nullptr) {
         _textureLocation = _font.TextureLocation;
+        _texWidth = _font.TexWidth;
+        _texHeight = _font.TexHeight;
+        _texture = _font.TextureData;
 
         float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
 
