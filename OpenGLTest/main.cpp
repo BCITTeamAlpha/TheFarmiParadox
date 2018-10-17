@@ -42,6 +42,7 @@ void SendToRenderer(Renderable &renderable)
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
 	case GLFW_KEY_A:
+	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
@@ -54,6 +55,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		}
 		break;
 	case GLFW_KEY_D:
+	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
@@ -77,8 +79,31 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
 		break;
+	case GLFW_KEY_Q:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(WEAPON_PREV, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(WEAPON_PREV, &param, false);
+		}
+		break;
+	case GLFW_KEY_E:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(WEAPON_NEXT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(WEAPON_NEXT, &param, false);
+		}
+		break;
 	default:
-
 		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
 		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
 
@@ -206,13 +231,13 @@ int main()
 
 	//Set input handling callbacks
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, TestFunction); //example of registering a function to input handler. this function will be called whenever Q is tapped 
 
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 
-
+	//If we want to bind a key directly to a function
+	//inputHandler.addKeyDownBinding(GLFW_KEY_Q, Class::func);
 
 	for (int tick = 0;; tick++)
 	{

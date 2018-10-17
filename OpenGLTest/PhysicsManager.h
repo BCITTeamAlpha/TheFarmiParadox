@@ -9,11 +9,15 @@
 class PhysicsManager : public ISubscriber {
 public:
 	PhysicsManager(std::vector<Planetoid> *p, Map *m);
-	void PhysicsManager::calcPhysics(float dTime);
+	void calcPhysics(float dTime);
 	void addObject(PhysicsObject *obj);
 	static const float VELOCITY_CAP;
 
 	void ISubscriber::notify(EventName eventName, Param* param);
+	static void hello()
+	{
+
+	}
 
 	
 private:
