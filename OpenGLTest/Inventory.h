@@ -17,6 +17,7 @@ public:
 	Pickup dropSlot();
 	void emptySlot();
 	void addItem(Pickup item);
+	void useWeapon();
 
 private:
 	const int capacity = 5;

@@ -1,9 +1,13 @@
 #include "Player.h"
 
+Player* Player::me = NULL;
+
 Player::Player()
 {
 	curChar = 0;
 	chars = std::vector<Character>();
+	weaps = new Inventory();
+	me = this;
 }
 
 void Player::addCharacter(Character *c)
@@ -18,15 +22,15 @@ void Player::addItem(Pickup item)
 
 void Player::prevWeapon()
 {
-	weaps->selectSlot(weaps->currentSlot - 1);
+	me->weaps->selectSlot(me->weaps->currentSlot - 1);
 }
 
 void Player::nextWeapon()
 {
-
+	me->weaps->selectSlot(me->weaps->currentSlot + 1);
 }
 
 void Player::fireWeapon()
 {
-
+	me->weaps->useWeapon();
 }

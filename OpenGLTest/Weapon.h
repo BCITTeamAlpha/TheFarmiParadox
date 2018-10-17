@@ -10,6 +10,6 @@ public:
 	std::string _name;
 	int _charges;
 	int _damage;
-	void use();
+	int use();
 private:
 };

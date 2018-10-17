@@ -9,9 +9,10 @@ public:
 	Player();
 	void addCharacter(Character *c);
 	void addItem(Pickup item);
-	void prevWeapon();
-	void nextWeapon();
-	void fireWeapon();
+	static void prevWeapon();
+	static void nextWeapon();
+	static void fireWeapon();
+	static Player *me;
 private:
 	std::vector<Character> chars;
 	Inventory *weaps;
