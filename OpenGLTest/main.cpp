@@ -206,10 +206,9 @@ int main()
 	GameObject background;
 	background.setRenderable(backgroundSkin);
 	backgroundSkin->z = -1;
-	backgroundSkin->model.positions = backgroundPositions;
-	backgroundSkin->model.UVs = quadTexCoords;
-	backgroundSkin->model.normals = quadNormals;
-	backgroundSkin->model.elements = quadElements;
+	backgroundSkin->position = new glm::vec2(64, 64);
+	backgroundSkin->scale = glm::vec3(128, 128, 128);
+	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
     backgroundSkin->texture.width = 128;
     backgroundSkin->texture.height = 128;

@@ -19,7 +19,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::rotate(m, (*renderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
-	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
+	m = glm::scale(m, renderable->scale);
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
