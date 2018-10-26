@@ -336,7 +336,6 @@ void Renderer::traverseChild(UIComponent *component) {
 Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
-    EventManager::subscribe(RENDERER_INIT_FONT, this);
 }
 
 Renderer::~Renderer() {
