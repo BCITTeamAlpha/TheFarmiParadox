@@ -29,15 +29,15 @@ extern GLFWwindow *window;
 class Renderer : public ISubscriber {
 	public:
 		Renderer();
-		int RenderLoop(Renderable ** pp);
+		int RenderLoop();
 		~Renderer();
 	private:
 		void draw();
 
-		void GenerateBuffers(Renderable & renderable);
-		void PopulateBuffers(Renderable & renderable);
+		void GenerateBuffers(Renderable * renderable);
+		void PopulateBuffers(Renderable * renderable);
 
-        void AddToRenderables(Renderable & renderable);
+        void AddToRenderables(Renderable * renderable);
         void AddToUIRenderables(UIComponent * renderable);
 
 		void DrawRenderable(Renderable * renderable);
@@ -51,6 +51,7 @@ class Renderer : public ISubscriber {
 
         std::list<UIComponent*> transparentList;
 
+		std::list<Renderable*> renderables_waitList;
 		std::list<Renderable*> renderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
@@ -61,7 +62,7 @@ class Renderer : public ISubscriber {
 		GLuint pLoc;
 		GLuint u_fullBrightLoc;
 		GLuint u_colorLoc;
-		GLuint lightPosLoc;
+		GLuint u_lightPosLoc;
 		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
 		GLfloat cameraFOV = 90.0f;
 		GLfloat nearClip = 0.1f;

@@ -8,7 +8,7 @@ out vec4 o_fragColor;
 
 uniform vec4 u_color;
 uniform sampler2D u_textureSampler;
-uniform vec3 lightPosition;
+uniform vec3 u_lightPosition;
 uniform float u_attenuationCoefficient = 0.1f;
 uniform bool u_fullBright;
 
@@ -21,7 +21,7 @@ void main() {
 
 	if (!u_fullBright) {
 		vec3 N = normalize(v_normal);
-		vec3 L = lightPosition - v_position;
+		vec3 L = u_lightPosition - v_position;
 		float len = length(L);
 		L /= len;
 

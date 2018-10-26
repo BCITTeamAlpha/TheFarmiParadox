@@ -19,30 +19,16 @@
 #include <thread>
 #include "Player.h"
 
-const int physUpdates = 30;
-
 GLFWwindow* window;
 Input inputHandler;
 //If we want to bind a key directly to a function
 //inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
 double xpos, ypos;
 
-Renderable *p;
-Renderable ** const pp = &p;
-
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
 Sound *sound;
-
-void SendToRenderer(Renderable &renderable)
-{
-	while (*pp != NULL) {
-		Sleep(1);
-	}
-	*pp = &renderable;
-	std::cout << "passed IRenderable to Renderer" << std::endl;
-}
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -121,7 +107,7 @@ int main()
 {
 	// start Renderer in own thread
 	renderer = new Renderer();
-	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
+	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
     //adding sound
     sound = new Sound();
@@ -199,14 +185,15 @@ int main()
     backgroundSkin->fullBright = true;
 
 	// send Renderables to renderer
-	SendToRenderer(*mapSkin);
-	SendToRenderer(*cSkin);
-	SendToRenderer(*backgroundSkin);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	// send physicsobjects to physicsmanager
 	physics->addObject(c);
 
 	//Set input handling callbacks
+	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
