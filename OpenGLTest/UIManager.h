@@ -4,9 +4,9 @@
 #include <vector>
 #include <string>
 #include <windows.h>
+#include "AssetLoader.h"
 #include "UIComponent.h"
 #include "EventManager.h"
-#include "FontType.h"
 
 //has UIComponents; created by main
 
@@ -19,8 +19,5 @@ public:
     void AddToRoot(UIComponent *component);
 
     UIComponent *_root;
-    
-    static std::map<std::string, FontType> FontLibrary;
 private:
-    static void initFont(std::string fontName, std::string path);
 };

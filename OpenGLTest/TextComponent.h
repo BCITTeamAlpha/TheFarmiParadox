@@ -19,5 +19,4 @@ private:
 
     std::string _text;
     float       _fontSize;
-    FontType    _font;
 };

@@ -305,25 +305,6 @@ void Renderer::notify(EventName eventName, Param* params) {
 			PopulateBuffers(*p->Param);
 			break;
 		}
-		case RENDERER_INIT_FONT: {
-			TypeParam<std::pair<std::string, std::string>>
-				*p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
-			std::string fontName = p->Param.first;
-			std::string fontPath = p->Param.second;
-
-			FontType *font = &UIManager::FontLibrary[fontName];
-
-			glGenTextures(1, &font->TextureLocation);
-
-			glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
-			glGenerateMipmap(GL_TEXTURE_2D);
-			break;
-		}
 		default:
 			break;
     }
