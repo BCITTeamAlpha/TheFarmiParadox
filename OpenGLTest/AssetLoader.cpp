@@ -23,6 +23,14 @@ Model AssetLoader::loadModel(std::string const &path) {
 	return models[index];
 }
 
+Texture AssetLoader::loadTexture(std::string const & path) {
+	Texture ret;
+	stbi_set_flip_vertically_on_load(true);
+	GLubyte* texData = stbi_load(path.c_str(), &ret.width, &ret.height, NULL, 4);
+	ret.data.assign(texData, texData + ret.width * ret.height * 4);
+	return ret;
+}
+
 void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {

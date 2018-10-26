@@ -1,59 +1,35 @@
 #version 330 core
 
-in vec4 v_color;
 in vec2 v_texCoord;
 in vec3 v_position;
 in vec3 v_normal;
 
 out vec4 o_fragColor;
 
+uniform vec4 u_color;
 uniform sampler2D u_textureSampler;
 uniform vec3 lightPosition;
-uniform float attenuationCoefficient = 0.1f;
-uniform bool u_fullBright = false;
-
-vec3 markusToneMap(vec3 c) {
-	c.y += 0.25 * max(c.x - 1.0f, 0.0f) + 0.25 * max(c.z - 1.0f, 0.0f);
-	c.x += 0.125 * max(c.y - 1.0f, 0.0f);
-	c.z += 0.125 * max(c.y - 1.0f, 0.0f);
-	return clamp(c, 0.0f, 1.0f);
-}
-
-#define scale 10.0
-
-float proceduralTile(vec2 uv, float light, float dark) {
-	float U = floor(uv.x * scale);
-	float V = floor(uv.y * scale);
-	return max(dark, light * mod((U + V), 2.0));
-}
-
-float proceduralDot(vec2 uv, float light, float dark) {
-	uv *= scale;
-	if (mod(uv.x, 2) < 1) {
-		uv.y += 0.5;
-	}
-	uv = fract(uv) - vec2(0.5);
-	return (dot(uv, uv) > 0.1) ? light : dark;
-}
+uniform float u_attenuationCoefficient = 0.1f;
+uniform bool u_fullBright;
 
 void main() {
-	vec4 color = v_color;
+	vec4 color = u_color;
+
+	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
+		color *= texture(u_textureSampler, v_texCoord);
+	}
 
 	if (!u_fullBright) {
 		vec3 N = normalize(v_normal);
 		vec3 L = lightPosition - v_position;
+		float len = length(L);
+		L /= len;
 
-		float lambert = max(dot(N, normalize(L)), 0.0f);
-		float attenuation = 1.0f / length(L * attenuationCoefficient);
+		float lambert = max(dot(N, L), 0.0f);
+		float attenuation = 1.0f / (len * u_attenuationCoefficient);
 		attenuation *= attenuation;
 
 		color.xyz *= lambert * attenuation;
-	}
-
-	if (textureSize(u_textureSampler, 0).x > 1) { // check if texture is bound
-		color *= texture(u_textureSampler, v_texCoord);
-	} else {
-		color.xyz *= proceduralTile(v_texCoord, 1.0, 0.5);
 	}
 	
 	o_fragColor = color;

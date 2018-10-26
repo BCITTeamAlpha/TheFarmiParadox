@@ -142,6 +142,7 @@ int main()
 	Renderable *mapSkin = new Renderable();
 	mapSkin->z = 0;
 	mapSkin->model = MarchingSquares::GenerateModel(*map);
+	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
 	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
 
 	map->setRenderable(mapSkin);

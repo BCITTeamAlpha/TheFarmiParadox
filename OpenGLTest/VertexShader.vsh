@@ -4,7 +4,6 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
 layout(location = 2) in vec3 normal;
 
-out vec4 v_color;
 out vec2 v_texCoord;
 out vec3 v_position;
 out vec3 v_normal;
@@ -12,10 +11,8 @@ out vec3 v_normal;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec4 u_color = vec4(1.0);
 
 void main() {
-	v_color = u_color;
 	v_normal = normalize(view * model * vec4(normal, 0.0)).xyz;
 	v_texCoord = texCoord;
 
