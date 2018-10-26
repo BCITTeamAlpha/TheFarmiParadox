@@ -141,18 +141,8 @@ int main()
 
 	Renderable *mapSkin = new Renderable();
 	mapSkin->z = 0;
-	mapSkin->model.positions = MarchingSquares::GenerateMesh(*map);
+	mapSkin->model = MarchingSquares::GenerateModel(*map);
 	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
-
-	for (GLuint i = 0; i < mapSkin->model.positions.size(); i++)
-	{
-		glm::vec2 texCoord;
-		texCoord.x = mapSkin->model.positions[i].x / 128;
-		texCoord.y = mapSkin->model.positions[i].y / 128;
-		mapSkin->model.UVs.push_back(texCoord);
-		mapSkin->model.normals.push_back(glm::vec3(0, 0, 1));
-		mapSkin->model.elements.push_back(i);
-	}
 
 	map->setRenderable(mapSkin);
 
