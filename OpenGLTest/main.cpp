@@ -126,8 +126,6 @@ std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0
 
 int main()
 {
-	AssetLoader model;
-	model.loadModel("teapot.obj");
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
@@ -174,7 +172,7 @@ int main()
 
 	Renderable *cSkin = new Renderable();
 	cSkin->z = 0;
-	cSkin->model = model.models[0];
+	cSkin->model = AssetLoader::loadModel("teapot.obj");
 	cSkin->color = glm::vec4(1, 0, 0, 1);
 
 	c->setRenderable(cSkin);

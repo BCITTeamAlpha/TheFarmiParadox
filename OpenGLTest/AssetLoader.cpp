@@ -2,22 +2,25 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-AssetLoader::AssetLoader()
-{
-}
+std::vector<Model> AssetLoader::models;
 
-void AssetLoader::loadModel(std::string const &path) {
+Model AssetLoader::loadModel(std::string const &path) {
 	// read file via ASSIMP
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		return;
+		throw "Division by zero condition!";
+		// return Model();
 	}
 
+	int index = models.size();
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene);
+	// return first mesh read from file
+	return models[index];
 }
 
 void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
