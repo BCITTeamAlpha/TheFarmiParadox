@@ -117,13 +117,6 @@ void TestFunction() {
 	std::cout << "TestFunction called" << std::endl;
 }
 
-
-std::vector<glm::vec3> quadPositions = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5, -2.5, 0 },{ 2.5, -2.5, 0 } };
-std::vector<glm::vec2> quadTexCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
-std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
-std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0, 0, 0 },{ 128, 0, 0 } };
-
 int main()
 {
 	// start Renderer in own thread
