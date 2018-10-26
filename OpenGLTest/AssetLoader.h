@@ -25,4 +25,5 @@ private:
 	static void processNode(aiNode *node, const aiScene *scene);
 	static Model processMesh(aiMesh * mesh);
 	static std::vector<Model> models;
+	static std::map<std::string, Texture> textures;
 };

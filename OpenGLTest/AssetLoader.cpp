@@ -3,6 +3,7 @@
 #include "stb_image.h"
 
 std::vector<Model> AssetLoader::models;
+std::map<std::string, Texture> AssetLoader::textures;
 
 Model AssetLoader::loadModel(std::string const &path) {
 	// read file via ASSIMP
@@ -24,11 +25,15 @@ Model AssetLoader::loadModel(std::string const &path) {
 }
 
 Texture AssetLoader::loadTexture(std::string const & path) {
-	Texture ret;
-	stbi_set_flip_vertically_on_load(true);
-	GLubyte* texData = stbi_load(path.c_str(), &ret.width, &ret.height, NULL, 4);
-	ret.data.assign(texData, texData + ret.width * ret.height * 4);
-	return ret;
+	if (textures.find(path) == textures.end()) {
+		Texture texture;
+		stbi_set_flip_vertically_on_load(true);
+		GLubyte* texData = stbi_load(path.c_str(), &texture.width, &texture.height, NULL, 4);
+		texture.data.assign(texData, texData + texture.width * texture.height * 4);
+		textures[path] = texture;
+	}
+
+	return textures[path];
 }
 
 void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
