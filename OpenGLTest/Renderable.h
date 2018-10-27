@@ -39,6 +39,7 @@ class Renderable {
 		glm::vec2 *position;
 		float z;
 		glm::vec3 *rotation;
+		glm::vec3 scale = glm::vec3(1.0);
 		glm::vec4 color = glm::vec4(1.0); // initialize color to white
 		bool fullBright;
 		const GLuint id; // use ID for signalling renderer to remove from rendering list?

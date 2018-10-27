@@ -1,6 +1,5 @@
 #include "MarchingSquares.h"
 
-using std::vector;
 using glm::vec3;
 
 // each int[] represents one of marching square's 16 cases
@@ -37,10 +36,10 @@ inline float zeroCrossing(float a, float b) {
 	return -a / (b - a);
 }
 
-vector<vec3> MarchingSquares::GenerateMesh(Map m) {
-	vector<vec3> vertexVector;
+Model MarchingSquares::GenerateModel(Map m) {
+	Model ret;
 	// reserve enough memory for worst case number of vertices
-	vertexVector.reserve(m.height() * m.width() * 9);
+	ret.positions.reserve(m.height() * m.width() * 9);
 	for (int x = 0; x < m.width() - 1; x++) {
 		for (int y = 0; y < m.height() - 1; y++) {
 			vec3 offset = vec3(x, y, 0);
@@ -86,9 +85,23 @@ vector<vec3> MarchingSquares::GenerateMesh(Map m) {
 						v = vec3(0, zeroCrossing(bottomLeft, topLeft), 0);
 						break;
 				}
-				vertexVector.push_back(v + offset);
+				ret.positions.push_back(v + offset);
 			}
 		}
 	}
-	return vertexVector;
+
+	ret.normals.reserve(ret.positions.size());
+	ret.UVs.reserve(ret.positions.size() / 3 * 2);
+	ret.elements.reserve(ret.positions.size() / 3);
+
+	for (int i = 0; i < ret.positions.size(); i++) {
+		glm::vec2 UV;
+		UV.x = ret.positions[i].x / m.width();
+		UV.y = ret.positions[i].y / m.height();
+		ret.UVs.push_back(UV);
+		ret.normals.push_back({ 0, 0, 1 });
+		ret.elements.push_back(i);
+	}
+
+	return ret;
 }

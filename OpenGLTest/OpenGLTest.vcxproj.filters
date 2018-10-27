@@ -190,9 +190,6 @@
     <ClInclude Include="TextComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FontType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ImageComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -19,7 +19,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::rotate(m, (*renderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
-	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
+	m = glm::scale(m, renderable->scale);
 
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
 	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
@@ -62,7 +62,7 @@ void Renderer::draw() {
 	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
 	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
-	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPosition));
+	glUniform3fv(u_lightPosLoc, 1, glm::value_ptr(lightPosition));
 	for (auto renderable : renderables) {
 		DrawRenderable(renderable);
 	}
@@ -74,45 +74,45 @@ void Renderer::draw() {
     DrawUITree();
 }
 
-void Renderer::GenerateBuffers(Renderable &renderable) {
-	glGenBuffers(1, &renderable.model.positionLoc);
-	glGenBuffers(1, &renderable.model.UVLoc);
-	glGenBuffers(1, &renderable.model.normalLoc);
-	glGenBuffers(1, &renderable.model.elementLoc);
-	glGenTextures(1, &renderable.texture.loc);
+void Renderer::GenerateBuffers(Renderable * renderable) {
+	glGenBuffers(1, &renderable->model.positionLoc);
+	glGenBuffers(1, &renderable->model.UVLoc);
+	glGenBuffers(1, &renderable->model.normalLoc);
+	glGenBuffers(1, &renderable->model.elementLoc);
+	glGenTextures(1, &renderable->texture.loc);
 }
 
-void Renderer::PopulateBuffers(Renderable &renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.positionLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.positions.size() * sizeof(glm::vec3), renderable.model.positions.data(), GL_STATIC_DRAW);
+void Renderer::PopulateBuffers(Renderable * renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.UVLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.UVs.size() * sizeof(glm::vec2), renderable.model.UVs.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.UVLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.UVs.size() * sizeof(glm::vec2), renderable->model.UVs.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.normalLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.normals.size() * sizeof(glm::vec3), renderable.model.normals.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.normalLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.normals.size() * sizeof(glm::vec3), renderable->model.normals.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable.model.elementLoc);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable.model.elements.size() * sizeof(GLuint), renderable.model.elements.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elements.size() * sizeof(GLuint), renderable->model.elements.data(), GL_STATIC_DRAW);
 
-	glBindTexture(GL_TEXTURE_2D, renderable.texture.loc);
+	glBindTexture(GL_TEXTURE_2D, renderable->texture.loc);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable.texture.width, renderable.texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable.texture.data.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable->texture.width, renderable->texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable->texture.data.data());
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Renderer::AddToRenderables(Renderable& renderable) {
+void Renderer::AddToRenderables(Renderable * renderable) {
     GenerateBuffers(renderable);
     PopulateBuffers(renderable);
-    renderables.push_back(&renderable);
+    renderables.push_back(renderable);
 }
 
 void Renderer::AddToUIRenderables(UIComponent* renderable) {
-    GenerateBuffers(*renderable);
-    PopulateBuffers(*renderable);
+    GenerateBuffers(renderable);
+    PopulateBuffers(renderable);
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -140,7 +140,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
 }
 
-int Renderer::RenderLoop(Renderable **pp) {
+int Renderer::RenderLoop() {
 	//Setup GLFW
 	glfwInit();
 
@@ -198,7 +198,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 	pLoc = glGetUniformLocation(mainProgram, "projection");
 	u_fullBrightLoc = glGetUniformLocation(mainProgram, "u_fullBright");
 	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
-	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
+	u_lightPosLoc = glGetUniformLocation(mainProgram, "u_lightPosition");
 
 	mLocUI = glGetUniformLocation(uiProgram, "model");
 	vpLocUI = glGetUniformLocation(uiProgram, "viewProjection");
@@ -278,9 +278,9 @@ int Renderer::RenderLoop(Renderable **pp) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
-		if (*pp != NULL) {
-			AddToRenderables(**pp);
-			*pp = NULL;
+		while (renderables_waitList.size() != 0) {
+			AddToRenderables(renderables_waitList.back());
+			renderables_waitList.pop_back();
 		}
 
 		//draw
@@ -295,6 +295,11 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
+		case RENDERER_ADD_TO_RENDERABLES: {
+			TypeParam<Renderable*> *p = dynamic_cast<TypeParam<Renderable*> *>(params);
+			renderables_waitList.push_back(p->Param);
+			break;
+		}
 		case RENDERER_ADD_TO_UIRENDERABLES: {
 			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
 			AddToUIRenderables(p->Param);
@@ -302,26 +307,7 @@ void Renderer::notify(EventName eventName, Param* params) {
 		}
 		case RENDERER_POPULATE_BUFFERS: {
 			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-			PopulateBuffers(*p->Param);
-			break;
-		}
-		case RENDERER_INIT_FONT: {
-			TypeParam<std::pair<std::string, std::string>>
-				*p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
-			std::string fontName = p->Param.first;
-			std::string fontPath = p->Param.second;
-
-			FontType *font = &UIManager::FontLibrary[fontName];
-
-			glGenTextures(1, &font->TextureLocation);
-
-			glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
-			glGenerateMipmap(GL_TEXTURE_2D);
+			PopulateBuffers(p->Param);
 			break;
 		}
 		default:
@@ -353,9 +339,9 @@ void Renderer::traverseChild(UIComponent *component) {
 }
 
 Renderer::Renderer() {
+	EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
-    EventManager::subscribe(RENDERER_INIT_FONT, this);
 }
 
 Renderer::~Renderer() {

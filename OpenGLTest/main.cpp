@@ -19,30 +19,16 @@
 #include <thread>
 #include "Player.h"
 
-const int physUpdates = 30;
-
 GLFWwindow* window;
 Input inputHandler;
 //If we want to bind a key directly to a function
 //inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
 double xpos, ypos;
 
-Renderable *p;
-Renderable ** const pp = &p;
-
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
 Sound *sound;
-
-void SendToRenderer(Renderable &renderable)
-{
-	while (*pp != NULL) {
-		Sleep(1);
-	}
-	*pp = &renderable;
-	std::cout << "passed IRenderable to Renderer" << std::endl;
-}
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -117,20 +103,11 @@ void TestFunction() {
 	std::cout << "TestFunction called" << std::endl;
 }
 
-
-std::vector<glm::vec3> quadPositions = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5, -2.5, 0 },{ 2.5, -2.5, 0 } };
-std::vector<glm::vec2> quadTexCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
-std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
-std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0, 0, 0 },{ 128, 0, 0 } };
-
 int main()
 {
-	AssetLoader model;
-	model.loadModel("teapot.obj");
 	// start Renderer in own thread
 	renderer = new Renderer();
-	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
+	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
     //adding sound
     sound = new Sound();
@@ -150,18 +127,9 @@ int main()
 
 	Renderable *mapSkin = new Renderable();
 	mapSkin->z = 0;
-	mapSkin->model.positions = MarchingSquares::GenerateMesh(*map);
+	mapSkin->model = MarchingSquares::GenerateModel(*map);
+	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
 	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
-
-	for (GLuint i = 0; i < mapSkin->model.positions.size(); i++)
-	{
-		glm::vec2 texCoord;
-		texCoord.x = mapSkin->model.positions[i].x / 128;
-		texCoord.y = mapSkin->model.positions[i].y / 128;
-		mapSkin->model.UVs.push_back(texCoord);
-		mapSkin->model.normals.push_back(glm::vec3(0, 0, 1));
-		mapSkin->model.elements.push_back(i);
-	}
 
 	map->setRenderable(mapSkin);
 
@@ -174,7 +142,7 @@ int main()
 
 	Renderable *cSkin = new Renderable();
 	cSkin->z = 0;
-	cSkin->model = model.models[0];
+	cSkin->model = AssetLoader::loadModel("teapot.obj");
 	cSkin->color = glm::vec4(1, 0, 0, 1);
 
 	c->setRenderable(cSkin);
@@ -208,24 +176,24 @@ int main()
 	GameObject background;
 	background.setRenderable(backgroundSkin);
 	backgroundSkin->z = -1;
-	backgroundSkin->model.positions = backgroundPositions;
-	backgroundSkin->model.UVs = quadTexCoords;
-	backgroundSkin->model.normals = quadNormals;
-	backgroundSkin->model.elements = quadElements;
+	backgroundSkin->position = new glm::vec2(64, 64);
+	backgroundSkin->scale = glm::vec3(128, 128, 128);
+	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
     backgroundSkin->texture.width = 128;
     backgroundSkin->texture.height = 128;
     backgroundSkin->fullBright = true;
 
 	// send Renderables to renderer
-	SendToRenderer(*mapSkin);
-	SendToRenderer(*cSkin);
-	SendToRenderer(*backgroundSkin);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	// send physicsobjects to physicsmanager
 	physics->addObject(c);
 
 	//Set input handling callbacks
+	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
 	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
