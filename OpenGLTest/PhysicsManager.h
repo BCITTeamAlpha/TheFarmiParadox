@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include "EventManager.h"
+#include "Character.h"
 
 class PhysicsManager : public ISubscriber {
 public:

@@ -12,6 +12,10 @@ public:
 	static void prevWeapon();
 	static void nextWeapon();
 	static void fireWeapon();
+	void clearInput();
+	void moveLeft(bool v);
+	void moveRight(bool v);
+	void jump(bool v);
 	static Player *me;
 private:
 	std::vector<Character> chars;

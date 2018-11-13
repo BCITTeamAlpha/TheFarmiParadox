@@ -34,3 +34,37 @@ void Player::fireWeapon()
 {
 	me->weaps->useWeapon();
 }
+
+void Player::clearInput()
+{
+	for (auto & c : chars)
+	{
+		c->left_input = false;
+		c->right_input = false;
+		c->jump_input= false;
+	}
+}
+
+void Player::moveLeft(bool v)
+{
+	for (auto &c : chars)
+	{
+		c->left_input = v;
+	}
+}
+
+void Player::moveRight(bool v)
+{
+	for (auto &c : chars)
+	{
+		c->right_input = v;
+	}
+}
+
+void Player::jump(bool v)
+{
+	for (auto &c : chars)
+	{
+		c->jump_input = v;
+	}
+}

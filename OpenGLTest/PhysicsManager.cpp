@@ -50,6 +50,11 @@ void PhysicsManager::calcPhysics(float dTime)
 		object->position = pos;
 		object->velocity = vel;
 		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI + 90.0f;
+		auto *character = dynamic_cast<Character *>(object);
+		if (character)
+		{
+			characterMovement(character);
+		}
 	}
 
 	// takes by reference and modifies character's pos and vel
