@@ -1,5 +1,36 @@
 #include "Renderer.h"
 
+#include <algorithm>
+#include <iostream>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/color_space.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "shader.h"
+#include "TextComponent.h"
+#include "ImageComponent.h"
+
+enum {
+	UNIFORM_MODEL_MATRIX,
+	UNIFORM_VIEW_MATRIX,
+	UNIFORM_PROJECTION_MATRIX,
+	UNIFORM_MATERIAL_COLOR,
+	UNIFORM_MATERIAL_FULLBRIGHT,
+	UNIFORM_MATERIAL_ROUGHNESS,
+	UNIFORM_LIGHT_COLOR,
+	UNIFORM_LIGHT_BRIGHTNESS,
+	UNIFORM_LIGHT_POSITION,
+	UNIFORM_UI_VIEWPROJECTION_MATRIX,
+	UNIFORM_UI_MODEL_MATRIX,
+	UNIFORM_UI_MATERIAL_COLOR,
+	NUM_UNIFORMS
+};
+GLuint uniforms[NUM_UNIFORMS];
+
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -21,9 +52,10 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, renderable->scale);
 
-	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
-	glUniform1i(u_fullBrightLoc, renderable->fullBright);
+	glUniformMatrix4fv(uniforms[UNIFORM_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(uniforms[UNIFORM_MATERIAL_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
+	glUniform1i(uniforms[UNIFORM_MATERIAL_FULLBRIGHT], renderable->fullBright);
+	glUniform1f(uniforms[UNIFORM_MATERIAL_ROUGHNESS], renderable->roughness);
 
 	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -46,8 +78,8 @@ void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 	m = glm::rotate(m, (*UIrenderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
-	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->color)));
+	glUniformMatrix4fv(uniforms[UNIFORM_UI_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(uniforms[UNIFORM_UI_MATERIAL_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->color)));
 
 	glDrawElements(GL_TRIANGLES, UIrenderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -60,9 +92,13 @@ void Renderer::draw() {
 	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
 	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
 	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
-	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(v));
-	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
-	glUniform3fv(u_lightPosLoc, 1, glm::value_ptr(lightPosition));
+
+	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(p));
+	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(glm::vec3(1.0f, 1.0f, 1.0f))));
+	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 100.0f);
+	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPosition));
+
 	for (auto renderable : renderables) {
 		DrawRenderable(renderable);
 	}
@@ -70,7 +106,7 @@ void Renderer::draw() {
 	// draw 2d stuff
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
-	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
+	glUniformMatrix4fv(uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(ortho));
     DrawUITree();
 }
 
@@ -193,16 +229,20 @@ int Renderer::RenderLoop() {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	mLoc = glGetUniformLocation(mainProgram, "model");
-	vLoc = glGetUniformLocation(mainProgram, "view");
-	pLoc = glGetUniformLocation(mainProgram, "projection");
-	u_fullBrightLoc = glGetUniformLocation(mainProgram, "u_fullBright");
-	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
-	u_lightPosLoc = glGetUniformLocation(mainProgram, "u_lightPosition");
-
-	mLocUI = glGetUniformLocation(uiProgram, "model");
-	vpLocUI = glGetUniformLocation(uiProgram, "viewProjection");
-	u_colorLocUI = glGetUniformLocation(uiProgram, "u_color");
+	// uniforms for 3d stuff
+	uniforms[UNIFORM_MODEL_MATRIX] = glGetUniformLocation(mainProgram, "model");
+	uniforms[UNIFORM_VIEW_MATRIX] = glGetUniformLocation(mainProgram, "view");
+	uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(mainProgram, "projection");
+	uniforms[UNIFORM_MATERIAL_FULLBRIGHT] = glGetUniformLocation(mainProgram, "u_fullBright");
+	uniforms[UNIFORM_MATERIAL_COLOR] = glGetUniformLocation(mainProgram, "u_color");
+	uniforms[UNIFORM_MATERIAL_ROUGHNESS] = glGetUniformLocation(mainProgram, "u_roughness");
+	uniforms[UNIFORM_LIGHT_POSITION] = glGetUniformLocation(mainProgram, "u_lightPosition");
+	uniforms[UNIFORM_LIGHT_BRIGHTNESS] = glGetUniformLocation(mainProgram, "u_lightBrightness");
+	uniforms[UNIFORM_LIGHT_COLOR] = glGetUniformLocation(mainProgram, "u_lightColor");
+	// uniforms for 2d stuff
+	uniforms[UNIFORM_UI_MODEL_MATRIX] = glGetUniformLocation(uiProgram, "model");
+	uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX] = glGetUniformLocation(uiProgram, "viewProjection");
+	uniforms[UNIFORM_UI_MATERIAL_COLOR] = glGetUniformLocation(uiProgram, "u_color");
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

@@ -1,5 +1,8 @@
 #include "Map.h"
 
+#include <algorithm>
+#include <limits>
+
 using std::numeric_limits;
 using std::vector;
 using std::min;
