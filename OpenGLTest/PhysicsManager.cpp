@@ -1,5 +1,9 @@
 #include "PhysicsManager.h"
 
+#include <algorithm>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)

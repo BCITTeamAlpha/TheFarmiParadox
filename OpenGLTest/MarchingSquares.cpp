@@ -1,5 +1,7 @@
 #include "MarchingSquares.h"
 
+#include <glm/vec3.hpp>
+
 using glm::vec3;
 
 // each int[] represents one of marching square's 16 cases
