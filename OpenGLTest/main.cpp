@@ -111,7 +111,19 @@ int main()
 
     //adding sound
     noise= new SoundManager();
-    noise->playSong(MainBGM);
+    EventManager::subscribe(PLAY_SONG, noise);
+    EventManager::subscribe(PLAY_SOUND, noise);
+
+
+    //start initial music track
+    TrackParams initial;
+    initial.track = MainBGM;
+
+    initial.position[0] = 0;
+    initial.position[1] = 0;
+    initial.position[2] = 0;
+    EventManager::notify(PLAY_SONG, &TypeParam<TrackParams>(initial));
+    
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;

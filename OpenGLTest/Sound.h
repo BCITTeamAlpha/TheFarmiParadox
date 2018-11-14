@@ -16,7 +16,7 @@ public:
     void clearBuffer(ALuint buffer, ALuint source);
     void makeBuffer(ALuint* buffer);
     void makeSource(ALuint* source);
-    void placeSource(ALuint source, int x, int z);
+    void placeSource(ALuint source, float x, float y, float z);
     void toggleLooping(ALuint source, bool loop);
     void bufferData(ALuint buffer, ALuint source, const char * fn);
 

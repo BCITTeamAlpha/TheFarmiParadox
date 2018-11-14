@@ -72,10 +72,10 @@ void Sound::makeSource(ALuint * source){
     alGenSources(1, source);
 }
 
-//action rhat places a source in the world - one factor is 0 because the third dimension does not exist
-void Sound::placeSource(ALuint source, int x, int z) {
+//action that places a source in the world
+void Sound::placeSource(ALuint source, float x, float y, float z) {
     //place the music source
-    alSource3f(source, AL_POSITION, x, 0, z);
+    alSource3f(source, AL_POSITION, x, y, z);
 }
 
 //method to allow us to set a source to loop or not
