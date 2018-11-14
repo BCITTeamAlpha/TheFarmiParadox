@@ -10,7 +10,10 @@ Weapon::Weapon(std::string name, int charges, int damage) {
 	_damage = damage;
 }
 
-// Uses a charge when used by player
-int Weapon::use() {
+//Displays weapon, uses it, then removes a charge
+int Weapon::use(glm::vec2 pos, float angle)
+{
+
+
 	return --_charges;
 }

@@ -1,13 +1,10 @@
 #include "Player.h"
 
-//Player* Player::me = NULL;
-
 Player::Player()
 {
 	curChar = 0;
 	//chars = std::vector<Character *>();
 	weaps = new Inventory();
-	//me = this;
 }
 
 void Player::addCharacter(Character *c)
@@ -30,9 +27,38 @@ void Player::nextWeapon()
 	weaps->selectSlot(weaps->currentSlot + 1);
 }
 
+void Player::setControllable(bool c)
+{
+	chars[curChar]->controllable = c;
+}
+
 void Player::fireWeapon()
 {
-	weaps->useWeapon();
+	weaps->useWeapon(chars[curChar]->position);
+}
+
+void Player::setAimLeft(bool b)
+{
+	aimLeft = b;
+}
+
+void Player::setAimRight(bool b)
+{
+	aimRight = b;
+}
+
+void Player::adjustAim(float dTime)
+{
+	float dAngle;
+
+	if (aimLeft && !aimRight)
+		dAngle = -dTime;
+	else if (!aimLeft && aimRight)
+		dAngle = dTime;
+	else
+		dAngle = 0;
+
+	weaps->angleWeapon(dAngle);
 }
 
 void Player::clearInput()

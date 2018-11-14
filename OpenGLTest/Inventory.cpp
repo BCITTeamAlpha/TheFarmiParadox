@@ -72,7 +72,7 @@ void Inventory::addItem(Pickup item) {
 }
 
 // Removes a charge from the current Item
-void Inventory::useWeapon()
+void Inventory::useWeapon(glm::vec2 pos)
 {
 	if (currentSlot == -1)
 	{
@@ -82,6 +82,18 @@ void Inventory::useWeapon()
 
 	std::cout << "Remaining Charges: " << _slots[currentSlot]->_charges - 1 << std::endl;
 
-	if (_slots[currentSlot]->use() < 1)
+	if (_slots[currentSlot]->use(pos, angle) < 1)
 		emptySlot();
+}
+
+void Inventory::angleWeapon(float dAngle)
+{
+	angle += dAngle;
+
+	std::cout << "Weapon Angle = " << angle / 3.14 * 180 << " degrees" << std::endl;
+
+	if (angle >= 6.28)
+		angle -= 6.28;
+	else if (angle <= -6.28)
+		angle += 6.28;
 }

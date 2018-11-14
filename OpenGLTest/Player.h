@@ -12,6 +12,10 @@ public:
 	void prevWeapon();
 	void nextWeapon();
 	void fireWeapon();
+	void setControllable(bool c);
+	void adjustAim(float dTime);
+	void setAimLeft(bool b);
+	void setAimRight(bool b);
 	void clearInput();
 	void moveLeft(bool v);
 	void moveRight(bool v);
@@ -21,4 +25,5 @@ private:
 	std::vector<Character *> chars;
 	Inventory *weaps;
 	int curChar;
+	bool aimLeft, aimRight;
 };

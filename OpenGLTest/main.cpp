@@ -34,7 +34,6 @@ SoundManager* noise;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
-	case GLFW_KEY_A:
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS)
 		{
@@ -47,7 +46,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			EventManager::notify(PLAYER_LEFT, &param, false);
 		}
 		break;
-	case GLFW_KEY_D:
 	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS)
 		{
@@ -82,6 +80,30 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
             //TypeParam<SoundParams*> jumpSound(JumpNoise);
             //EventManager::notify(PLAY_SOUND, &jumpSound);
             noise->playSound(Jump, 0, 0, 0);
+		}
+		break;
+	case GLFW_KEY_A:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(AIM_LEFT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(AIM_LEFT, &param, false);
+		}
+		break;
+	case GLFW_KEY_D:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(AIM_RIGHT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		break;
 	default:
@@ -224,12 +246,14 @@ int main()
 	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
+	EventManager::subscribe(AIM_LEFT, playerManager); //Subscribe aim left to EventManager
+	EventManager::subscribe(AIM_RIGHT, playerManager); //Subscribe aim right to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
-	//inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);//change back to W after
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_W, PlayerManager::fireWeapon);
 
     //adding sound
     noise = new SoundManager();
@@ -252,6 +276,7 @@ int main()
 	for (int tick = 0;; tick++)
 	{
 		physics->calcPhysics(1.0 / 59.94);
+		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
 	}
 }
