@@ -15,17 +15,12 @@ public:
 	static const float VELOCITY_CAP;
 
 	//void ISubscriber::notify(EventName eventName, Param* param);
-	static void hello()
-	{
-
-	}
-
 	
 private:
-	void characterMovement(Character *Character);
 	glm::vec2 gravAcceleration(glm::vec2 pos);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
+	std::vector<Character*> chars;
 	Map *map;
 	/*bool player_left_input;
 	bool player_right_input;

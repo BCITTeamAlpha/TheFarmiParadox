@@ -45,7 +45,8 @@ void PhysicsManager::calcPhysics(float dTime)
 
 		// player movement
 		Character *character = dynamic_cast<Character *>(object);
-		if (character) {
+
+		if (character && character->controllable) {
 			float y_axis = player_jump_speed * character->jump_input;
 			if (collided && y_axis != 0) {
 				N_comp = y_axis;

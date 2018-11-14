@@ -12,6 +12,7 @@ public:
 
 	static void prevWeapon();
 	static void nextWeapon();
+	static void aimWeapon();
 	static void fireWeapon();
 
 	void NextPlayer();
@@ -19,8 +20,8 @@ public:
 	void AddPlayer(Player *player);
 
 	virtual void notify(EventName eventName, Param *params) override;
-
 private:
 	std::vector<Player*> players;
 	int currentPlayerIndex;
+	size_t turnStage;
 };

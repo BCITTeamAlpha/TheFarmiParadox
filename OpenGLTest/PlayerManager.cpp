@@ -6,6 +6,7 @@ PlayerManager::PlayerManager()
 {
 	instance = this;
 	currentPlayerIndex = 0;
+	turnStage = 0; //moving, aiming, firing
 }
 
 
@@ -29,12 +30,24 @@ void PlayerManager::nextWeapon()
 	}
 }
 
+void PlayerManager::aimWeapon()
+{
+	if (instance->currentPlayerIndex < instance->players.size())
+	{
+		instance->turnStage = 1;
+	}
+}
+
 void PlayerManager::fireWeapon()
 {
+	/*if (instance->turnStage != 1)
+		return;*/
+
 	if (instance->currentPlayerIndex < instance->players.size())
 	{
 		instance->players[instance->currentPlayerIndex]->fireWeapon();
 	}
+	
 	instance->NextPlayer();
 }
 
