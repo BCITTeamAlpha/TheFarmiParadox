@@ -90,6 +90,10 @@ void Inventory::angleWeapon(float dAngle)
 {
 	angle += dAngle;
 
-	if (angle >= 360)
-		angle -= 360;
+	std::cout << "Weapon Angle = " << angle / 3.14 * 180 << " degrees" << std::endl;
+
+	if (angle >= 6.28)
+		angle -= 6.28;
+	else if (angle <= -6.28)
+		angle += 6.28;
 }
