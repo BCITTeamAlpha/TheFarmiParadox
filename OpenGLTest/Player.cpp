@@ -32,7 +32,6 @@ void Player::nextWeapon()
 
 void Player::fireWeapon()
 {
-	chars[curChar]->controllable = false;
 	weaps->useWeapon();
 }
 
