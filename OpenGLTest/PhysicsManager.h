@@ -22,7 +22,7 @@ public:
 
 	
 private:
-	void characterMovement(PhysicsObject *object);
+	void characterMovement(Character *Character);
 	glm::vec2 gravAcceleration(glm::vec2 pos);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;

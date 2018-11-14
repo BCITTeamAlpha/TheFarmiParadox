@@ -9,14 +9,14 @@ public:
 	Player();
 	void addCharacter(Character *c);
 	void addItem(Pickup item);
-	static void prevWeapon();
-	static void nextWeapon();
-	static void fireWeapon();
+	void prevWeapon();
+	void nextWeapon();
+	void fireWeapon();
 	void clearInput();
 	void moveLeft(bool v);
 	void moveRight(bool v);
 	void jump(bool v);
-	static Player *me;
+	//static Player *me;
 private:
 	std::vector<Character *> chars;
 	Inventory *weaps;

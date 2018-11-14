@@ -62,7 +62,7 @@ void PhysicsManager::calcPhysics(float dTime)
 	//characterMovement(objects[0]);
 }
 
-void PhysicsManager::characterMovement(PhysicsObject *character) {
+void PhysicsManager::characterMovement(Character *character) {
 	float player_speed = 10.0f;
 	float player_radius = 2.5f;
 	float player_jump_speed = 20.0f;

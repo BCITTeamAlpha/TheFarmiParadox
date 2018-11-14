@@ -223,9 +223,9 @@ int main()
 	//EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);
 
 	for (int tick = 0;; tick++)
 	{
