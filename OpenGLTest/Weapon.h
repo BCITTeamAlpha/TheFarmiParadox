@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "GameObject.h"
+#include <glm/glm.hpp>
 //created by Player
 
 class Weapon : public GameObject {
@@ -10,6 +11,5 @@ public:
 	std::string _name;
 	int _charges;
 	int _damage;
-	int use();
-private:
+	int use(glm::vec2 pos, float angle);
 };

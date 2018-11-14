@@ -13,6 +13,8 @@ enum EventName {
 	WEAPON_PREV,
 	WEAPON_NEXT,
 	WEAPON_FIRE,
+	AIM_LEFT,
+	AIM_RIGHT,
     PLAY_SONG,
     PLAY_SOUND
 };

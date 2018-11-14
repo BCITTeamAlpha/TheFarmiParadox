@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "Weapon.h"
 #include "Pickup.h"
+#include <glm/glm.hpp>
 //created by Player
 
 class Inventory : public GameObject {
@@ -17,8 +18,10 @@ public:
 	Pickup dropSlot();
 	void emptySlot();
 	void addItem(Pickup item);
-	void useWeapon();
+	void useWeapon(glm::vec2 pos);
+	void angleWeapon(float dAngle);
 
 private:
 	const int capacity = 5;
+	float angle;
 };
