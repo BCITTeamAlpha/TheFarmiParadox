@@ -50,23 +50,25 @@ void PhysicsManager::calcPhysics(float dTime)
 		object->position = pos;
 		object->velocity = vel;
 		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI + 90.0f;
-	}
 
-	// takes by reference and modifies character's pos and vel
-	for (size_t i = 0; i < chars.size(); i++)
-		characterMovement(chars[i]);
+		Character *character = dynamic_cast<Character *>(object);
+		
+		if (character)
+			characterMovement(character);
+	}
 }
 
-void PhysicsManager::characterMovement(Character *object) {
+void PhysicsManager::characterMovement(Character *character)
+{
 	float player_speed = 10.0f;
 	float player_radius = 2.5f;
 	float player_jump_speed = 20.0f;
 
-	if (!object->controllable)
+	if (!character->controllable)
 		return;
 
-	glm::vec2 pos = object->position;
-	glm::vec2 vel = object->velocity;
+	glm::vec2 pos = character->position;
+	glm::vec2 vel = character->velocity;
 
 	// loop over planets, check if character is inside any of them them
 	for (Planetoid planet : *planets) {
@@ -75,7 +77,7 @@ void PhysicsManager::characterMovement(Character *object) {
 		// if character close to planet
 		if (len - 1 < planet._r) {
 			// allign character with surface
-			object->rotation.z = atan2(-planet_to_obj.x, planet_to_obj.y) * 180.0f / M_PI + 90.0f;
+			character->rotation.z = atan2(-planet_to_obj.x, planet_to_obj.y) * 180.0f / M_PI + 90.0f;
 			// if character is inside planet
 			if (len < planet._r) {
 				planet_to_obj /= len;
@@ -86,16 +88,17 @@ void PhysicsManager::characterMovement(Character *object) {
 					vel = glm::vec2(0);
 				}
 				// horizontal movement
-				vel += (-player_left_input + player_right_input) * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
+				vel += (-character->left_input + character->right_input) * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
+
 				// jumping
-				vel += player_jump_input * player_jump_speed * planet_to_obj;
+				vel += character->jump_input * player_jump_speed * planet_to_obj;
 				break;
 			}
 		}
 	}
 
-	object->position = pos;
-	object->velocity = vel;
+	character->position = pos;
+	character->velocity = vel;
 }
 
 //Finds the net force on a given point in space
@@ -130,26 +133,26 @@ void PhysicsManager::addObject(PhysicsObject *obj)
 	objects.push_back(obj);
 }
 
-
-void PhysicsManager::notify(EventName eventName, Param* param) {
-	switch (eventName) {
-		case PLAYER_LEFT: {
-			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-			if (p != nullptr) this->player_left_input = p->Param;
-			break;
-		}
-		case PLAYER_RIGHT: {
-			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-			if (p != nullptr) this->player_right_input = p->Param;
-			break;
-		}
-		case PLAYER_JUMP: {
-			printf("jump!\n");
-			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-			if (p != nullptr) this->player_jump_input = p->Param;
-			break;
-		}
-		default:
-			break;
-		}
-}
+//
+//void PhysicsManager::notify(EventName eventName, Param* param) {
+//	switch (eventName) {
+//		case PLAYER_LEFT: {
+//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+//			if (p != nullptr) this->player_left_input = p->Param;
+//			break;
+//		}
+//		case PLAYER_RIGHT: {
+//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+//			if (p != nullptr) this->player_right_input = p->Param;
+//			break;
+//		}
+//		case PLAYER_JUMP: {
+//			printf("jump!\n");
+//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
+//			if (p != nullptr) this->player_jump_input = p->Param;
+//			break;
+//		}
+//		default:
+//			break;
+//		}
+//}

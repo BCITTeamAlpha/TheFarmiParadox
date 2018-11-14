@@ -18,6 +18,7 @@
 #include "Sound.h"
 #include <thread>
 #include "Player.h"
+#include "playerManager.h"
 
 GLFWwindow* window;
 Input inputHandler;
@@ -27,6 +28,7 @@ double xpos, ypos;
 
 Renderer *renderer;
 PhysicsManager *physics;
+PlayerManager *playerManager;
 Map *map;
 Sound *sound;
 
@@ -105,14 +107,15 @@ void TestFunction() {
 
 int main()
 {
+	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
-    //adding sound
-    sound = new Sound();
-    sound->SwitchTrack();
-    std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
+	//adding sound
+	sound = new Sound();
+	sound->SwitchTrack();
+	std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -134,30 +137,44 @@ int main()
 	map->setRenderable(mapSkin);
 
 	physics = new PhysicsManager(&planets, map);
+	playerManager = new PlayerManager();
 
+	//create players
+	for (int i = 0;i < 4;++i)
+	{
 	//set up a square test character
 	Character *c = new Character();
 	c->mass = 50;
-	c->position = { 75.0f, 60.0f };
+	c->position = { rand() % 64 + 32,rand() % 64 + 32 };
 	c->controllable = true;
 
 	Renderable *cSkin = new Renderable();
 	cSkin->z = 0;
 	cSkin->model = AssetLoader::loadModel("teapot.obj");
-	cSkin->color = glm::vec4(1, 0, 0, 1);
-
+	//cSkin->color = glm::vec4(1, 0, 0, 1);
+	cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
 	c->setRenderable(cSkin);
 
 	//set up a player with the test character
-	Player *player1 = new Player();
+	Player *player = new Player();
 
 	//set up a test pickup to give the player weapons
 	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
 	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
 
-	player1->addItem(pickup1);
-	player1->addItem(pickup2);
+	/*player1->addItem(pickup1);
+	player1->addItem(pickup2);*/
+	player->addItem(pickup1);
+	player->addItem(pickup2);
 
+	player->addCharacter(c);
+	playerManager->AddPlayer(player);
+
+	// send physicsobjects to physicsmanager
+	physics->addObject(c);
+
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+}
 	// setup background
 	GLubyte backgroundImage[128][128][4];
 	for (int x = 0; x < 128; x++) {
@@ -187,24 +204,28 @@ int main()
 
 	// send Renderables to renderer
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	//EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	// send physicsobjects to physicsmanager
-	physics->addObject(c);
+	//physics->addObject(c);
 
 	//Set input handling callbacks
 	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
-	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
-	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
+	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
+
+	//EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
+	//EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
+	//EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);
 
 	for (int tick = 0;; tick++)
 	{

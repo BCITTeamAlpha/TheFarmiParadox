@@ -5,6 +5,7 @@ class Character : public PhysicsObject {
 public:
 	Character();
 	bool controllable;
-private:
-
+	bool left_input;
+	bool right_input;
+	bool jump_input;
 };
