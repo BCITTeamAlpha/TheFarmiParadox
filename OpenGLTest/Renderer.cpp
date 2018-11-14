@@ -331,7 +331,7 @@ void Renderer::notify(EventName eventName, Param* params) {
 
 void Renderer::DrawUITree() {
     transparentList.clear();
-    traverseChild(uim->_root);
+    traverseChild(uim->Root());
 
     for (UIComponent *t : transparentList) {
         DrawUIRenderable(t);

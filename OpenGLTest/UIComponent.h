@@ -49,5 +49,8 @@ public:
     glm::vec2           screenSize;
     glm::vec3           screenRotation;
 
+    void                (*ClickAction)();
+    void                (*HoverAction)();
+
     std::vector<UIComponent*> children;
 };
