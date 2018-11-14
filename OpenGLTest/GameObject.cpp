@@ -4,6 +4,10 @@ GameObject::GameObject()
 {
 
 }
+GameObject::~GameObject()
+{
+
+}
 
 void GameObject::setRenderable(Renderable *r)
 {
