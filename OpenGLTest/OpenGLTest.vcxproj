@@ -178,6 +178,7 @@
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="Planetoid.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -201,12 +202,12 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="EventName.h" />
-    <ClInclude Include="FontType.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="ImageComponent.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MarchingSquares.h" />

@@ -1,8 +1,6 @@
 #pragma once
 //uses Planetoids; created by Game
-#include <algorithm>
 #include <vector>
-#include <limits>
 #include "Planetoid.h"
 #include "Renderable.h"
 

@@ -1,23 +1,44 @@
 #include "AssetLoader.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
 
-AssetLoader::AssetLoader()
-{
-}
+#include <iostream>
 
-void AssetLoader::loadModel(std::string const &path) {
+std::vector<Model> AssetLoader::models;
+std::map<std::string, Texture> AssetLoader::textures;
+
+Model AssetLoader::loadModel(std::string const &path) {
 	// read file via ASSIMP
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		return;
+		throw "Division by zero condition!";
+		// return Model();
 	}
 
+	int index = models.size();
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene);
+	// return first mesh read from file
+	return models[index];
+}
+
+Texture AssetLoader::loadTexture(std::string const & path) {
+	if (textures.find(path) == textures.end()) {
+		Texture texture;
+		stbi_set_flip_vertically_on_load(true);
+		GLubyte* texData = stbi_load(path.c_str(), &texture.width, &texture.height, NULL, 4);
+		texture.data.assign(texData, texData + texture.width * texture.height * 4);
+		textures[path] = texture;
+	}
+
+	return textures[path];
 }
 
 void AssetLoader::processNode(aiNode *node, const aiScene *scene) {
@@ -43,16 +64,11 @@ Model AssetLoader::processMesh(aiMesh *mesh) {
 		pos.z = mesh->mVertices[i].z;
 		ret.positions.push_back(pos);
 
-		if (mesh->mNormals != NULL) {
-			glm::vec3 normal;
-			normal.x = mesh->mNormals[i].x;
-			normal.y = mesh->mNormals[i].y;
-			normal.z = mesh->mNormals[i].z;
-			ret.normals.push_back(normal);
-		}
-		else {
-			ret.normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-		}
+		glm::vec3 normal;
+		normal.x = mesh->mNormals[i].x;
+		normal.y = mesh->mNormals[i].y;
+		normal.z = mesh->mNormals[i].z;
+		ret.normals.push_back(normal);
 
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 texCoord;

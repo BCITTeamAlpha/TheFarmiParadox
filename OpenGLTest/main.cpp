@@ -15,11 +15,10 @@
 #include "PhysicsManager.h"
 #include "Input.h"
 #include "UIManager.h"
-#include "Sound.h"
+#include "SoundManager.h"
 #include <thread>
 #include "Player.h"
-
-const int physUpdates = 30;
+#include "playerManager.h"
 
 GLFWwindow* window;
 Input inputHandler;
@@ -27,26 +26,14 @@ Input inputHandler;
 //inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
 double xpos, ypos;
 
-Renderable *p;
-Renderable ** const pp = &p;
-
 Renderer *renderer;
 PhysicsManager *physics;
+PlayerManager *playerManager;
 Map *map;
-Sound *sound;
-
-void SendToRenderer(Renderable &renderable)
-{
-	while (*pp != NULL) {
-		Sleep(1);
-	}
-	*pp = &renderable;
-	std::cout << "passed IRenderable to Renderer" << std::endl;
-}
+SoundManager* noise;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
-	case GLFW_KEY_A:
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS)
 		{
@@ -59,7 +46,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			EventManager::notify(PLAYER_LEFT, &param, false);
 		}
 		break;
-	case GLFW_KEY_D:
 	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS)
 		{
@@ -82,6 +68,42 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
+            
+            //SoundParams * JumpNoise = new SoundParams();
+
+            //JumpNoise->sound = Jump;
+
+            //JumpNoise->x = 0;
+            //JumpNoise->y = 0;
+            //JumpNoise->z = 0;
+
+            //TypeParam<SoundParams*> jumpSound(JumpNoise);
+            //EventManager::notify(PLAY_SOUND, &jumpSound);
+            noise->playSound(Jump, 0, 0, 0);
+		}
+		break;
+	case GLFW_KEY_A:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(AIM_LEFT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(AIM_LEFT, &param, false);
+		}
+		break;
+	case GLFW_KEY_D:
+		if (action == GLFW_PRESS)
+		{
+			TypeParam<bool> param(true);
+			EventManager::notify(AIM_RIGHT, &param, false);
+		}
+		if (action == GLFW_RELEASE)
+		{
+			TypeParam<bool> param(false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		break;
 	default:
@@ -107,6 +129,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
+		TypeParam<std::pair<float, float>> param(std::pair<float,float>(xpos, ypos));
+		EventManager::notify(UI_CLICK, &param, false);
 		printf("left mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
 	}
@@ -117,25 +141,14 @@ void TestFunction() {
 	std::cout << "TestFunction called" << std::endl;
 }
 
-
-std::vector<glm::vec3> quadPositions = { { -2.5, 2.5, 0 },{ 2.5, 2.5, 0 },{ -2.5, -2.5, 0 },{ 2.5, -2.5, 0 } };
-std::vector<glm::vec2> quadTexCoords = { { 0, 1 },{ 1, 1 },{ 0, 0 },{ 1, 0 } };
-std::vector<glm::vec3> quadNormals = { { 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 },{ 0, 0, 1 } };
-std::vector<GLuint> quadElements = { 1, 0, 2, 1, 2, 3 };
-std::vector<glm::vec3> backgroundPositions = { { 0, 128, 0 },{ 128, 128, 0 },{ 0, 0, 0 },{ 128, 0, 0 } };
-
 int main()
 {
-	AssetLoader model;
-	model.loadModel("teapot.obj");
+	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
-	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer, pp);
+	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
-    //adding sound
-    sound = new Sound();
-    sound->SwitchTrack();
-    std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
+   
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -147,47 +160,6 @@ int main()
 	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
 
 	map = new Map(planets, 128, 128);
-
-	Renderable *mapSkin = new Renderable();
-	mapSkin->z = 0;
-	mapSkin->model.positions = MarchingSquares::GenerateMesh(*map);
-	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
-
-	for (GLuint i = 0; i < mapSkin->model.positions.size(); i++)
-	{
-		glm::vec2 texCoord;
-		texCoord.x = mapSkin->model.positions[i].x / 128;
-		texCoord.y = mapSkin->model.positions[i].y / 128;
-		mapSkin->model.UVs.push_back(texCoord);
-		mapSkin->model.normals.push_back(glm::vec3(0, 0, 1));
-		mapSkin->model.elements.push_back(i);
-	}
-
-	map->setRenderable(mapSkin);
-
-	physics = new PhysicsManager(&planets, map);
-
-	//set up a square test character
-	Character *c = new Character();
-	c->mass = 50;
-	c->position = { 75.0f, 60.0f };
-
-	Renderable *cSkin = new Renderable();
-	cSkin->z = 0;
-	cSkin->model = model.models[0];
-	cSkin->color = glm::vec4(1, 0, 0, 1);
-
-	c->setRenderable(cSkin);
-
-	//set up a player with the test character
-	Player *player1 = new Player();
-
-	//set up a test pickup to give the player weapons
-	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
-
-	player1->addItem(pickup1);
-	player1->addItem(pickup2);
 
 	// setup background
 	GLubyte backgroundImage[128][128][4];
@@ -208,38 +180,134 @@ int main()
 	GameObject background;
 	background.setRenderable(backgroundSkin);
 	backgroundSkin->z = -1;
-	backgroundSkin->model.positions = backgroundPositions;
-	backgroundSkin->model.UVs = quadTexCoords;
-	backgroundSkin->model.normals = quadNormals;
-	backgroundSkin->model.elements = quadElements;
+	backgroundSkin->position = new glm::vec2(64, 64);
+	backgroundSkin->scale = glm::vec3(128, 128, 128);
+	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-    backgroundSkin->texture.width = 128;
-    backgroundSkin->texture.height = 128;
-    backgroundSkin->fullBright = true;
+	backgroundSkin->texture.width = 128;
+	backgroundSkin->texture.height = 128;
+	backgroundSkin->fullBright = true;
+
+	// setup map renderable
+	Renderable *mapSkin = new Renderable();
+	mapSkin->z = 0;
+	map->explosion(Planetoid(85.0f, 85.0f, 8.0f));
+	mapSkin->model = MarchingSquares::GenerateModel(*map);
+	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
+	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
+
+	map->setRenderable(mapSkin);
+
+	physics = new PhysicsManager(&planets, map);
+	playerManager = new PlayerManager();
+
+	for (int i = 0; i < 5; ++i) {
+		Pickup *p = new Pickup();
+		p->mass = 75;
+		p->position = { rand() % 64 + 32,rand() % 64 + 32 };
+
+		Renderable *pSkin = new Renderable();
+		pSkin->z = 0;
+		pSkin->model = AssetLoader::loadModel("teapot.obj");
+		pSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
+		p->setRenderable(pSkin);
+		pSkin->scale = glm::vec3(2.0f);
+		physics->addObject(p);
+
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(pSkin), false);
+	}
+
+	std::vector<std::string> models = std::vector<std::string>();
+	models.push_back("../Models/cat.obj");
+	models.push_back("../Models/chimp.obj");
+	models.push_back("../Models/PenguinBaseMesh.obj");
+	models.push_back("../Models/Crab.obj");
+
+	std::vector<float> radii = std::vector<float>();
+	radii.push_back(1.0f);
+	radii.push_back(4.0f);
+	radii.push_back(1.0f);
+	radii.push_back(0.5f);
+
+	//create players
+	for (int i = 0;i < 4;++i)
+	{
+		//set up a square test character
+		Character *c = new Character();
+		c->mass = 50;
+		c->position = { rand() % 64 + 32,rand() % 64 + 32 };
+		c->controllable = true;
+		c->radius = radii.at(i);
+
+		Renderable *cSkin = new Renderable();
+		cSkin->z = 0;
+		cSkin->model = AssetLoader::loadModel(models.at(i));
+		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
+		cSkin->scale = glm::vec3(8);
+		cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
+		c->setRenderable(cSkin);
+
+		//set up a player with the test character
+		Player *player = new Player();
+
+		//set up a test pickup to give the player weapons
+		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+		player->addItem(pickup1);
+		player->addItem(pickup2);
+
+		player->addCharacter(c);
+		playerManager->AddPlayer(player);
+
+		// send physicsobjects to physicsmanager
+		physics->addObject(c);
+
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	}
 
 	// send Renderables to renderer
-	SendToRenderer(*mapSkin);
-	SendToRenderer(*cSkin);
-	SendToRenderer(*backgroundSkin);
-
-	// send physicsobjects to physicsmanager
-	physics->addObject(c);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	//Set input handling callbacks
+	Sleep(1000); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
-	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
-	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
+	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
+	EventManager::subscribe(AIM_LEFT, playerManager); //Subscribe aim left to EventManager
+	EventManager::subscribe(AIM_RIGHT, playerManager); //Subscribe aim right to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_W, PlayerManager::fireWeapon);
+
+    //adding sound
+    noise = new SoundManager();
+    EventManager::subscribe(PLAY_SONG, noise);
+    EventManager::subscribe(PLAY_SOUND, noise);
+
+
+    //start initial music track
+    TrackParams * initial = new TrackParams();
+
+    initial->track = MenuBGM;
+
+    initial->x = 0;
+    initial->y = 0;
+    initial->z = 0;
+
+    TypeParam<TrackParams*> param(initial);
+    EventManager::notify(PLAY_SONG, &param);
 
 	for (int tick = 0;; tick++)
 	{
 		physics->calcPhysics(1.0 / 59.94);
+		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
 	}
 }

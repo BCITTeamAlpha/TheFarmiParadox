@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AssetLoader.h"
 #include "UIComponent.h"
 #include "EventManager.h"
 

@@ -1,5 +1,36 @@
 #include "Renderer.h"
 
+#include <algorithm>
+#include <iostream>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/color_space.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "shader.h"
+#include "TextComponent.h"
+#include "ImageComponent.h"
+
+enum {
+	UNIFORM_MODEL_MATRIX,
+	UNIFORM_VIEW_MATRIX,
+	UNIFORM_PROJECTION_MATRIX,
+	UNIFORM_MATERIAL_COLOR,
+	UNIFORM_MATERIAL_FULLBRIGHT,
+	UNIFORM_MATERIAL_ROUGHNESS,
+	UNIFORM_LIGHT_COLOR,
+	UNIFORM_LIGHT_BRIGHTNESS,
+	UNIFORM_LIGHT_POSITION,
+	UNIFORM_UI_VIEWPROJECTION_MATRIX,
+	UNIFORM_UI_MODEL_MATRIX,
+	UNIFORM_UI_MATERIAL_COLOR,
+	NUM_UNIFORMS
+};
+GLuint uniforms[NUM_UNIFORMS];
+
 void Renderer::DrawRenderable(Renderable* renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -19,11 +50,12 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	m = glm::rotate(m, (*renderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
 	m = glm::rotate(m, (*renderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
 	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
-	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
+	m = glm::scale(m, renderable->scale);
 
-	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLoc, 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
-	glUniform1i(u_fullBrightLoc, renderable->fullBright);
+	glUniformMatrix4fv(uniforms[UNIFORM_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(uniforms[UNIFORM_MATERIAL_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
+	glUniform1i(uniforms[UNIFORM_MATERIAL_FULLBRIGHT], renderable->fullBright);
+	glUniform1f(uniforms[UNIFORM_MATERIAL_ROUGHNESS], renderable->roughness);
 
 	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -46,8 +78,8 @@ void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 	m = glm::rotate(m, (*UIrenderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
-	glUniformMatrix4fv(mLocUI, 1, GL_FALSE, glm::value_ptr(m));
-	glUniform4fv(u_colorLocUI, 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->color)));
+	glUniformMatrix4fv(uniforms[UNIFORM_UI_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
+	glUniform4fv(uniforms[UNIFORM_UI_MATERIAL_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(UIrenderable->color)));
 
 	glDrawElements(GL_TRIANGLES, UIrenderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
@@ -60,9 +92,13 @@ void Renderer::draw() {
 	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
 	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
 	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
-	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(v));
-	glUniformMatrix4fv(pLoc, 1, GL_FALSE, glm::value_ptr(p));
-	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPosition));
+
+	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(p));
+	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(glm::vec3(1.0f, 1.0f, 1.0f))));
+	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 100.0f);
+	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPosition));
+
 	for (auto renderable : renderables) {
 		DrawRenderable(renderable);
 	}
@@ -70,49 +106,49 @@ void Renderer::draw() {
 	// draw 2d stuff
 	glUseProgram(uiProgram);
 	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
-	glUniformMatrix4fv(vpLocUI, 1, GL_FALSE, glm::value_ptr(ortho));
+	glUniformMatrix4fv(uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(ortho));
     DrawUITree();
 }
 
-void Renderer::GenerateBuffers(Renderable &renderable) {
-	glGenBuffers(1, &renderable.model.positionLoc);
-	glGenBuffers(1, &renderable.model.UVLoc);
-	glGenBuffers(1, &renderable.model.normalLoc);
-	glGenBuffers(1, &renderable.model.elementLoc);
-	glGenTextures(1, &renderable.texture.loc);
+void Renderer::GenerateBuffers(Renderable * renderable) {
+	glGenBuffers(1, &renderable->model.positionLoc);
+	glGenBuffers(1, &renderable->model.UVLoc);
+	glGenBuffers(1, &renderable->model.normalLoc);
+	glGenBuffers(1, &renderable->model.elementLoc);
+	glGenTextures(1, &renderable->texture.loc);
 }
 
-void Renderer::PopulateBuffers(Renderable &renderable) {
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.positionLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.positions.size() * sizeof(glm::vec3), renderable.model.positions.data(), GL_STATIC_DRAW);
+void Renderer::PopulateBuffers(Renderable * renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.UVLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.UVs.size() * sizeof(glm::vec2), renderable.model.UVs.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.UVLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.UVs.size() * sizeof(glm::vec2), renderable->model.UVs.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, renderable.model.normalLoc);
-	glBufferData(GL_ARRAY_BUFFER, renderable.model.normals.size() * sizeof(glm::vec3), renderable.model.normals.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.normalLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.normals.size() * sizeof(glm::vec3), renderable->model.normals.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable.model.elementLoc);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable.model.elements.size() * sizeof(GLuint), renderable.model.elements.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elements.size() * sizeof(GLuint), renderable->model.elements.data(), GL_STATIC_DRAW);
 
-	glBindTexture(GL_TEXTURE_2D, renderable.texture.loc);
+	glBindTexture(GL_TEXTURE_2D, renderable->texture.loc);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable.texture.width, renderable.texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable.texture.data.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable->texture.width, renderable->texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable->texture.data.data());
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Renderer::AddToRenderables(Renderable& renderable) {
+void Renderer::AddToRenderables(Renderable * renderable) {
     GenerateBuffers(renderable);
     PopulateBuffers(renderable);
-    renderables.push_back(&renderable);
+    renderables.push_back(renderable);
 }
 
 void Renderer::AddToUIRenderables(UIComponent* renderable) {
-    GenerateBuffers(*renderable);
-    PopulateBuffers(*renderable);
+    GenerateBuffers(renderable);
+    PopulateBuffers(renderable);
 }
 
 void Renderer::CreateShaderProgram(GLuint &programLoc, const char* vertexShaderPath, const char* fragmentShaderPath) {
@@ -140,7 +176,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
 }
 
-int Renderer::RenderLoop(Renderable **pp) {
+int Renderer::RenderLoop() {
 	//Setup GLFW
 	glfwInit();
 
@@ -193,16 +229,20 @@ int Renderer::RenderLoop(Renderable **pp) {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	mLoc = glGetUniformLocation(mainProgram, "model");
-	vLoc = glGetUniformLocation(mainProgram, "view");
-	pLoc = glGetUniformLocation(mainProgram, "projection");
-	u_fullBrightLoc = glGetUniformLocation(mainProgram, "u_fullBright");
-	u_colorLoc = glGetUniformLocation(mainProgram, "u_color");
-	lightPosLoc = glGetUniformLocation(mainProgram, "lightPosition");
-
-	mLocUI = glGetUniformLocation(uiProgram, "model");
-	vpLocUI = glGetUniformLocation(uiProgram, "viewProjection");
-	u_colorLocUI = glGetUniformLocation(uiProgram, "u_color");
+	// uniforms for 3d stuff
+	uniforms[UNIFORM_MODEL_MATRIX] = glGetUniformLocation(mainProgram, "model");
+	uniforms[UNIFORM_VIEW_MATRIX] = glGetUniformLocation(mainProgram, "view");
+	uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(mainProgram, "projection");
+	uniforms[UNIFORM_MATERIAL_FULLBRIGHT] = glGetUniformLocation(mainProgram, "u_fullBright");
+	uniforms[UNIFORM_MATERIAL_COLOR] = glGetUniformLocation(mainProgram, "u_color");
+	uniforms[UNIFORM_MATERIAL_ROUGHNESS] = glGetUniformLocation(mainProgram, "u_roughness");
+	uniforms[UNIFORM_LIGHT_POSITION] = glGetUniformLocation(mainProgram, "u_lightPosition");
+	uniforms[UNIFORM_LIGHT_BRIGHTNESS] = glGetUniformLocation(mainProgram, "u_lightBrightness");
+	uniforms[UNIFORM_LIGHT_COLOR] = glGetUniformLocation(mainProgram, "u_lightColor");
+	// uniforms for 2d stuff
+	uniforms[UNIFORM_UI_MODEL_MATRIX] = glGetUniformLocation(uiProgram, "model");
+	uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX] = glGetUniformLocation(uiProgram, "viewProjection");
+	uniforms[UNIFORM_UI_MATERIAL_COLOR] = glGetUniformLocation(uiProgram, "u_color");
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -227,44 +267,72 @@ int Renderer::RenderLoop(Renderable **pp) {
     uim = new UIManager(WIDTH, HEIGHT);
 
     UIComponent lBox(22.35, 100, 0, 0);
-    lBox.color = { 0.4,0,0.8,1 };
+	lBox.id = "lBox";
+	lBox.color = { 0.141, 0.427, 0.761, 1 };
     lBox.vAnchor = ANCHOR_TOP;
     lBox.hAnchor = ANCHOR_LEFT;
 
     UIComponent lBoxInner(90, 96, 0, 0);
-    lBoxInner.color = { 0.45,0,0.91,0.8 };
+	lBoxInner.id = "lBoxInner";
+    lBoxInner.color = { 0.231,0.525,0.859,1};
     lBoxInner.vAnchor = ANCHOR_VCENTER;
     lBoxInner.hAnchor = ANCHOR_HCENTER;
 
     UIComponent rBox(21.9, 100, 0, 0);
-    rBox.color = { 0.4,0,0.8,1 };
+	rBox.id = "rBox";
+    rBox.color = { 0.141, 0.427, 0.761, 1 };
     rBox.vAnchor = ANCHOR_TOP;
     rBox.hAnchor = ANCHOR_RIGHT;
 
     UIComponent rBoxInner(90, 96, 0, 0);
-    rBoxInner.color = { 0.45,0,0.91,0.8 };
+	rBoxInner.id = "rBoxInner";
+    rBoxInner.color = { 0.231,0.525,0.859,1 };
     rBoxInner.vAnchor = ANCHOR_VCENTER;
     rBoxInner.hAnchor = ANCHOR_HCENTER;
 
     TextComponent lText("T O P", 64, 0, 0);
+	lText.id = "lText";
     lText.vAnchor = ANCHOR_TOP;
     lText.hAnchor = ANCHOR_HCENTER;
     lText.color = { 1,1,1,1 };
 
     TextComponent rText("K E K", 64, 0, 0);
+	rText.id = "rText";
     rText.vAnchor = ANCHOR_TOP;
     rText.hAnchor = ANCHOR_HCENTER;
     rText.color = { 1,1,1,1 };
 
+	UIComponent hideButton(90, 50, 0, 10);
+	hideButton.id = "hideButton";
+	hideButton.hAnchor = ANCHOR_HCENTER;
+	hideButton.vAnchor = ANCHOR_BOTTOM;
+	hideButton.color = {0.173, 0.184, 0.2, 1};
+	hideButton.anchorYType = ANCHOR_PIXEL;
+	hideButton.yType = UNIT_PIXEL;
+	hideButton.ClickAction = []() {
+		UIComponent* c = UIManager::GetComponentById("Karen");
+		c->visible = !c->visible;
+	};
+
+	TextComponent btnTex("Hide", 40, 0, 0);
+	btnTex.id = "btnTex";
+	btnTex.vAnchor = ANCHOR_VCENTER;
+	btnTex.hAnchor = ANCHOR_HCENTER;
+	btnTex.color = {1,1,1,1};
+
     ImageComponent imageTest("./araragi_karen.png", 95, 0, 0, 0);
+	imageTest.id = "Karen";
     imageTest.vAnchor = ANCHOR_BOTTOM;
     imageTest.hAnchor = ANCHOR_HCENTER;
     imageTest.xType = UNIT_PERCENT;
     imageTest.yType = UNIT_SCALE;
 
+	hideButton.Add(&btnTex);
+
     lBoxInner.Add(&lText);
     lBoxInner.Add(&imageTest);
     rBoxInner.Add(&rText);
+	rBoxInner.Add(&hideButton);
 
     lBox.Add(&lBoxInner);
     rBox.Add(&rBoxInner);
@@ -278,9 +346,9 @@ int Renderer::RenderLoop(Renderable **pp) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
-		if (*pp != NULL) {
-			AddToRenderables(**pp);
-			*pp = NULL;
+		while (renderables_waitList.size() != 0) {
+			AddToRenderables(renderables_waitList.back());
+			renderables_waitList.pop_back();
 		}
 
 		//draw
@@ -295,6 +363,11 @@ int Renderer::RenderLoop(Renderable **pp) {
 
 void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
+		case RENDERER_ADD_TO_RENDERABLES: {
+			TypeParam<Renderable*> *p = dynamic_cast<TypeParam<Renderable*> *>(params);
+			renderables_waitList.push_back(p->Param);
+			break;
+		}
 		case RENDERER_ADD_TO_UIRENDERABLES: {
 			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
 			AddToUIRenderables(p->Param);
@@ -302,26 +375,7 @@ void Renderer::notify(EventName eventName, Param* params) {
 		}
 		case RENDERER_POPULATE_BUFFERS: {
 			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-			PopulateBuffers(*p->Param);
-			break;
-		}
-		case RENDERER_INIT_FONT: {
-			TypeParam<std::pair<std::string, std::string>>
-				*p = dynamic_cast<TypeParam<std::pair<std::string, std::string>> *>(params);
-			std::string fontName = p->Param.first;
-			std::string fontPath = p->Param.second;
-
-			FontType *font = &UIManager::FontLibrary[fontName];
-
-			glGenTextures(1, &font->TextureLocation);
-
-			glBindTexture(GL_TEXTURE_2D, font->TextureLocation);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, font->TexWidth, font->TexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, font->TextureData.data());
-			glGenerateMipmap(GL_TEXTURE_2D);
+			PopulateBuffers(p->Param);
 			break;
 		}
 		default:
@@ -331,7 +385,7 @@ void Renderer::notify(EventName eventName, Param* params) {
 
 void Renderer::DrawUITree() {
     transparentList.clear();
-    traverseChild(uim->_root);
+    traverseChild(uim->Root());
 
     for (UIComponent *t : transparentList) {
         DrawUIRenderable(t);
@@ -353,9 +407,9 @@ void Renderer::traverseChild(UIComponent *component) {
 }
 
 Renderer::Renderer() {
+	EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
-    EventManager::subscribe(RENDERER_INIT_FONT, this);
 }
 
 Renderer::~Renderer() {

@@ -1,10 +1,13 @@
 #include "Renderable.h"
 
-GLuint Renderable::count = 0;
+Renderable::Renderable() {
+	z = 0.0f;
+	scale = glm::vec3(1.0);
+	color = glm::vec4(1.0);
+	fullBright = false;
+	roughness = 0.5f;
+}
 
-Renderable::Renderable() : id(Renderable::count++) {}
-
-glm::vec3 Renderable::getPosition3()
-{
+glm::vec3 Renderable::getPosition3() {
 	return glm::vec3(*position, z);
 }
