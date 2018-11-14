@@ -4,8 +4,6 @@
 #include <fstream>
 #include <cstring>
 
-#define MAIN_BGM "../Music/bgm1.wav" 
-
 Sound::Sound() {
     //open default audio device
     device = alcOpenDevice(NULL);
@@ -24,77 +22,101 @@ Sound::Sound() {
     }
     alcMakeContextCurrent(context); //assign ourselves to the created context
 
-    //generate buffer
-    alGenBuffers(1, &bgmBuffer);
-
-    //generate our music source
-    alGenSources(1, &bgmSource);
-
-    //position variables
-    float x = 0, z = 0;
-
-    //place the music source
-    alSource3f(bgmSource, AL_POSITION, x, 0, z);
-    //set the music to loop
-    alSourcei(bgmSource, AL_LOOPING, AL_TRUE);
-
     //place our listener
     float f[] = { 1,0,0,0,1,0 };
     alListenerfv(AL_ORIENTATION, f);
 }
 
+//clean up step
 Sound::~Sound(){
-
-    //clean up step
-    alDeleteSources(1, &bgmSource);
-    alDeleteBuffers(1, &bgmBuffer);
-
     alcDestroyContext(context);
     alcCloseDevice(device);
 }
 
+//action that starts the source playing
+void Sound::PlayAudio(ALuint source) {
+    //play the music
+    alSourcePlay(source);
+}
 
-//method for switching tracks. Will make more robust and include a check for if we are already playing later
-void Sound::SwitchTrack() {
-    //Check for already playing and pause music
-        //to do
+//action that pauses the source playing
+void Sound::PauseAudio(ALuint source) {
+    alSourcePause(source);
+}
 
+//action that checks if the source is currently playing
+bool Sound::isPlaying(ALuint  source) {
+    ALenum state;
+    alGetSourcei(source, AL_SOURCE_STATE, &state);
+    return (state == AL_PLAYING);
+}
+
+//this method will empty the buffer of current sounds, so we can refill it. And by empty, I mean destroy and remake
+void Sound::clearBuffer(ALuint buffer, ALuint source) {
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+
+    makeBuffer(&buffer);
+    makeSource(&source);
+}
+
+//action that makes a buffer object
+void Sound::makeBuffer(ALuint* buffer) {
+    //generate buffer
+    alGenBuffers(1, buffer);
+}
+
+//action that makes a source object
+void Sound::makeSource(ALuint * source){
+    //generate our source
+    alGenSources(1, source);
+}
+
+//action rhat places a source in the world - one factor is 0 because the third dimension does not exist
+void Sound::placeSource(ALuint source, int x, int z) {
+    //place the music source
+    alSource3f(source, AL_POSITION, x, 0, z);
+}
+
+//method to allow us to set a source to loop or not
+void Sound::toggleLooping(ALuint source, bool loop) {
+
+    if (loop) {
+        //set the music to loop
+        alSourcei(source, AL_LOOPING, AL_TRUE);
+        return;
+    }
+    //set the music to not loop
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+
+}
+
+//method to read in a file as audio and attach it to a source
+void Sound::bufferData(ALuint buffer, ALuint source, const char * fn) {
+
+    //sound data variables
     int channel, sampleRate, bps, size;
+   
+    //load the wav file
+    char* data = ReadWavFile(fn, channel, sampleRate, bps, size); 
     
-    //will include a switch statement here to determine which track we want in a later release
-        //to do
-
-    char* data = ReadWavFile(MAIN_BGM, channel, sampleRate, bps, size); //load the wav file
-
     //check that we actually got a return from our read attempt
     if (data == NULL) {
         std::cout << "Data was not read correctly for WAV file" << std::endl;
         return;
     }
-    
+
     //determine our format
     unsigned int format = determineFormat(channel, bps);
-
+    
     //load in the buffer data
-    alBufferData(bgmBuffer, format, data, size, sampleRate);
+    alBufferData(buffer, format, data, size, sampleRate);
 
     //attach buffer to source
-    alSourcei(bgmSource, AL_BUFFER, bgmBuffer);
+    alSourcei(source, AL_BUFFER, buffer);
 
     delete[] data;
-}
 
-//action that starts the source playing
-void Sound::PlayAudio() {
-    //play the music
-    alSourcePlay(bgmSource);
-
-    //maybe a semaphore here, needs testing?
-}
-
-//action that pauses the source playing
-void Sound::PauseAudio() {
-    alSourcePause(bgmSource);
 }
 
 //custom method to read a Wav file for audio processing, uses filename, channel, samplerate, bits per sample and data size storage variables

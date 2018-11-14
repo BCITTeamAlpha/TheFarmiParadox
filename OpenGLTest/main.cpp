@@ -15,7 +15,7 @@
 #include "PhysicsManager.h"
 #include "Input.h"
 #include "UIManager.h"
-#include "Sound.h"
+#include "SoundManager.h"
 #include <thread>
 #include "Player.h"
 
@@ -28,7 +28,7 @@ double xpos, ypos;
 Renderer *renderer;
 PhysicsManager *physics;
 Map *map;
-Sound *sound;
+SoundManager* noise;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -110,9 +110,8 @@ int main()
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
     //adding sound
-    sound = new Sound();
-    sound->SwitchTrack();
-    std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
+    noise= new SoundManager();
+    noise->playSong(MainBGM);
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
