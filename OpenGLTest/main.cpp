@@ -68,6 +68,8 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
+            
+            noise->playSound(Jump, 0,0,0);
 		}
 		break;
 	default:
@@ -119,9 +121,9 @@ int main()
     TrackParams initial;
     initial.track = MainBGM;
 
-    initial.position[0] = 0;
-    initial.position[1] = 0;
-    initial.position[2] = 0;
+    initial.x = 0;
+    initial.y = 0;
+    initial.z = 0;
     EventManager::notify(PLAY_SONG, &TypeParam<TrackParams>(initial));
     
 

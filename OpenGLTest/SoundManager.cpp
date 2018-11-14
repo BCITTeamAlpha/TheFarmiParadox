@@ -1,11 +1,11 @@
 #include "SoundManager.h"
-
+#include <iostream>
 //defines for track filenames
 #define MAIN_BGM "../Music/bgm1.wav" 
 #define MENU_BGM "../Music/bgm2.wav"
 
 //defines for SoundEffect Names
-#define JUMP ""
+#define JUMP "../Sounds/jumpSE.wav"
 
 SoundManager::SoundManager() {
     soundObject = new Sound();
@@ -19,7 +19,7 @@ SoundManager::~SoundManager() {
     cleanUp();
 }
 
-void SoundManager::playSong(TrackList track, float position [3]) {
+void SoundManager::playSong(TrackList track, float x, float y, float z) {
     if (soundObject->isPlaying(bgmSource)) {
         soundObject->PauseAudio(bgmSource);
         soundObject->clearBuffer(bgmBuffer,bgmSource);
@@ -29,13 +29,13 @@ void SoundManager::playSong(TrackList track, float position [3]) {
         case MainBGM:
             soundObject->bufferData(bgmBuffer, bgmSource, MAIN_BGM);
             soundObject->toggleLooping(bgmSource, true);
-            soundObject->placeSource(bgmSource, position[0], position[1], position[2]);
+            soundObject->placeSource(bgmSource, x, y, z);
             soundObject->PlayAudio(bgmSource);
             break;
         case MenuBGM:
             soundObject->bufferData(bgmBuffer, bgmSource, MENU_BGM);
             soundObject->toggleLooping(bgmSource, true);
-            soundObject->placeSource(bgmSource, position[0], position[1], position[2]);
+            soundObject->placeSource(bgmSource, x, y, z);
             soundObject->PlayAudio(bgmSource);
             break;
         default:
@@ -43,7 +43,7 @@ void SoundManager::playSong(TrackList track, float position [3]) {
     }
 }
 
-void SoundManager::playSound(SoundsList soundEffect, float position[3]) {
+void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) {
     if (soundObject->isPlaying(seSource)) {
         soundObject->PauseAudio(seSource);
         soundObject->clearBuffer(seBuffer, seSource);
@@ -53,7 +53,7 @@ void SoundManager::playSound(SoundsList soundEffect, float position[3]) {
     case Jump:
         soundObject->bufferData(seBuffer, bgmSource, JUMP);
         soundObject->toggleLooping(seSource, true);
-        soundObject->placeSource(seSource, position[0], position[1], position[2]);
+        soundObject->placeSource(seSource, x, y, z);
         soundObject->PlayAudio(seSource);
         break;
     default:
@@ -72,15 +72,17 @@ void SoundManager::cleanUp() {
 }
 
 void SoundManager::notify(EventName eventName, Param* param) {
+
     switch (eventName) {
         case PLAY_SONG: {
+            std::cout << "Music - Song Event Fired" << std::endl;
             TrackParams TrackInfo;
             // Safetly cast generic param pointer to a specific type
             TypeParam<TrackParams> *p = dynamic_cast<TypeParam<TrackParams> *>(param);
             if (p != nullptr) {
                 // Successful type cast
                 TrackInfo = p->Param;
-                playSong(TrackInfo.track, TrackInfo.position);
+                playSong(TrackInfo.track, TrackInfo.x, TrackInfo.y, TrackInfo.z);
             }
             break;
         }
@@ -91,7 +93,7 @@ void SoundManager::notify(EventName eventName, Param* param) {
             if (sound != nullptr) {
                 // Successful type cast
                 SoundInfo = sound->Param;
-                playSound(SoundInfo.sound, SoundInfo.position);
+                playSound(SoundInfo.sound, SoundInfo.x, SoundInfo.y, SoundInfo.z);
             }
             break;
         }

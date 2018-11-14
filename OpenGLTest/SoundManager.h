@@ -14,21 +14,25 @@ enum SoundsList
 //for notifying the song event
 struct TrackParams {
     TrackList track;
-    float position[3];
+    float x;
+    float y;
+    float z;
 };
 
 //for notifying the sound event
 struct SoundParams {
     SoundsList sound;
-    float position[3];
+    float x;
+    float y;
+    float z;
 };
 
 class SoundManager : public ISubscriber {
 public:
 	SoundManager();
     ~SoundManager();
-    void playSong(TrackList track, float position[3]);
-    void playSound(SoundsList soundEffect, float position[3]);
+    void playSong(TrackList track, float x, float y, float z);
+    void playSound(SoundsList soundEffect, float x, float y, float z);
     void cleanUp();
     void ISubscriber::notify(EventName eventName, Param* param);
 
