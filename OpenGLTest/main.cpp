@@ -18,6 +18,7 @@
 #include "SoundManager.h"
 #include <thread>
 #include "Player.h"
+#include "playerManager.h"
 
 GLFWwindow* window;
 Input inputHandler;
@@ -27,6 +28,7 @@ double xpos, ypos;
 
 Renderer *renderer;
 PhysicsManager *physics;
+PlayerManager *playerManager;
 Map *map;
 SoundManager* noise;
 
@@ -117,6 +119,7 @@ void TestFunction() {
 
 int main()
 {
+	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
@@ -139,7 +142,7 @@ int main()
     TypeParam<TrackParams*> param(initial);
     EventManager::notify(PLAY_SONG, &param);
 
-    
+   
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -151,38 +154,6 @@ int main()
 	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
 
 	map = new Map(planets, 128, 128);
-
-	Renderable *mapSkin = new Renderable();
-	mapSkin->z = 0;
-	mapSkin->model = MarchingSquares::GenerateModel(*map);
-	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
-	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
-
-	map->setRenderable(mapSkin);
-
-	physics = new PhysicsManager(&planets, map);
-
-	//set up a square test character
-	Character *c = new Character();
-	c->mass = 50;
-	c->position = { 75.0f, 60.0f };
-
-	Renderable *cSkin = new Renderable();
-	cSkin->z = 0;
-	cSkin->model = AssetLoader::loadModel("teapot.obj");
-	cSkin->color = glm::vec4(1, 0, 0, 1);
-
-	c->setRenderable(cSkin);
-
-	//set up a player with the test character
-	Player *player1 = new Player();
-
-	//set up a test pickup to give the player weapons
-	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
-
-	player1->addItem(pickup1);
-	player1->addItem(pickup2);
 
 	// setup background
 	GLubyte backgroundImage[128][128][4];
@@ -207,30 +178,74 @@ int main()
 	backgroundSkin->scale = glm::vec3(128, 128, 128);
 	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-    backgroundSkin->texture.width = 128;
-    backgroundSkin->texture.height = 128;
-    backgroundSkin->fullBright = true;
+	backgroundSkin->texture.width = 128;
+	backgroundSkin->texture.height = 128;
+	backgroundSkin->fullBright = true;
+
+	// setup map renderable
+	Renderable *mapSkin = new Renderable();
+	mapSkin->z = 0;
+	map->explosion(Planetoid(85.0f, 85.0f, 8.0f));
+	mapSkin->model = MarchingSquares::GenerateModel(*map);
+	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
+	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
+
+	map->setRenderable(mapSkin);
+
+	physics = new PhysicsManager(&planets, map);
+	playerManager = new PlayerManager();
+
+	//create players
+	for (int i = 0;i < 4;++i)
+	{
+		//set up a square test character
+		Character *c = new Character();
+		c->mass = 50;
+		c->position = { rand() % 64 + 32,rand() % 64 + 32 };
+		c->controllable = true;
+
+		Renderable *cSkin = new Renderable();
+		cSkin->z = 0;
+		cSkin->model = AssetLoader::loadModel("teapot.obj");
+		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
+		c->setRenderable(cSkin);
+
+		//set up a player with the test character
+		Player *player = new Player();
+
+		//set up a test pickup to give the player weapons
+		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+		player->addItem(pickup1);
+		player->addItem(pickup2);
+
+		player->addCharacter(c);
+		playerManager->AddPlayer(player);
+
+		// send physicsobjects to physicsmanager
+		physics->addObject(c);
+
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	}
 
 	// send Renderables to renderer
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
-
-	// send physicsobjects to physicsmanager
-	physics->addObject(c);
 
 	//Set input handling callbacks
 	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
-	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
-	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
+	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
-	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_E, Player::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, Player::fireWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
+	//inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);//change back to W after
 
 	for (int tick = 0;; tick++)
 	{
