@@ -124,24 +124,6 @@ int main()
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
-    //adding sound
-    noise= new SoundManager();
-    EventManager::subscribe(PLAY_SONG, noise);
-    EventManager::subscribe(PLAY_SOUND, noise);
-
-
-    //start initial music track
-    TrackParams * initial = new TrackParams();
-
-    initial->track = MenuBGM;
-
-    initial->x = 0;
-    initial->y = 0;
-    initial->z = 0;
-
-    TypeParam<TrackParams*> param(initial);
-    EventManager::notify(PLAY_SONG, &param);
-
    
 
 	// setup Map IRenderable
@@ -234,7 +216,7 @@ int main()
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	//Set input handling callbacks
-	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
+	Sleep(1000); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
 	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
@@ -246,6 +228,24 @@ int main()
 	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
 	//inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);//change back to W after
+
+    //adding sound
+    noise = new SoundManager();
+    EventManager::subscribe(PLAY_SONG, noise);
+    EventManager::subscribe(PLAY_SOUND, noise);
+
+
+    //start initial music track
+    TrackParams * initial = new TrackParams();
+
+    initial->track = MenuBGM;
+
+    initial->x = 0;
+    initial->y = 0;
+    initial->z = 0;
+
+    TypeParam<TrackParams*> param(initial);
+    EventManager::notify(PLAY_SONG, &param);
 
 	for (int tick = 0;; tick++)
 	{
