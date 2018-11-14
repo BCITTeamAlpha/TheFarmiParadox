@@ -15,7 +15,7 @@
 #include "PhysicsManager.h"
 #include "Input.h"
 #include "UIManager.h"
-#include "Sound.h"
+#include "SoundManager.h"
 #include <thread>
 #include "Player.h"
 #include "playerManager.h"
@@ -30,7 +30,7 @@ Renderer *renderer;
 PhysicsManager *physics;
 PlayerManager *playerManager;
 Map *map;
-Sound *sound;
+SoundManager* noise;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -68,6 +68,18 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
+            
+            //SoundParams * JumpNoise = new SoundParams();
+
+            //JumpNoise->sound = Jump;
+
+            //JumpNoise->x = 0;
+            //JumpNoise->y = 0;
+            //JumpNoise->z = 0;
+
+            //TypeParam<SoundParams*> jumpSound(JumpNoise);
+            //EventManager::notify(PLAY_SOUND, &jumpSound);
+            noise->playSound(Jump, 0, 0, 0);
 		}
 		break;
 	case GLFW_KEY_A:
@@ -117,6 +129,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
+		TypeParam<std::pair<float, float>> param(std::pair<float,float>(xpos, ypos));
+		EventManager::notify(UI_CLICK, &param, false);
 		printf("left mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
 	}
@@ -134,10 +148,7 @@ int main()
 	renderer = new Renderer();
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
 
-	//adding sound
-	sound = new Sound();
-	sound->SwitchTrack();
-	std::thread soundThread = std::thread(&Sound::PlayAudio, sound);
+   
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -243,6 +254,24 @@ int main()
 	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_W, PlayerManager::fireWeapon);
+
+    //adding sound
+    noise = new SoundManager();
+    EventManager::subscribe(PLAY_SONG, noise);
+    EventManager::subscribe(PLAY_SOUND, noise);
+
+
+    //start initial music track
+    TrackParams * initial = new TrackParams();
+
+    initial->track = MenuBGM;
+
+    initial->x = 0;
+    initial->y = 0;
+    initial->z = 0;
+
+    TypeParam<TrackParams*> param(initial);
+    EventManager::notify(PLAY_SONG, &param);
 
 	for (int tick = 0;; tick++)
 	{

@@ -1,4 +1,7 @@
 #include "UIManager.h"
+#include <stack>
+
+UIComponent* UIManager::_root;
 
 UIManager::UIManager(float width, float height) {
     // Create a transparent root element of the UI layout that covers the screen
@@ -11,6 +14,7 @@ UIManager::UIManager(float width, float height) {
 
     TypeParam<UIComponent*> param(_root);
     EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
+    EventManager::subscribe(UI_CLICK, this);
 }
 
 UIManager::~UIManager() {
@@ -23,4 +27,60 @@ void UIManager::Resize() {
 
 void UIManager::AddToRoot(UIComponent *component) {
     _root->Add(component);
+}
+
+void UIManager::notify(EventName eventName, Param* params) {
+    switch (eventName) {
+    case UI_CLICK: {
+        TypeParam<std::pair<float, float>> *p = dynamic_cast<TypeParam<std::pair<float, float>> *>(params);
+        std::pair<float, float> coords = p->Param;
+		UIComponent* select = _root;
+		findTopClick(&select, _root, coords.first, _root->screenSize.y - coords.second);
+        if (select != _root) {
+			select->ClickAction();
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+UIComponent* UIManager::Root() { return _root; }
+
+UIComponent* UIManager::GetComponentById(std::string id) {
+	UIComponent* component = nullptr;
+
+	std::stack<UIComponent*> stack;
+	stack.push(_root);
+	while (!stack.empty()) {
+		UIComponent* node = stack.top();
+		stack.pop();
+
+		if (node->id == id) {
+			component = node;
+			break;
+		}
+
+		for (UIComponent* child : node->children)
+			stack.push(child);
+	}
+
+	return component;
+}
+
+void UIManager::findTopClick(UIComponent** top, UIComponent* comp, const float x, const float y) {
+	for (UIComponent* c : comp->children) {
+		if (c->visible && pointInRect(x/2, y, c->screenPosition.y + c->screenSize.y,
+			c->screenPosition.x + c->screenSize.x, c->screenPosition.x, c->screenPosition.y)) {
+			if (c->ClickAction != nullptr && c->z > (*top)->z) {
+				*top = c;
+			}
+			findTopClick(top, c, x, y);
+		}
+	}
+}
+
+bool UIManager::pointInRect(float px, float py, float rTop, float rRight, float rLeft, float rBottom) {
+    return (px > rLeft && px < rRight && py < rTop && px > rBottom);
 }
