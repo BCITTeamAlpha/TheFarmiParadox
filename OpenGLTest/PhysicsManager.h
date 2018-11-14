@@ -15,11 +15,6 @@ public:
 	static const float VELOCITY_CAP;
 
 	//void ISubscriber::notify(EventName eventName, Param* param);
-	static void hello()
-	{
-
-	}
-
 	
 private:
 	void characterMovement(Character *Character);

@@ -142,43 +142,43 @@ int main()
 	//create players
 	for (int i = 0;i < 4;++i)
 	{
-	//set up a square test character
-	Character *c = new Character();
-	c->mass = 50;
-	c->position = { rand() % 64 + 32,rand() % 64 + 32 };
-	c->controllable = true;
+		//set up a square test character
+		Character *c = new Character();
+		c->mass = 50;
+		c->position = { rand() % 64 + 32,rand() % 64 + 32 };
+		c->controllable = true;
 
-	Renderable *cSkin = new Renderable();
-	cSkin->z = 0;
-	cSkin->model = AssetLoader::loadModel("teapot.obj");
-	//cSkin->color = glm::vec4(1, 0, 0, 1);
-	cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
-	c->setRenderable(cSkin);
+		Renderable *cSkin = new Renderable();
+		cSkin->z = 0;
+		cSkin->model = AssetLoader::loadModel("teapot.obj");
+		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
+		c->setRenderable(cSkin);
 
-	//set up a player with the test character
-	Player *player = new Player();
+		//set up a player with the test character
+		Player *player = new Player();
 
-	//set up a test pickup to give the player weapons
-	Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-	Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+		//set up a test pickup to give the player weapons
+		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
 
-	/*player1->addItem(pickup1);
-	player1->addItem(pickup2);*/
-	player->addItem(pickup1);
-	player->addItem(pickup2);
+		player->addItem(pickup1);
+		player->addItem(pickup2);
 
-	player->addCharacter(c);
-	playerManager->AddPlayer(player);
+		player->addCharacter(c);
+		playerManager->AddPlayer(player);
 
-	// send physicsobjects to physicsmanager
-	physics->addObject(c);
+		// send physicsobjects to physicsmanager
+		physics->addObject(c);
 
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
-}
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+	}
+
 	// setup background
 	GLubyte backgroundImage[128][128][4];
-	for (int x = 0; x < 128; x++) {
-		for (int y = 0; y < 128; y++) {
+	for (int x = 0; x < 128; x++)
+	{
+		for (int y = 0; y < 128; y++)
+		{
 			float val = map->value(x, y) * 0.1f;
 			val = std::max(0.0f, val);
 			val = std::min(1.0f, val);
@@ -190,6 +190,7 @@ int main()
 			backgroundImage[y][x][3] = 255 * val;
 		}
 	}
+
 	Renderable* backgroundSkin = new Renderable();
 	GameObject background;
 	background.setRenderable(backgroundSkin);
@@ -204,11 +205,7 @@ int main()
 
 	// send Renderables to renderer
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
-	//EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
-
-	// send physicsobjects to physicsmanager
-	//physics->addObject(c);
 
 	//Set input handling callbacks
 	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
@@ -217,15 +214,12 @@ int main()
 	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
 	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
 	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
-
-	//EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
-	//EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
-	//EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);
+	//inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
+	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::fireWeapon);//change back to W after
 
 	for (int tick = 0;; tick++)
 	{
