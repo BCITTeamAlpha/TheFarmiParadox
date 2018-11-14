@@ -1,9 +1,7 @@
 #pragma once
-
-#include <vector>
-#include <glm/glm.hpp>
 #include "Map.h"
+#include "Renderable.h"
 
 namespace MarchingSquares {
-	std::vector<glm::vec3> GenerateMesh(Map m);
+	Model GenerateModel(Map m);
 }

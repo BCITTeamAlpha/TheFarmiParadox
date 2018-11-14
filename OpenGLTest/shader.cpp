@@ -1,46 +1,39 @@
 #include "shader.h"
-#include <fstream>
 
-Shader::Shader(const std::string& fileName, unsigned int type)
-{
-	if(type == GL_VERTEX_SHADER)
+#include <fstream>
+#include <iostream>
+
+Shader::Shader(const std::string& fileName, unsigned int type) {
+	if (type == GL_VERTEX_SHADER)
 		myShader = CreateShader(LoadShader(fileName + ".vsh"), GL_VERTEX_SHADER);
 	else
 		myShader = CreateShader(LoadShader(fileName + ".psh"), GL_FRAGMENT_SHADER);
 }
 
-Shader::~Shader()
-{
+Shader::~Shader() {
 	glDeleteShader(myShader);
 }
 
-
-std::string Shader::LoadShader(const std::string& fileName)
-{
+std::string Shader::LoadShader(const std::string& fileName) {
 	std::ifstream file;
 	file.open((fileName).c_str());
 
 	std::string output;
 	std::string line;
 
-	if (file.is_open())
-	{
-		while (file.good())
-		{
+	if (file.is_open()) {
+		while (file.good()) {
 			getline(file, line);
 			output.append(line + "\n");
 		}
-	}
-	else
-	{
+	} else {
 		std::cerr << "Unable to load shader: " << fileName << std::endl;
 	}
 
 	return output;
 }
 
-GLuint Shader::CreateShader(const std::string& text, unsigned int type)
-{
+GLuint Shader::CreateShader(const std::string& text, unsigned int type) {
 	GLuint shader = glCreateShader(type);
 
 	if (shader == 0)
@@ -59,22 +52,19 @@ GLuint Shader::CreateShader(const std::string& text, unsigned int type)
 	return shader;
 }
 
-void Shader::CheckShaderError(GLuint shader, GLuint flag, const std::string& errorMessage)
-{
+void Shader::CheckShaderError(GLuint shader, GLuint flag, const std::string& errorMessage) {
 	GLint success = 0;
 	GLchar error[1024] = { 0 };
 
 	glGetShaderiv(shader, flag, &success);
 
-	if (success == GL_FALSE)
-	{
+	if (success == GL_FALSE) {
 		glGetShaderInfoLog(shader, sizeof(error), NULL, error);
 
 		std::cerr << errorMessage << ": '" << error << "'" << std::endl;
 	}
 }
 
-GLuint Shader::GetShader()
-{
+GLuint Shader::GetShader() {
 	return myShader;
 }

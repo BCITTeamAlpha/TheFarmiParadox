@@ -1,10 +1,10 @@
 #include "TextComponent.h"
 
-const std::string TextComponent::DEFAULT_FONT = "ShareTechMono";
+const std::string TextComponent::DEFAULT_FONT = "ShareTechMono.png";
 
 TextComponent::TextComponent(std::string text, float fontSize, float x, float y, std::string fontType) :
     UIComponent(0, 0, x, y), _text(text), _fontSize(fontSize) {
-    _font = UIManager::FontLibrary[fontType];
+    texture = AssetLoader::loadTexture(fontType);
 }
 
 void TextComponent::SetText(std::string text) {
@@ -14,12 +14,8 @@ void TextComponent::SetText(std::string text) {
 
 void TextComponent::Resize() {
     if (parent != nullptr) {
-        texture.loc = _font.TextureLocation;
-		texture.width = _font.TexWidth;
-		texture.height = _font.TexHeight;
-		texture.data = _font.TextureData;
 
-        float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
+        float fontWidth = _fontSize * texture.width / texture.height;
 
         screenSize.y = _fontSize;
         screenSize.x = fontWidth * _text.length();
@@ -88,7 +84,7 @@ glm::vec2 TextComponent::getUVfromChar(const char c) {
 
 void TextComponent::generateVertices() {
     glm::vec2 uv;
-    float fontWidth = _fontSize * _font.TexWidth / _font.TexHeight;
+    float fontWidth = _fontSize * texture.width / texture.height;
 
 	model.positions.clear();
 	model.UVs.clear();
