@@ -228,7 +228,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 
     UIComponent lBox(22.35, 100, 0, 0);
 	lBox.id = "lBox";
-	lBox.color = { 0.173, 0.184, 0.2, 1 };
+	lBox.color = { 0.141, 0.427, 0.761, 1 };
     lBox.vAnchor = ANCHOR_TOP;
     lBox.hAnchor = ANCHOR_LEFT;
 
@@ -240,7 +240,7 @@ int Renderer::RenderLoop(Renderable **pp) {
 
     UIComponent rBox(21.9, 100, 0, 0);
 	rBox.id = "rBox";
-    rBox.color = { 0.173, 0.184, 0.2, 1 };
+    rBox.color = { 0.141, 0.427, 0.761, 1 };
     rBox.vAnchor = ANCHOR_TOP;
     rBox.hAnchor = ANCHOR_RIGHT;
 
