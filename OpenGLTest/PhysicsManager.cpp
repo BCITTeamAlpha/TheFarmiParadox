@@ -53,13 +53,17 @@ void PhysicsManager::calcPhysics(float dTime)
 	}
 
 	// takes by reference and modifies character's pos and vel
-	characterMovement(objects[0]);
+	for (size_t i = 0; i < chars.size(); i++)
+		characterMovement(chars[i]);
 }
 
-void PhysicsManager::characterMovement(PhysicsObject *object) {
+void PhysicsManager::characterMovement(Character *object) {
 	float player_speed = 10.0f;
 	float player_radius = 2.5f;
 	float player_jump_speed = 20.0f;
+
+	if (!object->controllable)
+		return;
 
 	glm::vec2 pos = object->position;
 	glm::vec2 vel = object->velocity;

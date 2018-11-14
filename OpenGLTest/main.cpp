@@ -139,6 +139,7 @@ int main()
 	Character *c = new Character();
 	c->mass = 50;
 	c->position = { 75.0f, 60.0f };
+	c->controllable = true;
 
 	Renderable *cSkin = new Renderable();
 	cSkin->z = 0;

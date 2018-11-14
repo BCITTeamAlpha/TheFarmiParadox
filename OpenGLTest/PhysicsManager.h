@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include "EventManager.h"
+#include "Character.h"
 
 class PhysicsManager : public ISubscriber {
 public:
@@ -21,10 +22,11 @@ public:
 
 	
 private:
-	void characterMovement(PhysicsObject *object);
+	void characterMovement(Character *object);
 	glm::vec2 gravAcceleration(glm::vec2 pos);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
+	std::vector<Character*> chars;
 	Map *map;
 	bool player_left_input;
 	bool player_right_input;

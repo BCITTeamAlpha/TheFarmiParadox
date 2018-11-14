@@ -4,6 +4,7 @@
 class Character : public PhysicsObject {
 public:
 	Character();
+	bool controllable;
 private:
 
 };

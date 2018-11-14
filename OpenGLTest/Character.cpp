@@ -2,5 +2,5 @@
 
 Character::Character()
 {
-
+	controllable = false;
 }
