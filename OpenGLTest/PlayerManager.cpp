@@ -12,6 +12,7 @@ PlayerManager::PlayerManager()
 
 PlayerManager::~PlayerManager()
 {
+
 }
 
 void PlayerManager::prevWeapon()
@@ -35,17 +36,29 @@ void PlayerManager::aimWeapon()
 	if (instance->currentPlayerIndex < instance->players.size())
 	{
 		instance->turnStage = 1;
+		instance->players[instance->currentPlayerIndex]->setControllable(false);
+	}
+}
+
+void PlayerManager::handlePlayers(float dTime)
+{
+	if (instance->currentPlayerIndex < instance->players.size())
+	{
+		if (instance->turnStage == 1)
+			instance->players[instance->currentPlayerIndex]->adjustAim(dTime);
 	}
 }
 
 void PlayerManager::fireWeapon()
 {
-	/*if (instance->turnStage != 1)
-		return;*/
+	if (instance->turnStage != 1)
+		return;
 
 	if (instance->currentPlayerIndex < instance->players.size())
 	{
 		instance->players[instance->currentPlayerIndex]->fireWeapon();
+
+		instance->turnStage = 2;
 	}
 	
 	instance->NextPlayer();
@@ -53,6 +66,9 @@ void PlayerManager::fireWeapon()
 
 void PlayerManager::NextPlayer()
 {
+	instance->turnStage = 0;
+	instance->players[instance->currentPlayerIndex]->setControllable(true);
+
 	if (players.size())
 	{
 		players[currentPlayerIndex]->clearInput();
@@ -84,6 +100,16 @@ void PlayerManager::notify(EventName eventName, Param *params)
 		printf("jump!\n");
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
 		if (p != nullptr) players[currentPlayerIndex]->jump(p->Param);
+		break;
+	}
+	case AIM_LEFT: {
+		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
+		if (p != nullptr) players[currentPlayerIndex]->setAimLeft(p->Param);
+		break;
+	}
+	case AIM_RIGHT: {
+		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
+		if (p != nullptr) players[currentPlayerIndex]->setAimRight(p->Param);
 		break;
 	}
 	default:
