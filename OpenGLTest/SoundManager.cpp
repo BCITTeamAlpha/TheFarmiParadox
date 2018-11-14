@@ -51,8 +51,8 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
 
     switch (soundEffect) {
     case Jump:
-        soundObject->bufferData(seBuffer, bgmSource, JUMP);
-        soundObject->toggleLooping(seSource, true);
+        soundObject->bufferData(seBuffer, seSource, JUMP);
+        soundObject->toggleLooping(seSource, false);
         soundObject->placeSource(seSource, x, y, z);
         soundObject->PlayAudio(seSource);
         break;
@@ -75,25 +75,24 @@ void SoundManager::notify(EventName eventName, Param* param) {
 
     switch (eventName) {
         case PLAY_SONG: {
-            std::cout << "Music - Song Event Fired" << std::endl;
-            TrackParams TrackInfo;
+            TrackParams* TrackInfo;
             // Safetly cast generic param pointer to a specific type
-            TypeParam<TrackParams> *p = dynamic_cast<TypeParam<TrackParams> *>(param);
+            TypeParam<TrackParams *> *p = dynamic_cast<TypeParam<TrackParams*> *>(param);
             if (p != nullptr) {
                 // Successful type cast
                 TrackInfo = p->Param;
-                playSong(TrackInfo.track, TrackInfo.x, TrackInfo.y, TrackInfo.z);
+                playSong(TrackInfo->track, TrackInfo->x, TrackInfo->y, TrackInfo->z);
             }
             break;
         }
         case PLAY_SOUND:{
-            SoundParams SoundInfo;
+            SoundParams* SoundInfo;
             // Safetly cast generic param pointer to a specific type
-            TypeParam<SoundParams> *sound = dynamic_cast<TypeParam<SoundParams> *>(param);
+            TypeParam<SoundParams*> *sound = dynamic_cast<TypeParam<SoundParams*> *>(param);
             if (sound != nullptr) {
                 // Successful type cast
                 SoundInfo = sound->Param;
-                playSound(SoundInfo.sound, SoundInfo.x, SoundInfo.y, SoundInfo.z);
+                playSound(SoundInfo->sound, SoundInfo->x, SoundInfo->y, SoundInfo->z);
             }
             break;
         }

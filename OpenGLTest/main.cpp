@@ -69,7 +69,17 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
             
-            noise->playSound(Jump, 0,0,0);
+            //SoundParams * JumpNoise = new SoundParams();
+
+            //JumpNoise->sound = Jump;
+
+            //JumpNoise->x = 0;
+            //JumpNoise->y = 0;
+            //JumpNoise->z = 0;
+
+            //TypeParam<SoundParams*> jumpSound(JumpNoise);
+            //EventManager::notify(PLAY_SOUND, &jumpSound);
+            noise->playSound(Jump, 0, 0, 0);
 		}
 		break;
 	default:
@@ -118,13 +128,17 @@ int main()
 
 
     //start initial music track
-    TrackParams initial;
-    initial.track = MainBGM;
+    TrackParams * initial = new TrackParams();
 
-    initial.x = 0;
-    initial.y = 0;
-    initial.z = 0;
-    EventManager::notify(PLAY_SONG, &TypeParam<TrackParams>(initial));
+    initial->track = MenuBGM;
+
+    initial->x = 0;
+    initial->y = 0;
+    initial->z = 0;
+
+    TypeParam<TrackParams*> param(initial);
+    EventManager::notify(PLAY_SONG, &param);
+
     
 
 	// setup Map IRenderable
