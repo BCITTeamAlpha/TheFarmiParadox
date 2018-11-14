@@ -4,6 +4,7 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     size(width, height), anchor(x, y) {
 
     // Set default values for a panel
+	id = "";
     visible = true;
     vAnchor = ANCHOR_TOP;
     hAnchor = ANCHOR_LEFT;

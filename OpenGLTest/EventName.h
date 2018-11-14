@@ -6,8 +6,6 @@ enum EventName {
     RENDERER_ADD_TO_UIRENDERABLES, // Tell renderer to add renderable to list
     RENDERER_POPULATE_BUFFERS, // Tell renderer to repopulate buffers for a renderable
     RENDERER_INIT_FONT, // Initialize a font texture
-    UI_ADD_CLICK, // UIComponent has a Click Handle added
-    UI_ADD_HOVER, // UIComponent has a Hover Handle added
     UI_CLICK, // Clicked on screen
     PLAYER_JUMP,   // Used to trigger a player movement event
 	PLAYER_LEFT,

@@ -1,6 +1,9 @@
 #include "UIManager.h"
+#include <stack>
 
 std::map<std::string, FontType> UIManager::FontLibrary;
+UIComponent* UIManager::_root;
+
 
 UIManager::UIManager(float width, float height) {
     // Create a transparent root element of the UI layout that covers the screen
@@ -8,9 +11,6 @@ UIManager::UIManager(float width, float height) {
     _root->color = {0,0,0,0};
     _root->screenSize = {width, height};
     _root->screenPosition = {0, 0};
-
-    _interactX = width / INTERACT_MAP_WIDTH;
-    _interactY = height / INTERACT_MAP_HEIGHT;
 
     Resize();
 
@@ -20,8 +20,7 @@ UIManager::UIManager(float width, float height) {
     // Initialize our fonts (Maybe move this somewhere else because static?)
     initFont("ShareTechMono", "./ShareTechMono.png");
     
-    EventManager::subscribe(UI_ADD_CLICK, this);
-    EventManager::subscribe(UI_ADD_HOVER, this);
+    EventManager::subscribe(UI_CLICK, this);
 }
 
 UIManager::~UIManager() {
@@ -38,44 +37,13 @@ void UIManager::AddToRoot(UIComponent *component) {
 
 void UIManager::notify(EventName eventName, Param* params) {
     switch (eventName) {
-    case UI_ADD_CLICK: {
-        TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-        UIComponent* c = p->Param;
-        
-        float top, bottom, left, right,
-              iTop, iBottom, iLeft, iRight;
-        bottom = c->screenPosition.y;
-        left = c->screenPosition.x;
-        top = c->screenPosition.y + c->screenSize.y;
-        right = c->screenPosition.x + c->screenSize.x;
-
-        for (int x = 0; x < INTERACT_MAP_WIDTH; x++) {
-            for (int y = 0; y < INTERACT_MAP_HEIGHT; y++) {
-                iTop = y * _interactY + _interactY;
-                iRight = x * _interactX + _interactX;
-                iLeft = x * _interactX;
-                iBottom = y * _interactY;
-                if (top > iBottom && bottom < iTop &&
-                    right > iLeft && left < iRight) {
-                    _interactMap[x][y].push_back(c);
-                }
-            }
-        }
-        break;
-    }
     case UI_CLICK: {
-        UIComponent *top = nullptr;
-        TypeParam<std::pair<int, int>> *p = dynamic_cast<TypeParam<std::pair<int, int>> *>(params);
-        std::pair<int, int> coords = p->Param;
-        for (UIComponent *c : _interactMap[coords.first / _interactX][coords.second / _interactY]) {
-            if (pointInRect(coords.first, coords.second, c->screenPosition.y + c->screenSize.y, c->screenPosition.x + s->screenSize.x, c->screenPosition.x, c->screenPosition.y)) {
-                if (top == nullptr || c->z > top->z) {
-                    top = c;
-                }
-            }
-        }
-        if (top != nullptr) {
-            top->ClickAction();
+        TypeParam<std::pair<float, float>> *p = dynamic_cast<TypeParam<std::pair<float, float>> *>(params);
+        std::pair<float, float> coords = p->Param;
+		UIComponent* select = _root;
+		findTopClick(&select, _root, coords.first, _root->screenSize.y - coords.second);
+        if (select != _root) {
+			select->ClickAction();
         }
         break;
     }
@@ -85,6 +53,39 @@ void UIManager::notify(EventName eventName, Param* params) {
 }
 
 UIComponent* UIManager::Root() { return _root; }
+
+UIComponent* UIManager::GetComponentById(std::string id) {
+	UIComponent* component = nullptr;
+
+	std::stack<UIComponent*> stack;
+	stack.push(_root);
+	while (!stack.empty()) {
+		UIComponent* node = stack.top();
+		stack.pop();
+
+		if (node->id == id) {
+			component = node;
+			break;
+		}
+
+		for (UIComponent* child : node->children)
+			stack.push(child);
+	}
+
+	return component;
+}
+
+void UIManager::findTopClick(UIComponent** top, UIComponent* comp, const float x, const float y) {
+	for (UIComponent* c : comp->children) {
+		if (c->visible && pointInRect(x/2, y, c->screenPosition.y + c->screenSize.y,
+			c->screenPosition.x + c->screenSize.x, c->screenPosition.x, c->screenPosition.y)) {
+			if (c->ClickAction != nullptr && c->z > (*top)->z) {
+				*top = c;
+			}
+			findTopClick(top, c, x, y);
+		}
+	}
+}
 
 void UIManager::initFont(std::string fontName, std::string path) {
     FontType newFont;
