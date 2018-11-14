@@ -128,8 +128,37 @@ int main()
 
 	map = new Map(planets, 128, 128);
 
+	// setup background
+	GLubyte backgroundImage[128][128][4];
+	for (int x = 0; x < 128; x++) {
+		for (int y = 0; y < 128; y++) {
+			float val = map->value(x, y) * 0.1f;
+			val = std::max(0.0f, val);
+			val = std::min(1.0f, val);
+			val = 1.0f - val;
+			val = val * val;
+			backgroundImage[y][x][0] = 63;
+			backgroundImage[y][x][1] = 127;
+			backgroundImage[y][x][2] = 255;
+			backgroundImage[y][x][3] = 255 * val;
+		}
+	}
+	Renderable* backgroundSkin = new Renderable();
+	GameObject background;
+	background.setRenderable(backgroundSkin);
+	backgroundSkin->z = -1;
+	backgroundSkin->position = new glm::vec2(64, 64);
+	backgroundSkin->scale = glm::vec3(128, 128, 128);
+	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
+	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
+	backgroundSkin->texture.width = 128;
+	backgroundSkin->texture.height = 128;
+	backgroundSkin->fullBright = true;
+
+	// setup map renderable
 	Renderable *mapSkin = new Renderable();
 	mapSkin->z = 0;
+	map->explosion(Planetoid(85.0f, 85.0f, 8.0f));
 	mapSkin->model = MarchingSquares::GenerateModel(*map);
 	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
 	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
@@ -175,32 +204,7 @@ int main()
 
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
 }
-	// setup background
-	GLubyte backgroundImage[128][128][4];
-	for (int x = 0; x < 128; x++) {
-		for (int y = 0; y < 128; y++) {
-			float val = map->value(x, y) * 0.1f;
-			val = std::max(0.0f, val);
-			val = std::min(1.0f, val);
-			val = 1.0f - val;
-			val = val * val;
-			backgroundImage[y][x][0] = 63;
-			backgroundImage[y][x][1] = 127;
-			backgroundImage[y][x][2] = 255;
-			backgroundImage[y][x][3] = 255 * val;
-		}
-	}
-	Renderable* backgroundSkin = new Renderable();
-	GameObject background;
-	background.setRenderable(backgroundSkin);
-	backgroundSkin->z = -1;
-	backgroundSkin->position = new glm::vec2(64, 64);
-	backgroundSkin->scale = glm::vec3(128, 128, 128);
-	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
-	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-    backgroundSkin->texture.width = 128;
-    backgroundSkin->texture.height = 128;
-    backgroundSkin->fullBright = true;
+
 
 	// send Renderables to renderer
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);

@@ -5,6 +5,8 @@
 #include <math.h>
 
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
+const float player_speed = 10.0f;
+const float player_jump_speed = 20.0f;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
@@ -19,86 +21,47 @@ void PhysicsManager::calcPhysics(float dTime)
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		PhysicsObject *object = objects[i];
-
-		if (object->mass == 0)
-		{
-			std::cout << "Attempting to divide by zero. Aborting physics." << std::endl;
-			std::terminate();
-		}
-
 		glm::vec2 pos = object->position;
 		glm::vec2 vel = object->velocity;
 		glm::vec2 acc = gravAcceleration(pos);
-		glm::vec2 move = vel * dTime + acc * dTime * dTime / 2.0f;
-
-		//cap maximum movement
-		if (length(move) / dTime > VELOCITY_CAP) 
-		{
-			move = glm::normalize(move) * VELOCITY_CAP;
-		}
-
-		pos += move;
-
+		pos += vel * dTime;
 		vel += acc * dTime;
 
-		//cap maximum velocity
-		if (glm::length(vel) > VELOCITY_CAP) 
-		{
+		// clamp velocity magnitude
+		if (length(vel) > VELOCITY_CAP) {
 			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
-		object->position = pos;
-		object->velocity = vel;
-		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI + 90.0f;
-
-		Character *character = dynamic_cast<Character *>(object);
-		if (character)
-		{
-			characterMovement(character);
+		// collision response
+		glm::vec2 N;
+		bool collided = object->colliding_with_map(*map, acc, N);
+		glm::vec2 T = { N.y, -N.x };
+		float N_comp = dot(N, vel);
+		float T_comp = dot(T, vel);
+		if (collided) {
+			N_comp = std::max(0.0f, N_comp);
+			T_comp = 0;
 		}
-	}
 
-	// takes by reference and modifies character's pos and vel
-	//characterMovement(objects[0]);
-}
-
-void PhysicsManager::characterMovement(Character *character) {
-	float player_speed = 10.0f;
-	float player_radius = 2.5f;
-	float player_jump_speed = 20.0f;
-
-	glm::vec2 pos = character->position;
-	glm::vec2 vel = character->velocity;
-
-	// loop over planets, check if character is inside any of them them
-	for (Planetoid planet : *planets) {
-		glm::vec2 planet_to_obj = pos - planet._pos;
-		GLfloat len = glm::length(planet_to_obj) - player_radius;
-		// if character close to planet
-		if (len - 1 < planet._r) {
-			// allign character with surface
-			character->rotation.z = atan2(-planet_to_obj.x, planet_to_obj.y) * 180.0f / M_PI + 90.0f;
-			// if character is inside planet
-			if (len < planet._r) {
-				planet_to_obj /= len;
-				// push character out of planet
-				pos = planet._pos + planet._r * planet_to_obj;
-				// set velocity to 0 if still moving towards planet
-				if (glm::dot(vel, planet_to_obj) < 0.0f) {
-					vel = glm::vec2(0);
-				}
-				// horizontal movement
-				vel += (-character->left_input + character->right_input) * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);
-				/*vel += (-character->left_input + character->right_input) * player_speed * glm::vec2(planet_to_obj.y, -planet_to_obj.x);*/
-				// jumping
-				vel += character->jump_input * player_jump_speed * planet_to_obj;
-				break;
+		// player movement
+		Character *character = dynamic_cast<Character *>(object);
+		if (character) {
+			float y_axis = player_jump_speed * character->jump_input;
+			if (collided && y_axis != 0) {
+				N_comp = y_axis;
+			}
+			float x_axis = player_speed * (character->right_input - character->left_input);
+			if (x_axis != 0) {
+				T_comp = x_axis;
 			}
 		}
-	}
 
-	character->position = pos;
-	character->velocity = vel;
+		vel = N * N_comp + T * T_comp;
+
+		object->position = pos;
+		object->velocity = vel;
+		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI;
+	}
 }
 
 //Finds the net force on a given point in space
