@@ -18,7 +18,7 @@ public:
 	void jump(bool v);
 	static Player *me;
 private:
-	std::vector<Character> chars;
+	std::vector<Character *> chars;
 	Inventory *weaps;
 	int curChar;
 };

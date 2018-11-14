@@ -5,14 +5,14 @@ Player* Player::me = NULL;
 Player::Player()
 {
 	curChar = 0;
-	chars = std::vector<Character>();
+	chars = std::vector<Character *>();
 	weaps = new Inventory();
 	me = this;
 }
 
 void Player::addCharacter(Character *c)
 {
-	chars.push_back(*c);
+	chars.push_back(c);
 }
 
 void Player::addItem(Pickup item)
@@ -37,7 +37,7 @@ void Player::fireWeapon()
 
 void Player::clearInput()
 {
-	for (auto & c : chars)
+	for (auto &c : chars)
 	{
 		c->left_input = false;
 		c->right_input = false;

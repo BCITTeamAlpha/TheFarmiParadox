@@ -6,6 +6,7 @@
 class GameObject {
 public:
 	GameObject();
+	virtual ~GameObject();;
 	void setRenderable(Renderable *r);
 	glm::vec2 position;
 	glm::vec3 rotation;

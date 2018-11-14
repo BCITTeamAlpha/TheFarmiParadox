@@ -214,9 +214,13 @@ int main()
 	Sleep(500); // Sleep until the renderer is done initializing. This is a horrible solution.
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
-	EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
-	EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
+	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
+	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
+	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
+
+	//EventManager::subscribe(PLAYER_LEFT, physics); //Subscribe player left to EventManager
+	//EventManager::subscribe(PLAYER_RIGHT, physics); //Subscribe player right to EventManager
+	//EventManager::subscribe(PLAYER_JUMP, physics); //Subscribe player jump to EventManager
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, Player::prevWeapon);
