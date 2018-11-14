@@ -3,6 +3,7 @@
 #include "Renderable.h"
 #include "EventManager.h"
 #include "stb_image.h"
+#include <string>
 #include <vector>
 
 //created by UIManager/AssetLoader?; used by Renderer
@@ -33,6 +34,7 @@ public:
 
     void Add(UIComponent* child);
 
+	std::string			id;
     bool                visible;
     glm::vec2           size;
     glm::vec2           anchor;
@@ -48,6 +50,9 @@ public:
     glm::vec2           screenPosition;
     glm::vec2           screenSize;
     glm::vec3           screenRotation;
+
+    void                (*ClickAction)();
+    void                (*HoverAction)();
 
     std::vector<UIComponent*> children;
 };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <vector>
 #include <string>
 #include <windows.h>
 #include "AssetLoader.h"
@@ -10,14 +9,23 @@
 
 //has UIComponents; created by main
 
-class UIManager {
+class UIManager : public ISubscriber {
 public:
-	UIManager(float width, float height);
+    UIManager(float width, float height);
     ~UIManager();
 
     void Resize();
-    void AddToRoot(UIComponent *component);
+    static void AddToRoot(UIComponent *component);
 
-    UIComponent *_root;
+    void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
+
+    static UIComponent* Root();
+	static UIComponent* GetComponentById(std::string id);
+
 private:
+    static bool pointInRect(float px, float py, float rTop, float rRight, float rLeft, float rBottom);
+
+	void findTopClick(UIComponent** top, UIComponent* comp, const float x, const float y);
+
+    static UIComponent *_root;
 };

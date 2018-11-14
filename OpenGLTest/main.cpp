@@ -107,6 +107,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
+		TypeParam<std::pair<float, float>> param(std::pair<float,float>(xpos, ypos));
+		EventManager::notify(UI_CLICK, &param, false);
 		printf("left mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
 	}
