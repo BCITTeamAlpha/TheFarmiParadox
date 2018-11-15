@@ -177,6 +177,8 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 }
 
 int Renderer::RenderLoop() {
+	std::unique_lock<std::mutex> lck(mtx);
+
 	//Setup GLFW
 	glfwInit();
 
@@ -264,6 +266,11 @@ int Renderer::RenderLoop() {
 	// set opengl to swap framebuffer every # screen refreshes
 	glfwSwapInterval(1);
 
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	lck.unlock();
+	cv.notify_all();
+
     uim = new UIManager(WIDTH, HEIGHT);
 
     UIComponent lBox(22.35, 100, 0, 0);
@@ -339,8 +346,6 @@ int Renderer::RenderLoop() {
 
     uim->AddToRoot(&lBox);
     uim->AddToRoot(&rBox);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.

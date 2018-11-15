@@ -1,6 +1,7 @@
 #pragma once
 //uses UIComponents, Renderables
 #include <list>
+#include <mutex>
 
 #define GLEW_STATIC
 #include <GLEW/glew.h>
@@ -10,6 +11,8 @@
 #include "Renderable.h"
 #include "UIManager.h"
 
+extern std::mutex mtx;
+extern std::condition_variable cv;
 extern GLFWwindow *window;
 
 class Renderer : public ISubscriber {
