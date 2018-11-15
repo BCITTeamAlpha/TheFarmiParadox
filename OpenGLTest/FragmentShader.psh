@@ -8,6 +8,7 @@ in vec3 v_normal;
 uniform vec4 u_color;
 uniform bool u_fullBright;
 uniform float u_roughness;
+uniform float u_f0;
 uniform sampler2D u_textureSampler;
 
 uniform vec3 u_lightPosition;
@@ -61,7 +62,7 @@ void main() {
 		L /= len;
 
 		float diffuse = max(dot(N, L), 0.0);
-		float specular = GGX(N, V, L, u_roughness, 0.25);
+		float specular = GGX(N, V, L, u_roughness, u_f0);
 		float attenuation = u_lightBrightness / (len * len);
 
 		color.xyz *= diffuse;
