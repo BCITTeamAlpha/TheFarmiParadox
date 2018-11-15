@@ -21,6 +21,8 @@
 #include "playerManager.h"
 
 GLFWwindow* window;
+std::mutex mtx;
+std::condition_variable cv;
 Input inputHandler;
 //If we want to bind a key directly to a function
 //inputHandler.addKeyDownBinding(GLFW_KEY_WHATEVER, Class::func or class.func);
@@ -146,9 +148,8 @@ int main()
 	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
+	std::unique_lock<std::mutex> lck(mtx);
 	std::thread renderThread = std::thread(&Renderer::RenderLoop, renderer);
-
-   
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
@@ -277,7 +278,7 @@ int main()
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	//Set input handling callbacks
-	Sleep(1000); // Sleep until the renderer is done initializing. This is a horrible solution.
+	cv.wait(lck);
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
 	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager

@@ -34,11 +34,15 @@ class Renderable {
 		Model model;
 		Texture texture;
 
+		// transform
 		glm::vec2 *position;
 		float z;
 		glm::vec3 *rotation;
 		glm::vec3 scale;
+
+		// material
 		glm::vec4 color;
 		bool fullBright;
 		float roughness;
+		float f0;
 };
