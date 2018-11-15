@@ -219,16 +219,22 @@ int main()
 	}
 
 	std::vector<std::string> models = std::vector<std::string>();
-	models.push_back("../Models/cat.obj");
-	models.push_back("../Models/chimp.obj");
-	models.push_back("../Models/PenguinBaseMesh.obj");
-	models.push_back("../Models/Crab.obj");
+	models.push_back("../Models/Cat.obj");
+	models.push_back("../Models/Cow.obj");
+	models.push_back("../Models/Pug.obj");
+	models.push_back("../Models/Slime.obj");
 
 	std::vector<float> radii = std::vector<float>();
 	radii.push_back(1.0f);
-	radii.push_back(4.0f);
 	radii.push_back(1.0f);
-	radii.push_back(0.5f);
+	radii.push_back(1.0f);
+	radii.push_back(1.0f);
+
+	std::vector<float> sizes = std::vector<float>();
+	sizes.push_back(1.0f);
+	sizes.push_back(1.0f);
+	sizes.push_back(1.0f);
+	sizes.push_back(1.0f);
 
 	//create players
 	for (int i = 0;i < 4;++i)
@@ -238,13 +244,13 @@ int main()
 		c->mass = 50;
 		c->position = { rand() % 64 + 32,rand() % 64 + 32 };
 		c->controllable = true;
-		c->radius = radii.at(i);
+		c->radius = radii[i];
 
 		Renderable *cSkin = new Renderable();
 		cSkin->z = 0;
-		cSkin->model = AssetLoader::loadModel(models.at(i));
+		cSkin->model = AssetLoader::loadModel(models[i]);
 		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
-		cSkin->scale = glm::vec3(8);
+		cSkin->scale = glm::vec3(sizes[i]);
 		cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
 		c->setRenderable(cSkin);
 
