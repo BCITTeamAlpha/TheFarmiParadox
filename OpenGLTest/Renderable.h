@@ -33,6 +33,7 @@ class Renderable {
 
 		Model model;
 		Texture texture;
+		bool invalidated;
 
 		// transform
 		glm::vec2 *position;

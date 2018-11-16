@@ -359,6 +359,13 @@ int Renderer::RenderLoop() {
 			renderables_waitList.pop_back();
 		}
 
+		for (Renderable * renderable : renderables) {
+			if (renderable->invalidated) {
+				PopulateBuffers(renderable);
+				renderable->invalidated = false;
+			}
+		}
+
 		//draw
 		draw();
 
