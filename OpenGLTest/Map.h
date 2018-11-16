@@ -12,11 +12,10 @@ class Map {
 		void explosion(Planetoid p);
 		int width();
 		float value(int x, int y);
-		void setRenderable(Renderable *r);
+		Renderable *renderable;
 	private:
-		inline int _index(int x, int y);
+		int _index(int x, int y);
 		float* _mapArray;
 		int _height;
 		int _width;
-		Renderable *renderable;
 };

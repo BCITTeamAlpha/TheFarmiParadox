@@ -184,16 +184,6 @@ int main()
 	backgroundSkin->texture.height = 128;
 	backgroundSkin->fullBright = true;
 
-	// setup map renderable
-	Renderable *mapSkin = new Renderable();
-	mapSkin->z = 0;
-	map->explosion(Planetoid(85.0f, 85.0f, 8.0f));
-	mapSkin->model = MarchingSquares::GenerateModel(*map);
-	mapSkin->texture = AssetLoader::loadTexture("checkerboard.png");
-	mapSkin->color = glm::vec4(0.5, 1, 0, 1);
-
-	map->setRenderable(mapSkin);
-
 	physics = new PhysicsManager(&planets, map);
 	playerManager = new PlayerManager();
 
@@ -269,7 +259,7 @@ int main()
 	}
 
 	// send Renderables to renderer
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(mapSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(map->renderable), false);
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
 
 	//Set input handling callbacks
@@ -306,6 +296,7 @@ int main()
     TypeParam<TrackParams*> param(initial);
     EventManager::notify(PLAY_SONG, &param);
 
+	map->explosion(Planetoid(85, 85, 8));
 	for (int tick = 0;; tick++)
 	{
 		physics->calcPhysics(1.0 / 59.94);
