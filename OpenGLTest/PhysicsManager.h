@@ -17,7 +17,7 @@ public:
 	//void ISubscriber::notify(EventName eventName, Param* param);
 	
 private:
-	glm::vec2 gravAcceleration(glm::vec2 pos);
+	glm::vec2 gravAcceleration(glm::vec2 pos, glm::vec2 &max_acc_contrib);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	std::vector<Character*> chars;
