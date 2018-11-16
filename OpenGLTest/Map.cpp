@@ -1,7 +1,9 @@
 #include "Map.h"
 
+#include "AssetLoader.h"
 #include <algorithm>
 #include <limits>
+#include "MarchingSquares.h"
 
 using std::numeric_limits;
 using std::vector;
@@ -27,6 +29,14 @@ Map::Map(vector<Planetoid> planets, int width, int height) {
 			}
 		}
 	}
+
+	renderable = new Renderable();
+	renderable->z = 0;
+	renderable->position = new glm::vec2(0, 0);
+	renderable->rotation = new glm::vec3(0, 0, 0);
+	renderable->texture = AssetLoader::loadTexture("checkerboard.png");
+	renderable->color = glm::vec4(0.5, 1, 0, 1);
+	renderable->model = MarchingSquares::GenerateModel(*this);
 }
 
 // calculate array index so it can be accessed as it were 2d
@@ -59,11 +69,11 @@ void Map::explosion(Planetoid p) {
 			);
 		}
 	}
-}
 
-void Map::setRenderable(Renderable *r)
-{
-	renderable = r;
-	renderable->position = new glm::vec2(0, 0);
-	renderable->rotation = new glm::vec3(0, 0, 0);
+	Model m = MarchingSquares::GenerateModel(*this);
+	renderable->model.positions = m.positions;
+	renderable->model.normals = m.normals;
+	renderable->model.UVs = m.UVs;
+	renderable->model.elements = m.elements;
+	renderable->invalidated = true;
 }
