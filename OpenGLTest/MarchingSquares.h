@@ -3,5 +3,5 @@
 #include "Renderable.h"
 
 namespace MarchingSquares {
-	Model GenerateModel(Map m);
+	Model GenerateModel(Map &m);
 }
