@@ -138,11 +138,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
-
-void TestFunction() {
-	std::cout << "TestFunction called" << std::endl;
-}
-
 int main()
 {
 	srand(time(NULL));
