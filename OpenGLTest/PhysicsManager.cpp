@@ -23,73 +23,94 @@ void PhysicsManager::calcPhysics(float dTime)
 		PhysicsObject *object = objects[i];
 		glm::vec2 pos = object->position;
 		glm::vec2 vel = object->velocity;
-		glm::vec2 acc = gravAcceleration(pos);
+		glm::vec2 max_acc;
+		glm::vec2 acc = gravAcceleration(pos, max_acc);
 		pos += vel * dTime;
 		vel += acc * dTime;
+
+		// player movement
+		bool player_input = false;
+		Character *character = dynamic_cast<Character *>(object);
+		if (character && character->controllable && character->grounded) {
+			glm::vec2 N_acc = -glm::normalize(max_acc);
+			glm::vec2 T_acc = { N_acc.y, -N_acc.x };
+
+			float N_comp = dot(N_acc, vel);
+			float T_comp = dot(T_acc, vel);
+
+			if (character->jump_input) {
+				player_input = true;
+				N_comp = player_jump_speed;
+			}
+		   	if (character->left_input || character->right_input) {
+				player_input = true;
+				T_comp = player_speed * (character->right_input - character->left_input);
+			}
+
+			vel = N_acc * N_comp + T_acc * T_comp;
+		}
+
+		// collision response
+		glm::vec2 N_col;
+		size_t colliding = object->colliding_with_map(*map, pos, max_acc, N_col);
+		glm::vec2 T_col = { N_col.y, -N_col.x };
+		if (colliding == 4) {
+			// if glitching into ground, don't
+			pos = object->position;
+			vel = glm::vec2(0);
+		} else if (colliding) {
+			float N_comp = dot(N_col, vel);
+			float T_comp = dot(T_col, vel);
+
+			if (N_comp < 0) {
+				N_comp = 0;
+			}
+			if (!player_input) {
+				T_comp *= 0.5;
+			}
+
+			vel = N_col * N_comp + T_col * T_comp;
+		}
 
 		// clamp velocity magnitude
 		if (length(vel) > VELOCITY_CAP) {
 			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
-		// collision response
-		glm::vec2 N;
-		bool collided = object->colliding_with_map(*map, acc, N);
-		glm::vec2 T = { N.y, -N.x };
-		float N_comp = dot(N, vel);
-		float T_comp = dot(T, vel);
-		if (collided) {
-			N_comp = std::max(0.0f, N_comp);
-			T_comp = 0;
-		}
-
-		// player movement
-		Character *character = dynamic_cast<Character *>(object);
-
-		if (character && character->controllable) {
-			float y_axis = player_jump_speed * character->jump_input;
-			if (collided && y_axis != 0) {
-				N_comp = y_axis;
-			}
-			float x_axis = player_speed * (character->right_input - character->left_input);
-			if (x_axis != 0) {
-				T_comp = x_axis;
-			}
-		}
-
-		vel = N * N_comp + T * T_comp;
-
 		object->position = pos;
 		object->velocity = vel;
+		object->grounded = colliding;
 		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI;
 	}
 }
 
 //Finds the net force on a given point in space
-glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos)
+glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos, glm::vec2 &max_acceleration)
 {
-	glm::vec2 nAccel = glm::vec2(0, 0);
-	std::vector<float> accels = std::vector<float>();
+	glm::vec2 net_acceleration = glm::vec2(0, 0);
+	float max_acceleration_magnitude = 0;
 
 	//calculate the force of each planetoid and add them to the vector
 	for (Planetoid p : *planets)
 	{
 		//calculate distance between planet and object
-		glm::vec2 dir = p._pos - pos;
-		
-		float dist = glm::length(dir);
-		
-		dist = std::max(dist, 10.0f);
+		glm::vec2 direction = p._pos - pos;
+		float distance = glm::length(direction);
 
 		//calculate the force from each planetoid
-		float a = p._m / (dist * dist);
+		float magnitude = p._m / (distance * distance);
+		glm::vec2 acceleration = glm::normalize(direction) * magnitude;
 
 		//add force to the total force
-		accels.push_back(a);
-		nAccel += glm::normalize(dir) * a;
+		if (magnitude > max_acceleration_magnitude) {
+			max_acceleration = acceleration;
+			max_acceleration_magnitude = magnitude;
+		}
+
+		net_acceleration += acceleration;
 	}
 
-	return nAccel;
+	return net_acceleration;
 }
 
 void PhysicsManager::addObject(PhysicsObject *obj)
