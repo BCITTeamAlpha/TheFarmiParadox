@@ -136,15 +136,15 @@ glm::vec2 PhysicsManager::genSpawnPos()
 
 glm::vec2 PhysicsManager::posOnPlanet(int pInd)
 {
-	int xStart = planets->at(pInd)._r;
+	int xStart = planets->at(pInd)._r + 1;
 	int yStart = 0;
 
 	int x = -1, y = -1;
 
 	while (x < 0 || y < 0 || x > 128 || y > 128)
 	{
-		float rand = std::rand() % 36;
-		rand *= 3.14f / 18.0f;
+		float rand = std::rand() % 360;
+		rand *= 3.14f / 180.0f;
 
 		std::cout << "Planet = " << planets->at(pInd)._x << ", " << planets->at(pInd)._y << " r = " << planets->at(pInd)._r << std::endl;
 		std::cout << "Rand = " << rand << std::endl;
