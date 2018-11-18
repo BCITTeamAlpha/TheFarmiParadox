@@ -148,41 +148,47 @@ int main()
 
 	// setup Map IRenderable
 	std::vector<Planetoid> planets;
-	planets.push_back(Planetoid(48.0f, 88.0f, 16.0f));
-	planets.push_back(Planetoid(88.0f, 50.0f, 8.0f));
-	planets.push_back(Planetoid(32.0f, 32.0f, 32.0f));
-	planets.push_back(Planetoid(8.0f, 120.0f, 12.0f));
-	planets.push_back(Planetoid(120.0f, 120.0f, 48.0f));
-	planets.push_back(Planetoid(128.0f, 0.0f, 32.0f));
+	planets.push_back(Planetoid(52.0f, 120.0f, 16.0f));
+	planets.push_back(Planetoid(92.0f, 82.0f, 8.0f));
+	planets.push_back(Planetoid(36.0f, 64.0f, 32.0f));
+	planets.push_back(Planetoid(12.0f, 152.0f, 12.0f));
+	planets.push_back(Planetoid(124.0f, 152.0f, 48.0f));
+	planets.push_back(Planetoid(132.0f, 32.0f, 32.0f));
 
-	map = new Map(planets, 128, 128);
+	map = new Map(planets, 175, 205);
 
 	// setup background
-	GLubyte backgroundImage[128][128][4];
-	for (int x = 0; x < 128; x++) {
-		for (int y = 0; y < 128; y++) {
+	Renderable* backgroundSkin = new Renderable();
+	GameObject background;
+	background.setRenderable(backgroundSkin);
+	backgroundSkin->z = -1;
+	backgroundSkin->position = new glm::vec2(map->width()/2.0f, map->height()/2.0f);
+	backgroundSkin->scale = glm::vec3(map->width(), map->height(), 1);
+	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
+	backgroundSkin->texture.width = map->width();
+	backgroundSkin->texture.height = map->height();
+	GLubyte* backgroundImage = new GLubyte[backgroundSkin->texture.width * backgroundSkin->texture.height * 4];
+	for (int x = 0; x < backgroundSkin->texture.width; x++) {
+		for (int y = 0; y < backgroundSkin->texture.height; y++) {
+			size_t index = (x + y * backgroundSkin->texture.width) * 4;
 			float val = map->value(x, y) * 0.1f;
 			val = std::max(0.0f, val);
 			val = std::min(1.0f, val);
 			val = 1.0f - val;
 			val = val * val;
-			backgroundImage[y][x][0] = 63;
-			backgroundImage[y][x][1] = 127;
-			backgroundImage[y][x][2] = 255;
-			backgroundImage[y][x][3] = 255 * val;
+			backgroundImage[index] = 63;
+			backgroundImage[index + 1] = 127;
+			backgroundImage[index + 2] = 255;
+			backgroundImage[index + 3] = 255 * val;
 		}
 	}
-	Renderable* backgroundSkin = new Renderable();
-	GameObject background;
-	background.setRenderable(backgroundSkin);
-	backgroundSkin->z = -1;
-	backgroundSkin->position = new glm::vec2(64, 64);
-	backgroundSkin->scale = glm::vec3(128, 128, 128);
-	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
-	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + 128 * 128 * 4);
-	backgroundSkin->texture.width = 128;
-	backgroundSkin->texture.height = 128;
+	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + backgroundSkin->texture.width * backgroundSkin->texture.height * 4);
 	backgroundSkin->fullBright = true;
+
+	renderer->cameraFOV = 70;
+	renderer->cameraPosition.x = map->width() / 2.0f;
+	renderer->cameraPosition.y = map->height() / 2.0f;
+	renderer->cameraPosition.z = (map->height() / 2.0f) / std::tan(renderer->cameraFOV * M_PI / 360.0f);
 
 	physics = new PhysicsManager(&planets, map);
 	playerManager = new PlayerManager();
@@ -209,33 +215,21 @@ int main()
 	models.push_back("../Models/Pug.obj");
 	models.push_back("../Models/Slime.obj");
 
-	std::vector<float> radii = std::vector<float>();
-	radii.push_back(1.0f);
-	radii.push_back(1.0f);
-	radii.push_back(1.0f);
-	radii.push_back(1.0f);
-
-	std::vector<float> sizes = std::vector<float>();
-	sizes.push_back(1.0f);
-	sizes.push_back(1.0f);
-	sizes.push_back(1.0f);
-	sizes.push_back(1.0f);
-
 	//create players
 	for (int i = 0;i < 4;++i)
 	{
 		//set up a square test character
 		Character *c = new Character();
 		c->mass = 50;
-		c->position = physics->genSpawnPos();
 		c->controllable = true;
-		c->radius = radii[i];
+		c->radius = 1.0f;
+		c->position = physics->genSpawnPos();
 
 		Renderable *cSkin = new Renderable();
 		cSkin->z = 0;
 		cSkin->model = AssetLoader::loadModel(models[i]);
 		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
-		cSkin->scale = glm::vec3(sizes[i]);
+		cSkin->scale = glm::vec3(1.0f);
 		cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
 		c->setRenderable(cSkin);
 
@@ -296,7 +290,7 @@ int main()
     TypeParam<TrackParams*> param(initial);
     EventManager::notify(PLAY_SONG, &param);
 
-	map->explosion(Planetoid(85, 85, 8));
+	map->explosion(Planetoid(89, 117, 8));
 	for (int tick = 0;; tick++)
 	{
 		physics->calcPhysics(1.0 / 59.94);
