@@ -1,12 +1,9 @@
 #include "PhysicsManager.h"
 
-#include <algorithm>
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
+const float ROT_CAP = 700.0f;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
@@ -66,7 +63,7 @@ void PhysicsManager::calcPhysics(float dTime)
 				N_comp = 0;
 			}
 			if (!player_input) {
-				T_comp *= 0.5;
+				T_comp = 0;
 			}
 
 			vel = N_col * N_comp + T_col * T_comp;
@@ -77,10 +74,36 @@ void PhysicsManager::calcPhysics(float dTime)
 			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
+		float desiredRot = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
+
+		if (std::abs(desiredRot - object->rotation.z) < ROT_CAP * dTime)
+		{
+			object->rotation.z = desiredRot;
+		}
+		else
+		{
+			float normRot = normalizeAngle(object->rotation.z);
+			float normDRot = normalizeAngle(desiredRot);
+
+			if (std::abs(normRot - normDRot) > 180)
+			{
+				if (normRot > normDRot)
+					object->rotation.z += ROT_CAP * dTime;
+				else
+					object->rotation.z -= ROT_CAP * dTime;
+			}
+			else
+			{
+				if (normRot > normDRot)
+					object->rotation.z -= ROT_CAP * dTime;
+				else
+					object->rotation.z += ROT_CAP * dTime;
+			}
+		}
+
 		object->position = pos;
 		object->velocity = vel;
 		object->grounded = colliding;
-		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI;
 	}
 }
 
@@ -113,31 +136,66 @@ glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos, glm::vec2 &max_acceler
 	return net_acceleration;
 }
 
+float PhysicsManager::normalizeAngle(float angle)
+{
+	if (angle >= 0.0f && angle < 360.0f)
+		return angle;
+
+	if (angle < 0.0f)
+		angle = 360.0f + std::fmod(angle, 360.0f);
+	else
+		angle = std::fmod(angle, 360.0f);
+
+	return angle;
+}
+
+
 void PhysicsManager::addObject(PhysicsObject *obj)
 {
 	objects.push_back(obj);
 }
 
-//
-//void PhysicsManager::notify(EventName eventName, Param* param) {
-//	switch (eventName) {
-//		case PLAYER_LEFT: {
-//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-//			if (p != nullptr) this->player_left_input = p->Param;
-//			break;
-//		}
-//		case PLAYER_RIGHT: {
-//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-//			if (p != nullptr) this->player_right_input = p->Param;
-//			break;
-//		}
-//		case PLAYER_JUMP: {
-//			printf("jump!\n");
-//			TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(param); // Safetly cast generic param pointer to a specific type
-//			if (p != nullptr) this->player_jump_input = p->Param;
-//			break;
-//		}
-//		default:
-//			break;
-//		}
-//}
+glm::vec2 PhysicsManager::genSpawnPos()
+{
+	int *pRands = (int*)malloc(sizeof(int) * planets->size());
+	int sum = 0;
+
+	for (int i = 0; i < planets->size(); i++)
+	{
+		sum += planets->at(i)._r;
+		pRands[i] = sum;
+	}
+
+	int rand = std::rand() % sum;
+	
+	for (int i = 0; i < planets->size(); i++)
+	{
+		if (rand < pRands[i])
+			return posOnPlanet(i);
+	}
+}
+
+glm::vec2 PhysicsManager::posOnPlanet(int pInd)
+{
+	int xStart = planets->at(pInd)._r + 1;
+	int yStart = 0;
+
+	int x = -1, y = -1;
+
+	while (x < 0 || y < 0 || x > 128 || y > 128)
+	{
+		float rand = std::rand() % 360;
+		rand *= 3.14f / 180.0f;
+
+		std::cout << "Planet = " << planets->at(pInd)._x << ", " << planets->at(pInd)._y << " r = " << planets->at(pInd)._r << std::endl;
+		std::cout << "Rand = " << rand << std::endl;
+
+		x = xStart * std::cos(rand) - yStart * std::sin(rand) + planets->at(pInd)._x;
+		y = yStart * std::cos(rand) + xStart * std::sin(rand) + planets->at(pInd)._y;
+
+		std::cout << "X = " << x << std::endl;
+		std::cout << "Y = " << y << std::endl;
+	}
+
+	return glm::vec2(x, y);
+}

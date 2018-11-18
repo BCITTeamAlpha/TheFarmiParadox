@@ -190,7 +190,7 @@ int main()
 	for (int i = 0; i < 5; ++i) {
 		Pickup *p = new Pickup();
 		p->mass = 75;
-		p->position = { rand() % 64 + 32,rand() % 64 + 32 };
+		p->position = physics->genSpawnPos();
 
 		Renderable *pSkin = new Renderable();
 		pSkin->z = 0;
@@ -227,7 +227,7 @@ int main()
 		//set up a square test character
 		Character *c = new Character();
 		c->mass = 50;
-		c->position = { rand() % 64 + 32,rand() % 64 + 32 };
+		c->position = physics->genSpawnPos();
 		c->controllable = true;
 		c->radius = radii[i];
 
