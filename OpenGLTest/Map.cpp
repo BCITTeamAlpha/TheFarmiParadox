@@ -12,8 +12,8 @@ using std::max;
 
 
 Map::Map(vector<Planetoid> planets, int width, int height) {
-	_height = width;
-	_width = height;
+	_height = height;
+	_width = width;
 
 	_mapArray = new float[_height * _width];
 
