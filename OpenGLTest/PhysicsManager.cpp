@@ -3,7 +3,7 @@
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
-const float FRAME_ROT = 500.0f;
+const float ROT_CAP = 700.0f;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
@@ -63,7 +63,7 @@ void PhysicsManager::calcPhysics(float dTime)
 				N_comp = 0;
 			}
 			if (!player_input) {
-				T_comp *= 0.5;
+				T_comp = 0;
 			}
 
 			vel = N_col * N_comp + T_col * T_comp;
@@ -76,7 +76,7 @@ void PhysicsManager::calcPhysics(float dTime)
 
 		float desiredRot = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
 
-		if (std::abs(desiredRot - object->rotation.z) < FRAME_ROT * dTime)
+		if (std::abs(desiredRot - object->rotation.z) < ROT_CAP * dTime)
 		{
 			object->rotation.z = desiredRot;
 		}
@@ -88,16 +88,16 @@ void PhysicsManager::calcPhysics(float dTime)
 			if (std::abs(normRot - normDRot) > 180)
 			{
 				if (normRot > normDRot)
-					object->rotation.z += FRAME_ROT * dTime;
+					object->rotation.z += ROT_CAP * dTime;
 				else
-					object->rotation.z -= FRAME_ROT * dTime;
+					object->rotation.z -= ROT_CAP * dTime;
 			}
 			else
 			{
 				if (normRot > normDRot)
-					object->rotation.z -= FRAME_ROT * dTime;
+					object->rotation.z -= ROT_CAP * dTime;
 				else
-					object->rotation.z += FRAME_ROT * dTime;
+					object->rotation.z += ROT_CAP * dTime;
 			}
 		}
 
