@@ -74,32 +74,10 @@ void PhysicsManager::calcPhysics(float dTime)
 			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
-		float desiredRot = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
-
-		if (std::abs(desiredRot - object->rotation.z) < ROT_CAP * dTime)
-		{
-			object->rotation.z = desiredRot;
-		}
-		else
-		{
-			float normRot = normalizeAngle(object->rotation.z);
-			float normDRot = normalizeAngle(desiredRot);
-
-			if (std::abs(normRot - normDRot) > 180)
-			{
-				if (normRot > normDRot)
-					object->rotation.z += ROT_CAP * dTime;
-				else
-					object->rotation.z -= ROT_CAP * dTime;
-			}
-			else
-			{
-				if (normRot > normDRot)
-					object->rotation.z -= ROT_CAP * dTime;
-				else
-					object->rotation.z += ROT_CAP * dTime;
-			}
-		}
+		float rot_desired = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
+		float rot_diff = normalizeAngle(rot_desired - object->rotation.z);
+		float rot_diff_clamped = std::max(std::min(rot_diff, ROT_CAP * dTime), -ROT_CAP * dTime);
+		object->rotation.z += rot_diff_clamped;
 
 		object->position = pos;
 		object->velocity = vel;
@@ -136,17 +114,13 @@ glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos, glm::vec2 &max_acceler
 	return net_acceleration;
 }
 
-float PhysicsManager::normalizeAngle(float angle)
-{
-	if (angle >= 0.0f && angle < 360.0f)
-		return angle;
-
-	if (angle < 0.0f)
-		angle = 360.0f + std::fmod(angle, 360.0f);
-	else
-		angle = std::fmod(angle, 360.0f);
-
-	return angle;
+// takes angle in degrees and normalizes it to a range of -180 to 180
+float PhysicsManager::normalizeAngle(float angle) {
+	angle = fmod(angle + 180.0f, 360.0f);
+	if (angle < 0) {
+		angle += 360.0f;
+	}
+	return angle - 180.0f;
 }
 
 
