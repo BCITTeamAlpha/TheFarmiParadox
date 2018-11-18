@@ -76,7 +76,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		object->position = pos;
 		object->velocity = vel;
 		object->grounded = colliding;
-		object->rotation.z = atan2(acc.x, -acc.y) * 180.0f / M_PI;
+		object->rotation.z = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
 	}
 }
 
