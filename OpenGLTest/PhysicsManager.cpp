@@ -3,6 +3,7 @@
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
+const float FRAME_ROT = 500.0f;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
@@ -73,10 +74,36 @@ void PhysicsManager::calcPhysics(float dTime)
 			vel = glm::normalize(vel) * VELOCITY_CAP;
 		}
 
+		float desiredRot = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
+
+		if (std::abs(desiredRot - object->rotation.z) < FRAME_ROT * dTime)
+		{
+			object->rotation.z = desiredRot;
+		}
+		else
+		{
+			float normRot = normalizeAngle(object->rotation.z);
+			float normDRot = normalizeAngle(desiredRot);
+
+			if (std::abs(normRot - normDRot) > 180)
+			{
+				if (normRot > normDRot)
+					object->rotation.z += FRAME_ROT * dTime;
+				else
+					object->rotation.z -= FRAME_ROT * dTime;
+			}
+			else
+			{
+				if (normRot > normDRot)
+					object->rotation.z -= FRAME_ROT * dTime;
+				else
+					object->rotation.z += FRAME_ROT * dTime;
+			}
+		}
+
 		object->position = pos;
 		object->velocity = vel;
 		object->grounded = colliding;
-		object->rotation.z = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
 	}
 }
 
@@ -108,6 +135,20 @@ glm::vec2 PhysicsManager::gravAcceleration(glm::vec2 pos, glm::vec2 &max_acceler
 
 	return net_acceleration;
 }
+
+float PhysicsManager::normalizeAngle(float angle)
+{
+	if (angle >= 0.0f && angle < 360.0f)
+		return angle;
+
+	if (angle < 0.0f)
+		angle = 360.0f + std::fmod(angle, 360.0f);
+	else
+		angle = std::fmod(angle, 360.0f);
+
+	return angle;
+}
+
 
 void PhysicsManager::addObject(PhysicsObject *obj)
 {

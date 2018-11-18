@@ -24,6 +24,7 @@ public:
 private:
 	glm::vec2 gravAcceleration(glm::vec2 pos, glm::vec2 &max_acc_contrib);
 	glm::vec2 posOnPlanet(int pInd);
+	float normalizeAngle(float var);
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
 	std::vector<Character*> chars;
