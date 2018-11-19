@@ -53,7 +53,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		glm::vec2 T_col = { N_col.y, -N_col.x };
 		if (colliding == 4) {
 			// if glitching into ground, don't
-			pos = object->position;
+			pos = (pos == object->position) ? pos - glm::normalize(max_acc) : object->position;
 			vel = glm::vec2(0);
 		} else if (colliding) {
 			float N_comp = dot(N_col, vel);

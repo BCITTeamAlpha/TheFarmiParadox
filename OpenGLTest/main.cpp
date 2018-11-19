@@ -232,14 +232,14 @@ int main()
 		Character *c = new Character();
 		c->mass = 50;
 		c->controllable = true;
-		c->radius = 1.0f;
+		c->radius = 2.5f;
 		c->position = physics->genSpawnPos(c->radius);
 
 		Renderable *cSkin = new Renderable();
 		cSkin->z = 0;
 		cSkin->model = AssetLoader::loadModel(models[i]);
 		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
-		cSkin->scale = glm::vec3(1.0f);
+		cSkin->scale = glm::vec3(2.5f);
 		cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
 		c->setRenderable(cSkin);
 
