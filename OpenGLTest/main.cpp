@@ -182,10 +182,18 @@ int main()
 			val = std::min(1.0f, val);
 			val = 1.0f - val;
 			val = val * val;
+
 			backgroundImage[index] = 63;
 			backgroundImage[index + 1] = 127;
 			backgroundImage[index + 2] = 255;
 			backgroundImage[index + 3] = 255 * val;
+			
+			if (rand() % 255 == 0 && backgroundImage[index + 3] == 0) {
+				backgroundImage[index] = 255 - backgroundImage[index + 3];
+				backgroundImage[index + 1] = 255 - backgroundImage[index + 3];
+				backgroundImage[index + 2] = 255 - backgroundImage[index + 3];
+				backgroundImage[index + 3] = 255;
+			}
 		}
 	}
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + backgroundSkin->texture.width * backgroundSkin->texture.height * 4);
