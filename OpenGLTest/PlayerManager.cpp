@@ -51,9 +51,6 @@ void PlayerManager::handlePlayers(float dTime)
 
 void PlayerManager::fireWeapon()
 {
-	if (instance->turnStage != 1)
-		return;
-
 	if (instance->currentPlayerIndex < instance->players.size())
 	{
 		instance->players[instance->currentPlayerIndex]->fireWeapon();
@@ -88,28 +85,40 @@ void PlayerManager::notify(EventName eventName, Param *params)
 	switch (eventName) {
 	case PLAYER_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->moveLeft(p->Param);
+		if (p != nullptr && instance->turnStage == 0)
+			players[currentPlayerIndex]->moveLeft(p->Param);
 		break;
 	}
 	case PLAYER_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->moveRight(p->Param);
+		if (p != nullptr && instance->turnStage == 0)
+			players[currentPlayerIndex]->moveRight(p->Param);
 		break;
 	}
 	case PLAYER_JUMP: {
 		printf("jump!\n");
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->jump(p->Param);
+		if (p != nullptr)
+			players[currentPlayerIndex]->jump(p->Param);
 		break;
 	}
 	case AIM_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->setAimLeft(p->Param);
+		if (p != nullptr && instance->turnStage == 1)
+			players[currentPlayerIndex]->setAimLeft(p->Param);
 		break;
 	}
 	case AIM_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->setAimRight(p->Param);
+		if (p != nullptr && instance->turnStage == 1)
+			players[currentPlayerIndex]->setAimRight(p->Param);
+		break;
+	}
+	case PLAYER_FIRE: {
+		if (instance->turnStage == 0)
+			aimWeapon();
+		else if (instance->turnStage == 1)
+			fireWeapon();
 		break;
 	}
 	default:

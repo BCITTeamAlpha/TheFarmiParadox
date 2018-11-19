@@ -16,5 +16,6 @@ enum EventName {
 	AIM_LEFT,
 	AIM_RIGHT,
     PLAY_SONG,
-    PLAY_SOUND
+    PLAY_SOUND,
+	PLAYER_FIRE
 };
