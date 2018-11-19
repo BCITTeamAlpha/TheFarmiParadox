@@ -157,13 +157,19 @@ int main()
 
 	map = new Map(planets, 175, 205);
 
+	renderer->cameraFOV = 70;
+	renderer->cameraPosition.x = map->width() / 2.0f;
+	renderer->cameraPosition.y = map->height() / 2.0f;
+	renderer->cameraPosition.z = (map->height() / 2.0f) / std::tan(renderer->cameraFOV * M_PI / 360.0f);
+
 	// setup background
 	Renderable* backgroundSkin = new Renderable();
 	GameObject background;
 	background.setRenderable(backgroundSkin);
-	backgroundSkin->z = -1;
+	backgroundSkin->z = -10;
 	backgroundSkin->position = new glm::vec2(map->width()/2.0f, map->height()/2.0f);
-	backgroundSkin->scale = glm::vec3(map->width(), map->height(), 1);
+	backgroundSkin->scale.y = std::tan(renderer->cameraFOV * M_PI / 360.0f) * (renderer->cameraPosition.z - backgroundSkin->z) * 2;
+	backgroundSkin->scale.x = backgroundSkin->scale.y * (float)map->width() / (float)map->height();
 	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
 	backgroundSkin->texture.width = map->width();
 	backgroundSkin->texture.height = map->height();
@@ -184,11 +190,6 @@ int main()
 	}
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + backgroundSkin->texture.width * backgroundSkin->texture.height * 4);
 	backgroundSkin->fullBright = true;
-
-	renderer->cameraFOV = 70;
-	renderer->cameraPosition.x = map->width() / 2.0f;
-	renderer->cameraPosition.y = map->height() / 2.0f;
-	renderer->cameraPosition.z = (map->height() / 2.0f) / std::tan(renderer->cameraFOV * M_PI / 360.0f);
 
 	physics = new PhysicsManager(&planets, map);
 	playerManager = new PlayerManager();
