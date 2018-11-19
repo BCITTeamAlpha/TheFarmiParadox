@@ -20,6 +20,11 @@ class Renderer : public ISubscriber {
 		Renderer();
 		int RenderLoop();
 		~Renderer();
+
+		glm::vec3 cameraPosition = { 64.0f, 64.0f, 64.0f };
+		GLfloat cameraFOV = 90.0f;
+		GLfloat nearClip = 0.1f;
+		GLfloat farClip = 1000.0f;
 	private:
 		void draw();
 
@@ -46,11 +51,6 @@ class Renderer : public ISubscriber {
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
 		GLuint uiProgram;
-
-		glm::vec3 cameraPosition = { 63.5, 63.5, 63.5 };
-		GLfloat cameraFOV = 90.0f;
-		GLfloat nearClip = 0.1f;
-		GLfloat farClip = 100.0f;
 
         UIManager *uim;
 };

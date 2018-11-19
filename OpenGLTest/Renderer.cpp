@@ -98,7 +98,7 @@ void Renderer::draw() {
 	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(p));
 	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(glm::vec3(1.0f, 1.0f, 1.0f))));
-	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 100.0f);
+	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 400.0f);
 	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPosition));
 
 	for (auto renderable : renderables) {

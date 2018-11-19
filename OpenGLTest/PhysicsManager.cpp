@@ -53,7 +53,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		glm::vec2 T_col = { N_col.y, -N_col.x };
 		if (colliding == 4) {
 			// if glitching into ground, don't
-			pos = object->position;
+			pos = (pos == object->position) ? pos - glm::normalize(max_acc) : object->position;
 			vel = glm::vec2(0);
 		} else if (colliding) {
 			float N_comp = dot(N_col, vel);
@@ -129,14 +129,14 @@ void PhysicsManager::addObject(PhysicsObject *obj)
 	objects.push_back(obj);
 }
 
-glm::vec2 PhysicsManager::genSpawnPos()
+glm::vec2 PhysicsManager::genSpawnPos(float object_radius)
 {
-	int *pRands = (int*)malloc(sizeof(int) * planets->size());
+	int *pRands = new int[planets->size()];
 	int sum = 0;
 
 	for (int i = 0; i < planets->size(); i++)
 	{
-		sum += planets->at(i)._r;
+		sum += (*planets)[i]._r;
 		pRands[i] = sum;
 	}
 
@@ -145,31 +145,19 @@ glm::vec2 PhysicsManager::genSpawnPos()
 	for (int i = 0; i < planets->size(); i++)
 	{
 		if (rand < pRands[i])
-			return posOnPlanet(i);
+		{
+			delete pRands;
+			return posOnPlanet(i, object_radius);
+		}
 	}
 }
 
-glm::vec2 PhysicsManager::posOnPlanet(int pInd)
+// gets a random position on the planetoid's surface
+glm::vec2 PhysicsManager::posOnPlanet(int pInd, float object_radius)
 {
-	int xStart = planets->at(pInd)._r + 1;
-	int yStart = 0;
-
-	int x = -1, y = -1;
-
-	while (x < 0 || y < 0 || x > 128 || y > 128)
-	{
-		float rand = std::rand() % 360;
-		rand *= 3.14f / 180.0f;
-
-		std::cout << "Planet = " << planets->at(pInd)._x << ", " << planets->at(pInd)._y << " r = " << planets->at(pInd)._r << std::endl;
-		std::cout << "Rand = " << rand << std::endl;
-
-		x = xStart * std::cos(rand) - yStart * std::sin(rand) + planets->at(pInd)._x;
-		y = yStart * std::cos(rand) + xStart * std::sin(rand) + planets->at(pInd)._y;
-
-		std::cout << "X = " << x << std::endl;
-		std::cout << "Y = " << y << std::endl;
-	}
-
+	float radius = (*planets)[pInd]._r + object_radius;
+	float angle = rand() / (RAND_MAX / (2.0f * M_PI));
+	float x = std::cos(angle)*radius + (*planets)[pInd]._x;
+	float y = std::sin(angle)*radius + (*planets)[pInd]._y;
 	return glm::vec2(x, y);
 }

@@ -12,8 +12,8 @@ using std::max;
 
 
 Map::Map(vector<Planetoid> planets, int width, int height) {
-	_height = width;
-	_width = height;
+	_height = height;
+	_width = width;
 
 	_mapArray = new float[_height * _width];
 
@@ -45,10 +45,20 @@ inline int Map::_index(int x, int y) {
 }
 
 bool Map::isSolid(int x, int y) {
+	// if outside of array bounds return that point is outside of terrain
+	if (x < 0 || x >= _width || y < 0 || y >= _height) {
+		return false;
+	}
+
 	return _mapArray[_index(x, y)] <= 0.0f;
 }
 
 float Map::value(int x, int y) {
+	// if outside of array bounds return that point is outside of terrain
+	if (x < 0 || x >= _width || y < 0 || y >= _height) {
+		return 1.0f; // 1.0f is an arbitrary value, can return any positive float
+	}
+
 	return _mapArray[_index(x, y)];
 }
 

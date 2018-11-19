@@ -19,14 +19,14 @@ size_t PhysicsObject::colliding_with_map(Map & map, glm::vec2 pos, glm::vec2 acc
 	int floor_x = floor(position_of_object_base.x);
 	int floor_y = floor(position_of_object_base.y);
 
-	size_t colliding = 0;
-	collision_normal = glm::vec2(0);
+	size_t colliding = 0u;
+	collision_normal = glm::vec2(0.0f);
 
-	for (size_t x = 0; x < 2; x++) {
-		for (size_t y = 0; y < 2; y++) {
+	for (int x = 0; x < 2; x++) {
+		for (int y = 0; y < 2; y++) {
 			if (map.value(floor_x + x, floor_y + y) <= 0) {
-				collision_normal.x += 0.5 - x;
-				collision_normal.y += 0.5 - y;
+				collision_normal.x += 0.5f - x;
+				collision_normal.y += 0.5f - y;
 				colliding++;
 			}
 		}
