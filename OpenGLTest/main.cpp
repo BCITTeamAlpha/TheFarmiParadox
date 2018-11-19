@@ -37,27 +37,33 @@ SoundManager* noise;
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
 	case GLFW_KEY_LEFT:
+	case GLFW_KEY_A:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_LEFT, &param, false);
+			EventManager::notify(AIM_LEFT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_LEFT, &param, false);
+			EventManager::notify(AIM_LEFT, &param, false);
 		}
 		break;
 	case GLFW_KEY_RIGHT:
+	case GLFW_KEY_D:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_RIGHT, &param, false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_RIGHT, &param, false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		break;
 	case GLFW_KEY_SPACE:
@@ -84,30 +90,11 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
             noise->playSound(Jump, 0, 0, 0);
 		}
 		break;
-	case GLFW_KEY_A:
+	case GLFW_KEY_F:
 		if (action == GLFW_PRESS)
 		{
-			TypeParam<bool> param(true);
-			EventManager::notify(AIM_LEFT, &param, false);
+			EventManager::notify(PLAYER_FIRE, nullptr, false);
 		}
-		if (action == GLFW_RELEASE)
-		{
-			TypeParam<bool> param(false);
-			EventManager::notify(AIM_LEFT, &param, false);
-		}
-		break;
-	case GLFW_KEY_D:
-		if (action == GLFW_PRESS)
-		{
-			TypeParam<bool> param(true);
-			EventManager::notify(AIM_RIGHT, &param, false);
-		}
-		if (action == GLFW_RELEASE)
-		{
-			TypeParam<bool> param(false);
-			EventManager::notify(AIM_RIGHT, &param, false);
-		}
-		break;
 	default:
 		if (action == GLFW_PRESS) inputHandler.onKeyPress(key);
 		if (action == GLFW_REPEAT) inputHandler.onKeyRepeat(key);
@@ -275,17 +262,16 @@ int main()
 	cv.wait(lck);
 	inputHandler.setInputCallbacks(window, KeyCallback, mouse_button_callback);
 
-	EventManager::subscribe(PLAYER_LEFT, playerManager); //Subscribe player left to EventManager
-	EventManager::subscribe(PLAYER_RIGHT, playerManager); //Subscribe player right to EventManager
-	EventManager::subscribe(PLAYER_JUMP, playerManager); //Subscribe player jump to EventManager
-	EventManager::subscribe(AIM_LEFT, playerManager); //Subscribe aim left to EventManager
-	EventManager::subscribe(AIM_RIGHT, playerManager); //Subscribe aim right to EventManager
+	EventManager::subscribe(PLAYER_LEFT, playerManager);
+	EventManager::subscribe(PLAYER_RIGHT, playerManager);
+	EventManager::subscribe(PLAYER_JUMP, playerManager);
+	EventManager::subscribe(AIM_LEFT, playerManager);
+	EventManager::subscribe(AIM_RIGHT, playerManager);
+	EventManager::subscribe(PLAYER_FIRE, playerManager);
 	
 	//TESTING FOR THE INVENTORY/WEAPON SYSTEM
 	inputHandler.addKeyDownBinding(GLFW_KEY_Q, PlayerManager::prevWeapon);
 	inputHandler.addKeyDownBinding(GLFW_KEY_E, PlayerManager::nextWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_F, PlayerManager::aimWeapon);
-	inputHandler.addKeyDownBinding(GLFW_KEY_W, PlayerManager::fireWeapon);
 
     //adding sound
     noise = new SoundManager();
