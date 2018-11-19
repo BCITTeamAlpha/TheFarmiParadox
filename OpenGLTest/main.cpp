@@ -205,14 +205,15 @@ int main()
 	for (int i = 0; i < 5; ++i) {
 		Pickup *p = new Pickup();
 		p->mass = 75;
+		p->radius = 2.5f;
 		p->position = physics->genSpawnPos(p->radius);
 
 		Renderable *pSkin = new Renderable();
 		pSkin->z = 0;
-		pSkin->model = AssetLoader::loadModel("teapot.obj");
-		pSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
+		pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
+		pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
 		p->setRenderable(pSkin);
-		pSkin->scale = glm::vec3(2.0f);
+		pSkin->scale = glm::vec3(5.0f);
 		physics->addObject(p);
 
 		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(pSkin), false);
