@@ -196,7 +196,7 @@ int main()
 	for (int i = 0; i < 5; ++i) {
 		Pickup *p = new Pickup();
 		p->mass = 75;
-		p->position = physics->genSpawnPos();
+		p->position = physics->genSpawnPos(p->radius);
 
 		Renderable *pSkin = new Renderable();
 		pSkin->z = 0;
@@ -223,7 +223,7 @@ int main()
 		c->mass = 50;
 		c->controllable = true;
 		c->radius = 1.0f;
-		c->position = physics->genSpawnPos();
+		c->position = physics->genSpawnPos(c->radius);
 
 		Renderable *cSkin = new Renderable();
 		cSkin->z = 0;
