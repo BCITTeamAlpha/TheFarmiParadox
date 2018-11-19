@@ -213,40 +213,45 @@ int main()
 	models.push_back("../Models/Slime.obj");
 
 	//create players
-	for (int i = 0;i < 4;++i)
-	{
-		//set up a square test character
-		Character *c = new Character();
-		c->mass = 50;
-		c->controllable = true;
-		c->radius = 2.5f;
-		c->position = physics->genSpawnPos(c->radius);
+	int teams = 3;
+	int characters_per_team = 4;
+	for (int i = 0; i < teams; i++) {
+		for (int j = 0; j < characters_per_team; j++) {
+			//set up a square test character
+			Character *c = new Character();
+			c->mass = 50;
+			c->controllable = true;
+			c->radius = 2.5f;
+			c->position = physics->genSpawnPos(c->radius);
 
-		Renderable *cSkin = new Renderable();
-		cSkin->z = 0;
-		cSkin->model = AssetLoader::loadModel(models[i]);
-		cSkin->color = glm::vec4((rand() % 255) / 255.0, (rand() % 255) / 255.0, (rand() % 255) / 255.0, 1);
-		cSkin->scale = glm::vec3(2.5f);
-		cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
-		c->setRenderable(cSkin);
+			Renderable *cSkin = new Renderable();
+			cSkin->z = 0;
+			cSkin->model = AssetLoader::loadModel(models[j % models.size()]);
+			float hue = i / (float)teams + j / ((float)teams * (float)characters_per_team * 3);
+			hue = hue * 2.0 * M_PI;
+			cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
+			cSkin->scale = glm::vec3(2.5f);
+			cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
+			c->setRenderable(cSkin);
 
-		//set up a player with the test character
-		Player *player = new Player();
+			//set up a player with the test character
+			Player *player = new Player();
 
-		//set up a test pickup to give the player weapons
-		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+			//set up a test pickup to give the player weapons
+			Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+			Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
 
-		player->addItem(pickup1);
-		player->addItem(pickup2);
+			player->addItem(pickup1);
+			player->addItem(pickup2);
 
-		player->addCharacter(c);
-		playerManager->AddPlayer(player);
+			player->addCharacter(c);
+			playerManager->AddPlayer(player);
 
-		// send physicsobjects to physicsmanager
-		physics->addObject(c);
+			// send physicsobjects to physicsmanager
+			physics->addObject(c);
 
-		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+		}
 	}
 
 	// send Renderables to renderer

@@ -93,12 +93,12 @@ void Renderer::draw() {
 	glUseProgram(mainProgram);
 	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
 	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
-	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 10.0f, 1.0f);
+	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 20.0, 1.0f);
 
 	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(v));
 	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(p));
 	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(glm::vec3(1.0f, 1.0f, 1.0f))));
-	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 400.0f);
+	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 800.0f);
 	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPosition));
 
 	for (auto renderable : renderables) {
