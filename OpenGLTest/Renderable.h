@@ -45,5 +45,6 @@ class Renderable {
 		glm::vec4 color;
 		bool fullBright;
 		float roughness;
+		float metallic;
 		float f0;
 };

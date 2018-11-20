@@ -8,6 +8,7 @@ in vec3 v_normal;
 uniform vec4 u_color;
 uniform bool u_fullBright;
 uniform float u_roughness;
+uniform float u_metallic;
 uniform float u_f0;
 uniform sampler2D u_textureSampler;
 
@@ -21,15 +22,15 @@ float G1V(float dotNV, float k) {
 	return 1.0 / (dotNV*(1.0 - k) + k);
 }
 
-float GGX(vec3 N, vec3 V, vec3 L, float roughness, float F0) {
+vec3 GGX(vec3 N, vec3 V, vec3 L, float roughness, vec3 F0) {
 	float alpha = roughness*roughness;
 
 	vec3 H = normalize(V + L);
 
-	float dotNL = clamp(dot(N, L), 0.0, 1.0);
-	float dotNV = clamp(dot(N, V), 0.0, 1.0);
-	float dotNH = clamp(dot(N, H), 0.0, 1.0);
-	float dotLH = clamp(dot(L, H), 0.0, 1.0);
+	float dotNL = max(dot(N, L), 0.0);
+	float dotNV = max(dot(N, V), 0.0);
+	float dotNH = max(dot(N, H), 0.0);
+	float dotLH = max(dot(L, H), 0.0);
 
 	// D (normal distribution term)
 	float alphaSqr = alpha*alpha;
@@ -37,14 +38,21 @@ float GGX(vec3 N, vec3 V, vec3 L, float roughness, float F0) {
 	float D = alphaSqr / (M_PI * denom * denom);
 
 	// F (fresnel term)
-	float F = F0 + (1.0 - F0)*pow(1.0 - dotLH, 5);
+	vec3 F = F0 + (1.0 - F0)*pow(1.0 - dotLH, 5);
 
 	// V (visibility term)
 	float k = alpha / 2.0f;
 	float vis = G1V(dotNL, k)*G1V(dotNV, k);
 
-	float specular = dotNL * D * F * vis;
+	vec3 specular = dotNL * D * F * vis;
 	return specular;
+}
+
+float lambert(vec3 N, vec3 L, float F0) {
+	float dotNL = max(dot(N, L), 0.0);
+	float F = F0 + (1.0 - F0)*pow(1.0 - dotNL, 5);
+	float diffuse = dotNL * (1.0 - F);
+	return diffuse;
 }
 
 void main() {
@@ -54,21 +62,22 @@ void main() {
 		color *= texture(u_textureSampler, v_texCoord);
 	}
 
-	if (!u_fullBright) {
-		vec3 N = normalize(v_normal);
-		vec3 V = normalize(-v_position);
-		vec3 L = u_lightPosition - v_position;
-		float len = length(L);
-		L /= len;
-
-		float diffuse = max(dot(N, L), 0.0);
-		float specular = GGX(N, V, L, u_roughness, u_f0);
-		float attenuation = u_lightBrightness / (len * len);
-
-		color.xyz *= diffuse;
-		color.xyz += specular;
-		color.xyz *= u_lightColor * attenuation;
+	if (u_fullBright) {
+		o_fragColor = color;
+		return;
 	}
-	
+
+	vec3 N = normalize(v_normal);
+	vec3 V = normalize(-v_position);
+	vec3 L = u_lightPosition - v_position;
+	vec3 F0 = mix(vec3(u_f0), color.xyz, u_metallic);
+	float len = length(L);
+	L /= len;
+
+	float diffuse = lambert(N, L, u_f0) * (1 - u_metallic);
+	vec3 specular = GGX(N, V, L, u_roughness, F0);
+	float attenuation = u_lightBrightness / (len * len);
+
+	color.xyz = (diffuse * color.xyz + specular) * u_lightColor * attenuation;
 	o_fragColor = color;
 }

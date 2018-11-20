@@ -21,6 +21,7 @@ enum {
 	UNIFORM_MATERIAL_COLOR,
 	UNIFORM_MATERIAL_FULLBRIGHT,
 	UNIFORM_MATERIAL_ROUGHNESS,
+	UNIFORM_MATERIAL_METALLIC,
 	UNIFORM_MATERIAL_F0,
 	UNIFORM_LIGHT_COLOR,
 	UNIFORM_LIGHT_BRIGHTNESS,
@@ -57,6 +58,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glUniform4fv(uniforms[UNIFORM_MATERIAL_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(renderable->color)));
 	glUniform1i(uniforms[UNIFORM_MATERIAL_FULLBRIGHT], renderable->fullBright);
 	glUniform1f(uniforms[UNIFORM_MATERIAL_ROUGHNESS], renderable->roughness);
+	glUniform1f(uniforms[UNIFORM_MATERIAL_METALLIC], renderable->metallic);
 	glUniform1f(uniforms[UNIFORM_MATERIAL_F0], renderable->f0);
 
 	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
@@ -240,6 +242,7 @@ int Renderer::RenderLoop() {
 	uniforms[UNIFORM_MATERIAL_FULLBRIGHT] = glGetUniformLocation(mainProgram, "u_fullBright");
 	uniforms[UNIFORM_MATERIAL_COLOR] = glGetUniformLocation(mainProgram, "u_color");
 	uniforms[UNIFORM_MATERIAL_ROUGHNESS] = glGetUniformLocation(mainProgram, "u_roughness");
+	uniforms[UNIFORM_MATERIAL_METALLIC] = glGetUniformLocation(mainProgram, "u_metallic");
 	uniforms[UNIFORM_MATERIAL_F0] = glGetUniformLocation(mainProgram, "u_f0");
 	uniforms[UNIFORM_LIGHT_POSITION] = glGetUniformLocation(mainProgram, "u_lightPosition");
 	uniforms[UNIFORM_LIGHT_BRIGHTNESS] = glGetUniformLocation(mainProgram, "u_lightBrightness");
