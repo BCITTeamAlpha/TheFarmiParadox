@@ -18,7 +18,7 @@ void PhysicsManager::calcPhysics(float dTime)
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		PhysicsObject *object = objects[i];
-		glm::vec2 pos = object->position;
+		glm::vec2 pos = object->get_position();
 		glm::vec2 vel = object->velocity;
 		glm::vec2 max_acc;
 		glm::vec2 acc = gravAcceleration(pos, max_acc);
@@ -53,7 +53,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		glm::vec2 T_col = { N_col.y, -N_col.x };
 		if (colliding == 4) {
 			// if glitching into ground, don't
-			pos = (pos == object->position) ? pos - glm::normalize(max_acc) : object->position;
+			pos = (pos == object->get_position()) ? pos - glm::normalize(max_acc) : object->get_position();
 			vel = glm::vec2(0);
 		} else if (colliding) {
 			float N_comp = dot(N_col, vel);
@@ -79,7 +79,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		float rot_diff_clamped = std::max(std::min(rot_diff, ROT_CAP * dTime), -ROT_CAP * dTime);
 		object->rotation.z += rot_diff_clamped;
 
-		object->position = pos;
+		object->set_position(pos);
 		object->velocity = vel;
 		object->grounded = colliding;
 	}

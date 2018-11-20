@@ -193,7 +193,7 @@ int main()
 		Pickup *p = new Pickup();
 		p->mass = 75;
 		p->radius = 2.5f;
-		p->position = physics->genSpawnPos(p->radius);
+		p->set_position(physics->genSpawnPos(p->radius));
 
 		Renderable *pSkin = new Renderable();
 		pSkin->z = 0;
@@ -222,7 +222,7 @@ int main()
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
-			c->position = physics->genSpawnPos(c->radius);
+			c->set_position(physics->genSpawnPos(c->radius));
 
 			Renderable *cSkin = new Renderable();
 			cSkin->z = 0;
