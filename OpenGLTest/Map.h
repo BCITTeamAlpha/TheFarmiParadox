@@ -3,8 +3,9 @@
 #include <vector>
 #include "Planetoid.h"
 #include "Renderable.h"
+#include "GameObject.h"
 
-class Map {
+class Map : public GameObject {
 	public:
 		Map(std::vector<Planetoid> planets, int width, int height);
 		bool isSolid(int x, int y);
@@ -12,7 +13,6 @@ class Map {
 		void explosion(Planetoid p);
 		int width();
 		float value(int x, int y);
-		Renderable *renderable;
 	private:
 		int _index(int x, int y);
 		float* _mapArray;
