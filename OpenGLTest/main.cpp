@@ -231,7 +231,6 @@ int main()
 			hue = hue * 2.0 * M_PI;
 			cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
 			cSkin->scale = glm::vec3(2.5f);
-			cSkin->texture = AssetLoader::loadTexture("./checkerboard.png");
 			c->setRenderable(cSkin);
 
 			//set up a player with the test character
