@@ -382,8 +382,8 @@ int Renderer::RenderLoop() {
 void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
 		case RENDERER_ADD_TO_RENDERABLES: {
-			TypeParam<Renderable*> *p = dynamic_cast<TypeParam<Renderable*> *>(params);
-			renderables_waitList.push_back(p->Param);
+			TypeParam<std::shared_ptr<Renderable>> *p = dynamic_cast<TypeParam<std::shared_ptr<Renderable>> *>(params);
+			renderables_waitList.push_back(p->Param.get());
 			break;
 		}
 		case RENDERER_ADD_TO_UIRENDERABLES: {
