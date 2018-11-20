@@ -203,7 +203,7 @@ int main()
 		pSkin->scale = glm::vec3(5.0f);
 		physics->addObject(p);
 
-		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(pSkin), false);
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(p->renderable.get()), false);
 	}
 
 	std::vector<std::string> models = std::vector<std::string>();
@@ -249,13 +249,13 @@ int main()
 			// send physicsobjects to physicsmanager
 			physics->addObject(c);
 
-			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(c->renderable.get()), false);
 		}
 	}
 
 	// send Renderables to renderer
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(map->renderable), false);
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(map->renderable.get()), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(background.renderable.get()), false);
 
 	//Set input handling callbacks
 	cv.wait(lck);

@@ -30,7 +30,7 @@ Map::Map(vector<Planetoid> planets, int width, int height) {
 		}
 	}
 
-	renderable = new Renderable();
+	renderable.reset(new Renderable());
 	renderable->z = 0;
 	renderable->position = new glm::vec2(0, 0);
 	renderable->rotation = new glm::vec3(0, 0, 0);

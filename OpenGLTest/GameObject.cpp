@@ -11,7 +11,7 @@ GameObject::~GameObject()
 
 void GameObject::setRenderable(Renderable *r)
 {
-	renderable = r;
+	renderable.reset(r);
 	renderable->position = &position;
 	renderable->rotation = &rotation;
 }
