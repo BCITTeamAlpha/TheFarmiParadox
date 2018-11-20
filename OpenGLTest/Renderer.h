@@ -28,16 +28,16 @@ class Renderer : public ISubscriber {
 	private:
 		void draw();
 
-		void GenerateBuffers(Renderable * renderable);
+		void GenerateBuffers(std::shared_ptr<Renderable> renderable);
 		void GenerateBuffers(UIComponent * renderable);
-		void PopulateBuffers(Renderable * renderable);
+		void PopulateBuffers(std::shared_ptr<Renderable> renderable);
 		void PopulateBuffers(UIComponent * renderable);
 
-        void AddToRenderables(Renderable * renderable);
+        void AddToRenderables(std::shared_ptr<Renderable> renderable);
         void AddToUIRenderables(UIComponent * renderable);
 
-		void DrawRenderable(Renderable * renderable);
-        void DrawUIRenderable(Renderable * renderable);
+		void DrawRenderable(std::shared_ptr<Renderable> renderable);
+        void DrawUIRenderable(UIComponent * renderable);
 
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
@@ -47,8 +47,8 @@ class Renderer : public ISubscriber {
 
         std::list<UIComponent*> transparentList;
 
-		std::list<Renderable*> renderables_waitList;
-		std::list<Renderable*> renderables;
+		std::list<std::shared_ptr<Renderable>> renderables_waitList;
+		std::list<std::shared_ptr<Renderable>> renderables;
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
