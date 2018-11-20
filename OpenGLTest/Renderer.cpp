@@ -122,7 +122,37 @@ void Renderer::GenerateBuffers(Renderable * renderable) {
 	glGenTextures(1, &renderable->texture.loc);
 }
 
+void Renderer::GenerateBuffers(UIComponent * renderable) {
+	glGenBuffers(1, &renderable->model.positionLoc);
+	glGenBuffers(1, &renderable->model.UVLoc);
+	glGenBuffers(1, &renderable->model.normalLoc);
+	glGenBuffers(1, &renderable->model.elementLoc);
+	glGenTextures(1, &renderable->texture.loc);
+}
+
 void Renderer::PopulateBuffers(Renderable * renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.UVLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.UVs.size() * sizeof(glm::vec2), renderable->model.UVs.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.normalLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.normals.size() * sizeof(glm::vec3), renderable->model.normals.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elements.size() * sizeof(GLuint), renderable->model.elements.data(), GL_STATIC_DRAW);
+
+	glBindTexture(GL_TEXTURE_2D, renderable->texture.loc);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable->texture.width, renderable->texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable->texture.data.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Renderer::PopulateBuffers(UIComponent * renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
 	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
 

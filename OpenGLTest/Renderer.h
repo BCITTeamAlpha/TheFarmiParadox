@@ -29,7 +29,9 @@ class Renderer : public ISubscriber {
 		void draw();
 
 		void GenerateBuffers(Renderable * renderable);
+		void GenerateBuffers(UIComponent * renderable);
 		void PopulateBuffers(Renderable * renderable);
+		void PopulateBuffers(UIComponent * renderable);
 
         void AddToRenderables(Renderable * renderable);
         void AddToUIRenderables(UIComponent * renderable);
