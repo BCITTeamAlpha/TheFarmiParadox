@@ -33,7 +33,7 @@ enum {
 };
 GLuint uniforms[NUM_UNIFORMS];
 
-void Renderer::DrawRenderable(Renderable* renderable) {
+void Renderer::DrawRenderable(std::shared_ptr<Renderable> renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
@@ -49,9 +49,9 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 
 	glm::mat4 m = glm::mat4(1.0);
 	m = glm::translate(m, renderable->getPosition3());
-	m = glm::rotate(m, (*renderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*renderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::rotate(m, renderable->rotation.z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, renderable->rotation.y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, renderable->rotation.x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, renderable->scale);
 
 	glUniformMatrix4fv(uniforms[UNIFORM_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
@@ -64,7 +64,7 @@ void Renderer::DrawRenderable(Renderable* renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
-void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
+void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
@@ -77,9 +77,9 @@ void Renderer::DrawUIRenderable(Renderable* UIrenderable) {
 
 	glm::mat4 m = glm::mat4(1.0);
 	m = glm::translate(m, UIrenderable->getPosition3());
-	m = glm::rotate(m, (*UIrenderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*UIrenderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*UIrenderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::rotate(m, UIrenderable->rotation.z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, UIrenderable->rotation.y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, UIrenderable->rotation.x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(uniforms[UNIFORM_UI_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
@@ -114,7 +114,7 @@ void Renderer::draw() {
     DrawUITree();
 }
 
-void Renderer::GenerateBuffers(Renderable * renderable) {
+void Renderer::GenerateBuffers(std::shared_ptr<Renderable> renderable) {
 	glGenBuffers(1, &renderable->model.positionLoc);
 	glGenBuffers(1, &renderable->model.UVLoc);
 	glGenBuffers(1, &renderable->model.normalLoc);
@@ -122,7 +122,15 @@ void Renderer::GenerateBuffers(Renderable * renderable) {
 	glGenTextures(1, &renderable->texture.loc);
 }
 
-void Renderer::PopulateBuffers(Renderable * renderable) {
+void Renderer::GenerateBuffers(UIComponent * renderable) {
+	glGenBuffers(1, &renderable->model.positionLoc);
+	glGenBuffers(1, &renderable->model.UVLoc);
+	glGenBuffers(1, &renderable->model.normalLoc);
+	glGenBuffers(1, &renderable->model.elementLoc);
+	glGenTextures(1, &renderable->texture.loc);
+}
+
+void Renderer::PopulateBuffers(std::shared_ptr<Renderable> renderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
 	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
 
@@ -144,7 +152,29 @@ void Renderer::PopulateBuffers(Renderable * renderable) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Renderer::AddToRenderables(Renderable * renderable) {
+void Renderer::PopulateBuffers(UIComponent * renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.positions.size() * sizeof(glm::vec3), renderable->model.positions.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.UVLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.UVs.size() * sizeof(glm::vec2), renderable->model.UVs.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.normalLoc);
+	glBufferData(GL_ARRAY_BUFFER, renderable->model.normals.size() * sizeof(glm::vec3), renderable->model.normals.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elements.size() * sizeof(GLuint), renderable->model.elements.data(), GL_STATIC_DRAW);
+
+	glBindTexture(GL_TEXTURE_2D, renderable->texture.loc);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, renderable->texture.width, renderable->texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, renderable->texture.data.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void Renderer::AddToRenderables(std::shared_ptr<Renderable> renderable) {
     GenerateBuffers(renderable);
     PopulateBuffers(renderable);
     renderables.push_back(renderable);
@@ -362,8 +392,10 @@ int Renderer::RenderLoop() {
 			renderables_waitList.pop_back();
 		}
 
-		for (Renderable * renderable : renderables) {
-			if (renderable->invalidated) {
+		for (std::shared_ptr<Renderable> &renderable : renderables) {
+			if (renderable.use_count() == 1) {
+				renderables.remove(renderable);
+			} else if (renderable->invalidated) {
 				PopulateBuffers(renderable);
 				renderable->invalidated = false;
 			}
@@ -382,7 +414,7 @@ int Renderer::RenderLoop() {
 void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
 		case RENDERER_ADD_TO_RENDERABLES: {
-			TypeParam<Renderable*> *p = dynamic_cast<TypeParam<Renderable*> *>(params);
+			TypeParam<std::shared_ptr<Renderable>> *p = dynamic_cast<TypeParam<std::shared_ptr<Renderable>> *>(params);
 			renderables_waitList.push_back(p->Param);
 			break;
 		}

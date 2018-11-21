@@ -36,9 +36,9 @@ class Renderable {
 		bool invalidated;
 
 		// transform
-		glm::vec2 *position;
+		glm::vec2 position;
 		float z;
-		glm::vec3 *rotation;
+		glm::vec3 rotation;
 		glm::vec3 scale;
 
 		// material
