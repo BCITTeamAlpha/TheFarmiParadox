@@ -43,6 +43,7 @@ void PhysicsManager::calcPhysics(float dTime)
 		   	if (character->left_input || character->right_input) {
 				player_input = true;
 				T_comp = player_speed * (character->right_input - character->left_input);
+				rot.y = 90 - 90.0f * (character->right_input - character->left_input);
 			}
 
 			vel = N_acc * N_comp + T_acc * T_comp;
