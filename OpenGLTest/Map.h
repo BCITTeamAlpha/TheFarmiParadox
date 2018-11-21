@@ -8,6 +8,7 @@
 class Map : public GameObject {
 	public:
 		Map(std::vector<Planetoid> planets, int width, int height);
+		~Map();
 		bool isSolid(int x, int y);
 		int height();
 		void explosion(Planetoid p);

@@ -184,6 +184,7 @@ int main()
 		}
 	}
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + backgroundSkin->texture.width * backgroundSkin->texture.height * 4);
+	delete backgroundImage;
 	backgroundSkin->fullBright = true;
 
 	physics = new PhysicsManager(&planets, map);
