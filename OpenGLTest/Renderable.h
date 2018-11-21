@@ -21,8 +21,8 @@ struct Model {
 
 struct Texture {
 	std::vector<GLubyte> data;
-	int width = 0;
-	int height = 0;
+	int width;
+	int height;
 	GLuint loc;
 };
 
