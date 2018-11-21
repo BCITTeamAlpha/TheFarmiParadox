@@ -19,6 +19,7 @@ void PhysicsManager::calcPhysics(float dTime)
 	{
 		PhysicsObject *object = objects[i];
 		glm::vec2 pos = object->get_position();
+		glm::vec3 rot = object->get_rotation();
 		glm::vec2 vel = object->velocity;
 		glm::vec2 max_acc;
 		glm::vec2 acc = gravAcceleration(pos, max_acc);
@@ -75,11 +76,12 @@ void PhysicsManager::calcPhysics(float dTime)
 		}
 
 		float rot_desired = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
-		float rot_diff = normalizeAngle(rot_desired - object->rotation.z);
+		float rot_diff = normalizeAngle(rot_desired - rot.z);
 		float rot_diff_clamped = std::max(std::min(rot_diff, ROT_CAP * dTime), -ROT_CAP * dTime);
-		object->rotation.z += rot_diff_clamped;
+		rot.z += rot_diff_clamped;
 
 		object->set_position(pos);
+		object->set_rotation(rot);
 		object->velocity = vel;
 		object->grounded = colliding;
 	}

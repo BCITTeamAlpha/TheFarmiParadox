@@ -32,8 +32,8 @@ Map::Map(vector<Planetoid> planets, int width, int height) {
 
 	renderable.reset(new Renderable());
 	renderable->z = 0;
-	renderable->position = new glm::vec2(0, 0);
-	renderable->rotation = new glm::vec3(0, 0, 0);
+	renderable->position = glm::vec2(0, 0);
+	renderable->rotation = glm::vec3(0, 0, 0);
 	renderable->texture = AssetLoader::loadTexture("checkerboard.png");
 	renderable->color = glm::vec4(0.5, 1, 0, 1);
 	renderable->model = MarchingSquares::GenerateModel(*this);

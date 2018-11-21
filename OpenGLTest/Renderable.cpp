@@ -11,5 +11,5 @@ Renderable::Renderable() {
 }
 
 glm::vec3 Renderable::getPosition3() {
-	return glm::vec3(*position, z);
+	return glm::vec3(position, z);
 }

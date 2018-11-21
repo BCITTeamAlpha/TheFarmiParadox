@@ -49,9 +49,9 @@ void Renderer::DrawRenderable(std::shared_ptr<Renderable> renderable) {
 
 	glm::mat4 m = glm::mat4(1.0);
 	m = glm::translate(m, renderable->getPosition3());
-	m = glm::rotate(m, (*renderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*renderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*renderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::rotate(m, renderable->rotation.z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, renderable->rotation.y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, renderable->rotation.x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, renderable->scale);
 
 	glUniformMatrix4fv(uniforms[UNIFORM_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
@@ -77,9 +77,9 @@ void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
 
 	glm::mat4 m = glm::mat4(1.0);
 	m = glm::translate(m, UIrenderable->getPosition3());
-	m = glm::rotate(m, (*UIrenderable->rotation).z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
-	m = glm::rotate(m, (*UIrenderable->rotation).y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
-	m = glm::rotate(m, (*UIrenderable->rotation).x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::rotate(m, UIrenderable->rotation.z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, UIrenderable->rotation.y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, UIrenderable->rotation.x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
 	m = glm::scale(m, glm::vec3(1.0, 1.0, 1.0));
 
 	glUniformMatrix4fv(uniforms[UNIFORM_UI_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));

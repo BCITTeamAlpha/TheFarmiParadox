@@ -14,8 +14,8 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     yType = UNIT_PERCENT;
     parent = nullptr;
 
-    position = &screenPosition;
-    rotation = &screenRotation;
+    position = screenPosition;
+    rotation = screenRotation;
     z = 0;
 
     // Initialize Renderable data with a standard quad
@@ -63,8 +63,8 @@ void UIComponent::Resize() {
 
         // Calculate Anchor Position of panel based on anchor unit type
         glm::vec2 screenAnchor;
-        screenAnchor.x = anchorXType == ANCHOR_PERCENT ? anchor.x / 100.0f * parent->screenSize.x / 2.0f : anchor.x;
-        screenAnchor.y = anchorYType == ANCHOR_PERCENT ? anchor.y / 100.0f * parent->screenSize.y / 2.0f : anchor.y;
+        screenAnchor.x = anchorXType == ANCHOR_PERCENT ? anchor.x / 100.0f * parent->screenSize.x : anchor.x;
+        screenAnchor.y = anchorYType == ANCHOR_PERCENT ? anchor.y / 100.0f * parent->screenSize.y : anchor.y;
 
         // Calculate absolute position of panel based on parent panel and anchor types
         switch (hAnchor) {
@@ -72,19 +72,19 @@ void UIComponent::Resize() {
             screenPosition.x = parent->screenPosition.x + screenAnchor.x;
             break;
         case ANCHOR_HCENTER:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 4 - screenSize.x / 4 + screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 + screenAnchor.x;
             break;
         case ANCHOR_RIGHT:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 - screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x - screenSize.x - screenAnchor.x;
             break;
         }
 
         switch (vAnchor) {
         case ANCHOR_TOP:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 - screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y - screenSize.y - screenAnchor.y;
             break;
         case ANCHOR_VCENTER:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 4 - screenSize.y / 4 + screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 + screenAnchor.y;
             break;
         case ANCHOR_BOTTOM:
             screenPosition.y = parent->screenPosition.y + screenAnchor.y;

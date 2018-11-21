@@ -154,7 +154,7 @@ int main()
 	GameObject background;
 	background.setRenderable(backgroundSkin);
 	backgroundSkin->z = -10;
-	backgroundSkin->position = new glm::vec2(map->width()/2.0f, map->height()/2.0f);
+	backgroundSkin->position = glm::vec2(map->width()/2.0f, map->height()/2.0f);
 	backgroundSkin->scale.y = std::tan(renderer->cameraFOV * M_PI / 360.0f) * (renderer->cameraPosition.z - backgroundSkin->z) * 2;
 	backgroundSkin->scale.x = backgroundSkin->scale.y * (float)map->width() / (float)map->height();
 	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
