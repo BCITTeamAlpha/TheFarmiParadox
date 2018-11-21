@@ -154,7 +154,7 @@ int main()
 	GameObject background;
 	background.setRenderable(backgroundSkin);
 	backgroundSkin->z = -10;
-	backgroundSkin->position = new glm::vec2(map->width()/2.0f, map->height()/2.0f);
+	backgroundSkin->position = glm::vec2(map->width()/2.0f, map->height()/2.0f);
 	backgroundSkin->scale.y = std::tan(renderer->cameraFOV * M_PI / 360.0f) * (renderer->cameraPosition.z - backgroundSkin->z) * 2;
 	backgroundSkin->scale.x = backgroundSkin->scale.y * (float)map->width() / (float)map->height();
 	backgroundSkin->model = AssetLoader::loadModel("quad.obj");
@@ -184,6 +184,7 @@ int main()
 		}
 	}
 	backgroundSkin->texture.data.assign((GLubyte*)backgroundImage, (GLubyte*)backgroundImage + backgroundSkin->texture.width * backgroundSkin->texture.height * 4);
+	delete backgroundImage;
 	backgroundSkin->fullBright = true;
 
 	physics = new PhysicsManager(&planets, map);
@@ -193,7 +194,7 @@ int main()
 		Pickup *p = new Pickup();
 		p->mass = 75;
 		p->radius = 2.5f;
-		p->position = physics->genSpawnPos(p->radius);
+		p->set_position(physics->genSpawnPos(p->radius));
 
 		Renderable *pSkin = new Renderable();
 		pSkin->z = 0;
@@ -203,7 +204,7 @@ int main()
 		pSkin->scale = glm::vec3(5.0f);
 		physics->addObject(p);
 
-		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(pSkin), false);
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(p->renderable), false);
 	}
 
 	std::vector<std::string> models = std::vector<std::string>();
@@ -222,7 +223,7 @@ int main()
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
-			c->position = physics->genSpawnPos(c->radius);
+			c->set_position(physics->genSpawnPos(c->radius));
 
 			Renderable *cSkin = new Renderable();
 			cSkin->z = 0;
@@ -249,13 +250,13 @@ int main()
 			// send physicsobjects to physicsmanager
 			physics->addObject(c);
 
-			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(cSkin), false);
+			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 		}
 	}
 
 	// send Renderables to renderer
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(map->renderable), false);
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<Renderable*>(backgroundSkin), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(map->renderable), false);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(background.renderable), false);
 
 	//Set input handling callbacks
 	cv.wait(lck);

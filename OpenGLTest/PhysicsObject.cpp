@@ -7,7 +7,7 @@ PhysicsObject::PhysicsObject() {
 }
 
 bool PhysicsObject::colliding_with_object(PhysicsObject & other, glm::vec2 & collision_normal) {
-	collision_normal = this->position - other.position;
+	collision_normal = this->get_position() - other.get_position();
 	float length = glm::length(collision_normal);
 	collision_normal /= length;
 

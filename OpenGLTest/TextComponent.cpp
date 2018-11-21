@@ -29,19 +29,19 @@ void TextComponent::Resize() {
             screenPosition.x = parent->screenPosition.x + screenAnchor.x;
             break;
         case ANCHOR_HCENTER:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 4 - screenSize.x / 4 + screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 + screenAnchor.x;
             break;
         case ANCHOR_RIGHT:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 - screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x - screenSize.x - screenAnchor.x;
             break;
         }
 
         switch (vAnchor) {
         case ANCHOR_TOP:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 - screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y - screenSize.y - screenAnchor.y;
             break;
         case ANCHOR_VCENTER:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 4 - screenSize.y / 4 + screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 + screenAnchor.y;
             break;
         case ANCHOR_BOTTOM:
             screenPosition.y = parent->screenPosition.y + screenAnchor.y;

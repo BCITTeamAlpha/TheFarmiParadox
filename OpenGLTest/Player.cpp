@@ -34,7 +34,7 @@ void Player::setControllable(bool c)
 
 void Player::fireWeapon()
 {
-	weaps->useWeapon(chars[curChar]->position);
+	weaps->useWeapon(chars[curChar]->get_position());
 }
 
 void Player::setAimLeft(bool b)

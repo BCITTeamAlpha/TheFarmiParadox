@@ -71,7 +71,7 @@ UIComponent* UIManager::GetComponentById(std::string id) {
 
 void UIManager::findTopClick(UIComponent** top, UIComponent* comp, const float x, const float y) {
 	for (UIComponent* c : comp->children) {
-		if (c->visible && pointInRect(x/2, y, c->screenPosition.y + c->screenSize.y,
+		if (c->visible && pointInRect(x, y, c->screenPosition.y + c->screenSize.y,
 			c->screenPosition.x + c->screenSize.x, c->screenPosition.x, c->screenPosition.y)) {
 			if (c->ClickAction != nullptr && c->z > (*top)->z) {
 				*top = c;
