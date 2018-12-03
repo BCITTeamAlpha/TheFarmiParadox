@@ -104,15 +104,16 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
 }
 
-
+std::vector<Character*> playerList = std::vector<Character*>();
+std::vector<Bulleto*> bulletList = std::vector<Bulleto*>();
 void TestSpawnBulleto(int x, int y) {
 
 
 	Bulleto *bullet = new Bulleto();
 	bullet->mass = 15;
 	bullet->radius = 2.0f;
-	//->set_position(glm::vec2(x, y));
-	bullet->set_position(physics->genSpawnPos(bullet->radius));
+	bullet->set_position(glm::vec2(10, 10));
+	//bullet->set_position(physics->genSpawnPos(bullet->radius));
 
 	Renderable *pSkin = new Renderable();
 	pSkin->z = 0;
@@ -121,6 +122,8 @@ void TestSpawnBulleto(int x, int y) {
 	bullet->setRenderable(pSkin);
 	pSkin->scale = glm::vec3(5);
 	physics->addObject(bullet);
+	bulletList.push_back(bullet);
+	//std::cout << bullet->get_position().x << " y: " << bullet->get_position().y << std::endl;
 
 	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(bullet->renderable), false);
 }
@@ -240,8 +243,8 @@ int main()
 
 	//create players
 	int teams = 3;
-	int characters_per_team = 4;
-	std::vector<Character*> playerList = std::vector<Character*>();
+	int characters_per_team = 1;
+	
 	for (int i = 0; i < teams; i++) {
 		for (int j = 0; j < characters_per_team; j++) {
 			//set up a square test character
@@ -319,32 +322,27 @@ int main()
 
 	map->explosion(Planetoid(89, 117, 8));
 
-	Bulleto *bullet = new Bulleto();
-	bullet->mass = 15;
-	bullet->radius = 2.0f;
-	//->set_position(glm::vec2(x, y));
-	bullet->set_position(physics->genSpawnPos(bullet->radius));
-
-	Renderable *pSkin = new Renderable();
-	pSkin->z = 0;
-	pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
-	pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
-	bullet->setRenderable(pSkin);
-	pSkin->scale = glm::vec3(5);
-	physics->addObject(bullet);
-
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(bullet->renderable), false);
-
-	float tempcounter = 0;
+	float tempSpeed = 0;
 	for (int tick = 0;; tick++)
 	{
-		bullet->set_position(glm::vec2(bullet->get_position().x + tempcounter, bullet->get_position().y)); tempcounter += 0.0001f;
 
-		for each (auto character in playerList)
+		for each (auto bullet in bulletList) {
+			bullet->set_position(glm::vec2(bullet->get_position().x + tempSpeed, bullet->get_position().y)); tempSpeed += 0.0001f;
+		}
+
+		for(int i=0;i<bulletList.size();i++)
 		{
-			float length = glm::length(bullet->get_position() - character->get_position());
-			if (length < 2.0f) {
-				printf("collided with");
+			for each (auto character in playerList)
+			{
+				float length = glm::length(bulletList[i]->get_position() - character->get_position());
+				if (length < 2.0f) {
+					//printf("collided with char");
+					character->health -= 20;
+					printf("Character health: %d\n", character->health);
+					bulletList.erase(bulletList.begin() +  i);
+					tempSpeed = 0.0005f;
+					break;
+				}
 			}
 		}
 
