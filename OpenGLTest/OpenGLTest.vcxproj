@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetLoader.h" />
+    <ClInclude Include="Bulleto.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="EventManager.h" />

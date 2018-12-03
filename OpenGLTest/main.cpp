@@ -19,6 +19,7 @@
 #include <thread>
 #include "Player.h"
 #include "playerManager.h"
+#include "Bulleto.h"
 
 GLFWwindow* window;
 std::mutex mtx;
@@ -103,6 +104,28 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
 }
 
+
+void TestSpawnBulleto(int x, int y) {
+
+
+	Bulleto *bullet = new Bulleto();
+	bullet->mass = 15;
+	bullet->radius = 2.0f;
+	//->set_position(glm::vec2(x, y));
+	bullet->set_position(physics->genSpawnPos(bullet->radius));
+
+	Renderable *pSkin = new Renderable();
+	pSkin->z = 0;
+	pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
+	pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
+	bullet->setRenderable(pSkin);
+	pSkin->scale = glm::vec3(5);
+	physics->addObject(bullet);
+
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(bullet->renderable), false);
+}
+
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 
@@ -111,6 +134,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		printf("Right mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
+		TestSpawnBulleto(xpos, ypos);
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
@@ -124,6 +148,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		printf("%lf %lf\n", xpos, ypos);
 	}
 }
+
 
 int main()
 {
@@ -216,6 +241,7 @@ int main()
 	//create players
 	int teams = 3;
 	int characters_per_team = 4;
+	std::vector<Character*> playerList = std::vector<Character*>();
 	for (int i = 0; i < teams; i++) {
 		for (int j = 0; j < characters_per_team; j++) {
 			//set up a square test character
@@ -249,7 +275,7 @@ int main()
 
 			// send physicsobjects to physicsmanager
 			physics->addObject(c);
-
+			playerList.push_back(c);
 			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 		}
 	}
@@ -292,8 +318,36 @@ int main()
     EventManager::notify(PLAY_SONG, &param);
 
 	map->explosion(Planetoid(89, 117, 8));
+
+	Bulleto *bullet = new Bulleto();
+	bullet->mass = 15;
+	bullet->radius = 2.0f;
+	//->set_position(glm::vec2(x, y));
+	bullet->set_position(physics->genSpawnPos(bullet->radius));
+
+	Renderable *pSkin = new Renderable();
+	pSkin->z = 0;
+	pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
+	pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
+	bullet->setRenderable(pSkin);
+	pSkin->scale = glm::vec3(5);
+	physics->addObject(bullet);
+
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(bullet->renderable), false);
+
+	float tempcounter = 0;
 	for (int tick = 0;; tick++)
 	{
+		bullet->set_position(glm::vec2(bullet->get_position().x + tempcounter, bullet->get_position().y)); tempcounter += 0.0001f;
+
+		for each (auto character in playerList)
+		{
+			float length = glm::length(bullet->get_position() - character->get_position());
+			if (length < 2.0f) {
+				printf("collided with");
+			}
+		}
+
 		physics->calcPhysics(1.0 / 59.94);
 		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
