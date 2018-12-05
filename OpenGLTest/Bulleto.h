@@ -1,18 +1,12 @@
 #pragma once
 #include "PhysicsObject.h"
 
+
+//This is a class to represent bullets
 class Bulleto : public PhysicsObject {
 public:
-	Bulleto() {
-
-	}
-
-	bool colliding_with_player(glm::vec2 & player_pos) {
-		float length = glm::length(get_position() - player_pos);
-
-		return length < (this->radius + 1.0f);
-	}
-
+	Bulleto(float damage=20);
+	bool colliding_with_player(glm::vec2 & player_pos);
 private:
-
+	float damage;
 };

@@ -19,7 +19,7 @@
 #include <thread>
 #include "Player.h"
 #include "playerManager.h"
-#include "Bulleto.h"
+#include "BulletoManager.h"
 
 GLFWwindow* window;
 std::mutex mtx;
@@ -34,6 +34,10 @@ PhysicsManager *physics;
 PlayerManager *playerManager;
 Map *map;
 SoundManager* noise;
+BulletoManager* bulletoManager;
+
+std::vector<Character*> playerList = std::vector<Character*>(); //vector of current players
+std::vector<Bulleto*> bulletList = std::vector<Bulleto*>();		//vector of current bullets
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -104,30 +108,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
 }
 
-std::vector<Character*> playerList = std::vector<Character*>();
-std::vector<Bulleto*> bulletList = std::vector<Bulleto*>();
-void TestSpawnBulleto(int x, int y) {
-
-
-	Bulleto *bullet = new Bulleto();
-	bullet->mass = 15;
-	bullet->radius = 2.0f;
-	bullet->set_position(glm::vec2(10, 10));
-	//bullet->set_position(physics->genSpawnPos(bullet->radius));
-
-	Renderable *pSkin = new Renderable();
-	pSkin->z = 0;
-	pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
-	pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
-	bullet->setRenderable(pSkin);
-	pSkin->scale = glm::vec3(5);
-	physics->addObject(bullet);
-	bulletList.push_back(bullet);
-	//std::cout << bullet->get_position().x << " y: " << bullet->get_position().y << std::endl;
-
-	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(bullet->renderable), false);
-}
-
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -137,7 +117,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		printf("Right mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
-		TestSpawnBulleto(xpos, ypos);
+		bulletoManager->SpawnBulleto(xpos,ypos);
+
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
@@ -242,7 +223,7 @@ int main()
 	models.push_back("../Models/Slime.obj");
 
 	//create players
-	int teams = 2;
+	int teams = 1;
 	int characters_per_team = 1;
 	
 	for (int i = 0; i < teams; i++) {
@@ -252,7 +233,7 @@ int main()
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
-			c->set_position(glm::vec2(50,50));//(physics->genSpawnPos(c->radius));
+			c->set_position(glm::vec2(30,50));//(physics->genSpawnPos(c->radius));
 
 			Renderable *cSkin = new Renderable();
 			cSkin->z = 0;
@@ -322,30 +303,11 @@ int main()
 
 	map->explosion(Planetoid(89, 117, 8));
 
-	float tempSpeed = 0;
+	bulletoManager = new BulletoManager(playerList, bulletList, physics); //initializes bullet manager
+
 	for (int tick = 0;; tick++)
 	{
-
-		for each (auto &bullet in bulletList) {
-			bullet->set_position(glm::vec2(bullet->get_position().x + tempSpeed, bullet->get_position().y)); tempSpeed += 0.00001f;
-		}
-
-		for(int i=0; i < bulletList.size(); i++) {
-			for each (auto &character in playerList)
-			{
-				float length = glm::length(bulletList[i]->get_position() - character->get_position());
-				if (length < 2.0f) {
-					character->health -= 20;
-					printf("Character health: %d\n", character->health);
-					std::cout << bulletList[i]->renderable.use_count() << "\n";
-					bulletList[i]->renderable = NULL;
-					bulletList.erase(bulletList.begin() +  i);
-					tempSpeed = 0.0005f;
-					break;
-				}
-			}
-		}
-
+		bulletoManager->UpdateBullet(); //updates bullets (still testing)
 		physics->calcPhysics(1.0 / 59.94);
 		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
