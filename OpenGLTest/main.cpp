@@ -223,8 +223,8 @@ int main()
 	models.push_back("../Models/Slime.obj");
 
 	//create players
-	int teams = 1;
-	int characters_per_team = 1;
+	int teams = 3;
+	int characters_per_team = 2;
 	
 	for (int i = 0; i < teams; i++) {
 		for (int j = 0; j < characters_per_team; j++) {
@@ -233,7 +233,7 @@ int main()
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
-			c->set_position(glm::vec2(30,50));//(physics->genSpawnPos(c->radius));
+			c->set_position(physics->genSpawnPos(c->radius));
 
 			Renderable *cSkin = new Renderable();
 			cSkin->z = 0;
