@@ -394,16 +394,20 @@ int Renderer::RenderLoop() {
 
 		for (std::shared_ptr<Renderable> &renderable : renderables) {
 			if (renderable.use_count() == 1) {
-				renderables.remove(renderable);
+				// set unused renderable to null while itterating
+				// but don't remove them yet because deletion while itterating is spooky
+				renderable = NULL;
 			} else if (renderable->invalidated) {
 				PopulateBuffers(renderable);
 				renderable->invalidated = false;
 			}
 		}
 
+		// remove unused renderables
+		renderables.remove(NULL);
+
 		//draw
 		draw();
-
 		glfwSwapBuffers(window);
 	}
 
