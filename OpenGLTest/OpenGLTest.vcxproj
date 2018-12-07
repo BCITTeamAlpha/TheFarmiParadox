@@ -97,6 +97,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AssetLoader.cpp" />
+    <ClCompile Include="Bulleto.cpp" />
+    <ClCompile Include="BulletoManager.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -133,6 +135,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetLoader.h" />
+    <ClInclude Include="Bulleto.h" />
+    <ClInclude Include="BulletoManager.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="EventManager.h" />

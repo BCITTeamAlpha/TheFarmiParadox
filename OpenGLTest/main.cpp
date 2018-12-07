@@ -19,6 +19,7 @@
 #include <thread>
 #include "Player.h"
 #include "playerManager.h"
+#include "BulletoManager.h"
 
 GLFWwindow* window;
 std::mutex mtx;
@@ -33,6 +34,10 @@ PhysicsManager *physics;
 PlayerManager *playerManager;
 Map *map;
 SoundManager* noise;
+BulletoManager* bulletoManager;
+
+std::vector<Character*> playerList = std::vector<Character*>(); //vector of current players
+std::vector<Bulleto*> bulletList = std::vector<Bulleto*>();		//vector of current bullets
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
@@ -103,6 +108,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
 }
 
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 
@@ -111,6 +117,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		printf("Right mouse button clicked at: ");
 		printf("%lf %lf\n", xpos, ypos);
+		bulletoManager->SpawnBulleto(xpos,ypos);
+
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
@@ -124,6 +132,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		printf("%lf %lf\n", xpos, ypos);
 	}
 }
+
 
 int main()
 {
@@ -214,8 +223,9 @@ int main()
 	models.push_back("../Models/Slime.obj");
 
 	//create players
-	int teams = 3;
-	int characters_per_team = 4;
+	int teams = 2;
+	int characters_per_team = 1;
+	
 	for (int i = 0; i < teams; i++) {
 		for (int j = 0; j < characters_per_team; j++) {
 			//set up a square test character
@@ -223,7 +233,7 @@ int main()
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
-			c->set_position(physics->genSpawnPos(c->radius));
+			c->set_position(glm::vec2(30,50));//(physics->genSpawnPos(c->radius));
 
 			Renderable *cSkin = new Renderable();
 			cSkin->z = 0;
@@ -249,7 +259,7 @@ int main()
 
 			// send physicsobjects to physicsmanager
 			physics->addObject(c);
-
+			playerList.push_back(c);
 			EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 		}
 	}
@@ -292,8 +302,12 @@ int main()
     EventManager::notify(PLAY_SONG, &param);
 
 	map->explosion(Planetoid(89, 117, 8));
+
+	bulletoManager = new BulletoManager(playerList, bulletList, physics); //initializes bullet manager
+
 	for (int tick = 0;; tick++)
 	{
+		bulletoManager->UpdateBullet(); //updates bullets (still testing)
 		physics->calcPhysics(1.0 / 59.94);
 		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
