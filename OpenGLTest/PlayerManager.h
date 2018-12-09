@@ -24,11 +24,15 @@ public:
 
 	void RemovePlayer(int playerID);
 	Player* GetCurrentPlayer();
+	void UpdatePlayerUI();
 
 	virtual void notify(EventName eventName, Param *params) override;
 	std::vector<Player*> players;
-private:
 
+	int actionsTaken = 0;
+	int maxActionsPerTurn = 5;
+private:
 	int currentPlayerIndex;
 	size_t turnStage;
+
 };

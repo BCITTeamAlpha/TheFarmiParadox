@@ -1,26 +1,27 @@
 #pragma once
 #include "Character.h"
-#include "Bulleto.h"
+#include "HackjobBullet.h"
 #include "AssetLoader.h"
 #include "EventManager.h"
 #include "PhysicsManager.h"
 #include "PlayerManager.h"
-#include "TextComponent.h"
+#include "Map.h"
 #include <iostream>
 #include <vector>
 
 //This is a class that manages bullet projectiles 
-class BulletoManager {
+class HackjobBulletManager {
+
 public:
 
-	BulletoManager(PlayerManager *playerManager, PhysicsManager *physics);
+	HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map *map);
 	void UpdateBullet();
-	void SpawnBulleto(float speedScalar);
+	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
 	void SetInfoText(std::string info);
-	TextComponent *infoText;
 
 private:
 	PhysicsManager *physics;
 	PlayerManager *playerManager;
-	std::vector<Bulleto*> bulletList;		//vector of current bullets
+	Map *map;
+	std::vector<HackjobBullet*> bulletList;		//vector of current bullets
 };

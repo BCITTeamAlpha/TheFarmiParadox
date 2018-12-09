@@ -74,18 +74,10 @@ void PlayerManager::NextPlayer()
 	printf("next player index:%d\n", currentPlayerIndex);
 
 	instance->players[instance->currentPlayerIndex]->getFirstCharacter()->bulletoAmmo = instance->players[instance->currentPlayerIndex]->getFirstCharacter()->maxBulletsPerTurn;
+	//printf("max bullet per turn: %d", instance->players[instance->currentPlayerIndex]->getFirstCharacter()->maxBulletsPerTurn);
 
-	if (instance->players[currentPlayerIndex]!=NULL) { //update ui with info pertaining to whose turn it is, the team they belong to, and their hp
-
-		std::string info = "P: ";
-		info += std::to_string(instance->players[instance->currentPlayerIndex]->playerID);
-		info += " Team: ";
-		info += std::to_string(instance->players[instance->currentPlayerIndex]->getFirstCharacter()->teamID);
-		info +=  " HP: ";
-		info += std::to_string(instance->players[instance->currentPlayerIndex]->getFirstCharacter()->health);
-		TypeParam<std::string*> param(&info);
-		EventManager::notify(RENDERER_SET_INFOTEXT_TOPRIGHT, &param, false);
-	}
+	actionsTaken = 0;
+	UpdatePlayerUI();
 }
 
 void PlayerManager::AddPlayer(Player * player)
@@ -116,34 +108,92 @@ void PlayerManager::RemovePlayer(int playerID) {
 			break;
 		}
 	}
+
 }
 
 Player* PlayerManager::GetCurrentPlayer() {
 	return instance->players[currentPlayerIndex];
 }
 
+void PlayerManager::UpdatePlayerUI() {
+
+	if (instance->players[currentPlayerIndex] != NULL) { //update ui with info pertaining to whose turn it is, the team they belong to, and their hp
+
+		std::vector<int> teams;
+		teams.push_back(instance->players[currentPlayerIndex]->getFirstCharacter()->teamID);
+		bool containsTeam = false;
+
+
+		for (int i = 0;i < instance->players.size();i++) { //check how many teams are left
+
+			for (int j = 0;j < teams.size();j++) {
+				if (teams[j] == instance->players[i]->getFirstCharacter()->teamID) {
+					containsTeam = true;
+				}
+			}
+
+			if (!containsTeam) {
+				teams.push_back(instance->players[i]->getFirstCharacter()->teamID);
+			}
+
+			containsTeam = false;
+		}
+
+		//printf("teams size: %d\n", teams.size());
+
+		std::string info = "";
+
+		if (teams.size() > 1) {
+			info += "P:";
+			info += std::to_string(instance->players[instance->currentPlayerIndex]->playerID);
+			info += " Team:";
+			info += std::to_string(instance->players[instance->currentPlayerIndex]->getFirstCharacter()->teamID);
+			info += " HP:";
+			info += std::to_string(instance->players[instance->currentPlayerIndex]->getFirstCharacter()->health);
+		}
+		else {
+			info += "Team ";
+			info += std::to_string(instance->players[instance->currentPlayerIndex]->getFirstCharacter()->teamID);
+			info += " Has won!";
+		}
+
+		TypeParam<std::string*> param(&info);
+		EventManager::notify(RENDERER_SET_INFOTEXT_TOPRIGHT, &param, false);
+
+	}
+}
+
 
 void PlayerManager::notify(EventName eventName, Param *params)
 {
 	if (!players.size()) return;
+
 	switch (eventName) {
 	case PLAYER_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
 		if (p != nullptr && instance->turnStage == 0)
+		{
+			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->moveLeft(p->Param);
+		}
 		break;
 	}
 	case PLAYER_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
 		if (p != nullptr && instance->turnStage == 0)
+		{
+			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->moveRight(p->Param);
+		}
 		break;
 	}
 	case PLAYER_JUMP: {
-		printf("jump!\n");
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
 		if (p != nullptr)
+		{
+			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->jump(p->Param);
+		}
 		break;
 	}
 	case AIM_LEFT: {
@@ -168,4 +218,6 @@ void PlayerManager::notify(EventName eventName, Param *params)
 	default:
 		break;
 	}
+
+	printf("Actions taken: %d, Max Actions Per Turn = %d\n", actionsTaken, maxActionsPerTurn);
 }

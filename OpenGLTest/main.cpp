@@ -19,7 +19,7 @@
 #include <thread>
 #include "Player.h"
 #include "playerManager.h"
-#include "BulletoManager.h"
+#include "HackjobBulletManager.h"
 
 GLFWwindow* window;
 std::mutex mtx;
@@ -34,7 +34,7 @@ PhysicsManager *physics;
 PlayerManager *playerManager;
 Map *map;
 SoundManager* noise;
-BulletoManager* bulletoManager;
+HackjobBulletManager* bulletoManager;
 int Player::PLAYER_COUNT = 0;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -43,6 +43,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	case GLFW_KEY_A:
 		if (action == GLFW_PRESS)
 		{
+			playerManager->actionsTaken++;
 			TypeParam<bool> param(true);  	
 			EventManager::notify(PLAYER_LEFT, &param, false);
 			EventManager::notify(AIM_LEFT, &param, false);
@@ -58,6 +59,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	case GLFW_KEY_D:
 		if (action == GLFW_PRESS)
 		{
+			playerManager->actionsTaken++;
 			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_RIGHT, &param, false);
 			EventManager::notify(AIM_RIGHT, &param, false);
@@ -72,6 +74,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	case GLFW_KEY_SPACE:
 		if (action == GLFW_PRESS)
 		{
+			playerManager->actionsTaken++;
 			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_JUMP, &param, false);
 		}
@@ -104,6 +107,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
 		break;
 	}
+
 }
 
 
@@ -113,15 +117,18 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	glfwGetCursorPos(window, &xpos, &ypos);
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
-		printf("Right mouse button clicked at: ");
-		printf("%lf %lf\n", xpos, ypos);
+		//printf("%lf %lf\n", xpos, ypos);
 		float bulletSpeedScalar = 42.069f;
-		bulletoManager->SpawnBulleto(bulletSpeedScalar);
+		int damage = 200;
+		float explosionRadius = 5.0f;
+		bulletoManager->SpawnBulleto(bulletSpeedScalar, damage, explosionRadius); //speed scalar, int damage, float explosionRadius
+		printf("Firing bullet with speedScalar %lf, damage %d, explode radius %lf\n", bulletSpeedScalar, damage, explosionRadius);
 
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
-		printf("Right mouse button released\n");
+		//printf("Right mouse button released\n");
+		playerManager->UpdatePlayerUI();
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
@@ -222,13 +229,13 @@ int main()
 	models.push_back("../Models/Slime.obj");
 
 	//create players
-	int teams = 3;
+	int teams = 4;
 	int characters_per_team = 2;
 	
 	for (int i = 0; i < teams; i++) {
 		for (int j = 0; j < characters_per_team; j++) {
 			//set up a square test character
-			Character *c = new Character();
+			Character *c = new Character(1000, 10, 10); //health, bullets, maxBullets per turn (recharged when it's their turn again) -> right click to shoot
 			c->mass = 50;
 			c->controllable = true;
 			c->radius = 2.5f;
@@ -303,11 +310,12 @@ int main()
 
 	map->explosion(Planetoid(89, 117, 8));
 
-	bulletoManager = new BulletoManager(playerManager, physics); //initializes bullet manager
+
+	bulletoManager = new HackjobBulletManager(playerManager, physics, map); //initializes bullet manager
 
 	for (int tick = 0;; tick++)
 	{
-		bulletoManager->UpdateBullet(); //updates bullets 
+		bulletoManager->UpdateBullet(); //updates hackjob bullets 
 		physics->calcPhysics(1.0 / 59.94);
 		playerManager->handlePlayers(1.0 / 59.94);
 		Sleep(1000.0 / 59.94);
