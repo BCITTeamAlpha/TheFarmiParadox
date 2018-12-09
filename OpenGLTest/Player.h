@@ -8,6 +8,7 @@ class Player {
 public:
 	Player();
 	void addCharacter(Character *c);
+	Character *getFirstCharacter();
 	void addItem(Pickup item);
 	void prevWeapon();
 	void nextWeapon();
@@ -20,6 +21,8 @@ public:
 	void moveLeft(bool v);
 	void moveRight(bool v);
 	void jump(bool v);
+	int playerID;
+	static int PLAYER_COUNT;
 	//static Player *me;
 private:
 	std::vector<Character *> chars;

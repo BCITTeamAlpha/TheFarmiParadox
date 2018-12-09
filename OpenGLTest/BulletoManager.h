@@ -4,6 +4,8 @@
 #include "AssetLoader.h"
 #include "EventManager.h"
 #include "PhysicsManager.h"
+#include "PlayerManager.h"
+#include "TextComponent.h"
 #include <iostream>
 #include <vector>
 
@@ -11,14 +13,14 @@
 class BulletoManager {
 public:
 
-	BulletoManager(std::vector<Character*> playerList, std::vector<Bulleto*> bulletList, PhysicsManager *physics);
+	BulletoManager(PlayerManager *playerManager, PhysicsManager *physics);
 	void UpdateBullet();
-	void SpawnBulleto(int x, int y);
+	void SpawnBulleto(float speedScalar);
+	void SetInfoText(std::string info);
+	TextComponent *infoText;
 
 private:
-	std::vector<Character*> playerListPtr;
-	std::vector<Bulleto*> bulletListPtr;
-	PhysicsManager *physicsManagerPointer;
-	float tempSpeed = 0.0001f;
-	float bulletDamage = 20.0f;
+	PhysicsManager *physics;
+	PlayerManager *playerManager;
+	std::vector<Bulleto*> bulletList;		//vector of current bullets
 };

@@ -2,6 +2,7 @@
 #include "Player.h"
 #include <vector>
 #include "ISubscriber.h"
+#include "EventManager.h"
 
 class PlayerManager : public ISubscriber
 {
@@ -21,9 +22,13 @@ public:
 
 	void AddPlayer(Player *player);
 
+	void RemovePlayer(int playerID);
+	Player* GetCurrentPlayer();
+
 	virtual void notify(EventName eventName, Param *params) override;
-private:
 	std::vector<Player*> players;
+private:
+
 	int currentPlayerIndex;
 	size_t turnStage;
 };

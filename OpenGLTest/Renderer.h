@@ -10,6 +10,7 @@
 #include "EventManager.h"
 #include "Renderable.h"
 #include "UIManager.h"
+#include "BulletoManager.h"
 
 extern std::mutex mtx;
 extern std::condition_variable cv;
@@ -55,5 +56,7 @@ class Renderer : public ISubscriber {
 		GLuint uiProgram;
 
         UIManager *uim;
+		TextComponent *infoText1; //used by BulletoManager to display when someone has been hit
+		TextComponent *infoTextTopRight; //display player turn and team
 };
 

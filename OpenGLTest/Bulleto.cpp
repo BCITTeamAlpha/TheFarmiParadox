@@ -1,8 +1,8 @@
 #include "Bulleto.h"
 
-float minimumCollisionDitance = 1.0f;
+float minimumCollisionDitance = 1.5f;
 
-Bulleto::Bulleto(float damage) {
+Bulleto::Bulleto(int damage) {
 	this->damage = damage;
 }
 
