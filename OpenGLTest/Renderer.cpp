@@ -374,89 +374,10 @@ int Renderer::RenderLoop() {
 	cv.notify_all();
 
     uim = new UIManager(WIDTH, HEIGHT);
-
-    UIComponent lBox(22.35, 100, 0, 0);
-	lBox.id = "lBox";
-	lBox.color = { 0.141, 0.427, 0.761, 1 };
-    lBox.vAnchor = ANCHOR_TOP;
-    lBox.hAnchor = ANCHOR_LEFT;
-
-    UIComponent lBoxInner(90, 96, 0, 0);
-	lBoxInner.id = "lBoxInner";
-    lBoxInner.color = { 0.231,0.525,0.859,1};
-    lBoxInner.vAnchor = ANCHOR_VCENTER;
-    lBoxInner.hAnchor = ANCHOR_HCENTER;
-
-    UIComponent rBox(21.9, 100, 0, 0);
-	rBox.id = "rBox";
-    rBox.color = { 0.141, 0.427, 0.761, 1 };
-    rBox.vAnchor = ANCHOR_TOP;
-    rBox.hAnchor = ANCHOR_RIGHT;
-
-    UIComponent rBoxInner(90, 96, 0, 0);
-	rBoxInner.id = "rBoxInner";
-    rBoxInner.color = { 0.231,0.525,0.859,1 };
-    rBoxInner.vAnchor = ANCHOR_VCENTER;
-    rBoxInner.hAnchor = ANCHOR_HCENTER;
-
-    TextComponent lText("T O P", 64, 0, 0);
-	lText.id = "lText";
-    lText.vAnchor = ANCHOR_TOP;
-    lText.hAnchor = ANCHOR_HCENTER;
-    lText.color = { 1,1,1,1 };
-
-    TextComponent rText("K E K", 20, 0, 0);
-	rText.id = "rText";
-    rText.vAnchor = ANCHOR_TOP;
-    rText.hAnchor = ANCHOR_HCENTER;
-    rText.color = { 1,1,1,1 };
-	infoTextTopRight = &rText;
-
-	TextComponent rInfoText1("", 30, 0, 100); 
-	rInfoText1.id = "rText";
-	rInfoText1.vAnchor = ANCHOR_BOTTOM;
-	rInfoText1.hAnchor = ANCHOR_HCENTER;
-	rInfoText1.color = { 1,1,1,1 };
-	infoText1 = &rInfoText1;
-
-	UIComponent hideButton(90, 50, 0, 10);
-	hideButton.id = "hideButton";
-	hideButton.hAnchor = ANCHOR_HCENTER;
-	hideButton.vAnchor = ANCHOR_BOTTOM;
-	hideButton.color = {0.173, 0.184, 0.2, 1};
-	hideButton.anchorYType = ANCHOR_PIXEL;
-	hideButton.yType = UNIT_PIXEL;
-	hideButton.ClickAction = []() {
-		UIComponent* c = UIManager::GetComponentById("Karen");
-		c->visible = !c->visible;
-	};
-
-	TextComponent btnTex("Hide", 40, 0, 0);
-	btnTex.id = "btnTex";
-	btnTex.vAnchor = ANCHOR_VCENTER;
-	btnTex.hAnchor = ANCHOR_HCENTER;
-	btnTex.color = {1,1,1,1};
-
-    ImageComponent imageTest("./araragi_karen.png", 95, 0, 0, 0);
-	imageTest.id = "Karen";
-    imageTest.vAnchor = ANCHOR_BOTTOM;
-    imageTest.hAnchor = ANCHOR_HCENTER;
-    imageTest.xType = UNIT_PERCENT;
-    imageTest.yType = UNIT_SCALE;
-
-	hideButton.Add(&btnTex);
-
-    lBoxInner.Add(&lText);
-    lBoxInner.Add(&imageTest);
-    rBoxInner.Add(&rText);
-	rBoxInner.Add(&rInfoText1);
-	rBoxInner.Add(&hideButton);
-
-    lBox.Add(&lBoxInner);
-    rBox.Add(&rBoxInner);
-
-    uim->AddToRoot(&lBox);
-    uim->AddToRoot(&rBox);
+    UIManager::DefineClickFunction("toggleKaren", []() {
+        UIComponent *karen = UIManager::GetComponentById("Karen");
+        karen->visible = !karen->visible;
+    });
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -507,16 +428,6 @@ void Renderer::notify(EventName eventName, Param* params) {
 			PopulateBuffers(p->Param);
 			break;
 		}
-		case RENDERER_SET_INFOTEXT: { //some duplication here 
-			TypeParam<std::string*> *p = dynamic_cast<TypeParam<std::string*> *>(params);
-			infoText1->SetText(*p->Param);
-			break;
-		}
-		case RENDERER_SET_INFOTEXT_TOPRIGHT: {
-			TypeParam<std::string*> *p = dynamic_cast<TypeParam<std::string*> *>(params);
-			infoTextTopRight->SetText(*p->Param);
-			break;
-		}
 		default:
 			break;
     }
@@ -524,7 +435,7 @@ void Renderer::notify(EventName eventName, Param* params) {
 
 void Renderer::DrawUITree() {
     transparentList.clear();
-    traverseChild(uim->Root());
+    traverseChild(UIManager::Root());
 
     for (UIComponent *t : transparentList) {
         DrawUIRenderable(t);
@@ -546,11 +457,9 @@ void Renderer::traverseChild(UIComponent *component) {
 }
 
 Renderer::Renderer() {
-	EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
+    EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
-	EventManager::subscribe(RENDERER_SET_INFOTEXT, this);	//ui element to display info 
-	EventManager::subscribe(RENDERER_SET_INFOTEXT_TOPRIGHT, this); //ui element to display data regarding player turn/team/hp
 }
 
 Renderer::~Renderer() {

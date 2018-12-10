@@ -1,4 +1,6 @@
 #include "PlayerManager.h"
+#include "UIManager.h"
+#include "TextComponent.h"
 
 PlayerManager * PlayerManager::instance = NULL;
 
@@ -157,9 +159,11 @@ void PlayerManager::UpdatePlayerUI() {
 			info += " Has won!";
 		}
 
-		TypeParam<std::string*> param(&info);
-		EventManager::notify(RENDERER_SET_INFOTEXT_TOPRIGHT, &param, false);
-
+        UIComponent *topRightInfo = UIManager::GetComponentById("rText");
+        if (topRightInfo != nullptr) {
+            TextComponent *trText = dynamic_cast<TextComponent*>(topRightInfo);
+            trText->SetText(info);
+        }
 	}
 }
 
