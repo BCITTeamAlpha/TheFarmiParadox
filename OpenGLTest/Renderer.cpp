@@ -10,9 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader.h"
-#include "TextComponent.h"
-#include "ImageComponent.h"
 
 enum {
 	UNIFORM_MODEL_MATRIX,
@@ -391,7 +388,7 @@ void Renderer::traverseChild(UIComponent *component) {
 }
 
 Renderer::Renderer() {
-	EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
+    EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
 }

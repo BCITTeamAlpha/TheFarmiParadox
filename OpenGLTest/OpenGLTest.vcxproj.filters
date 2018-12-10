@@ -99,10 +99,10 @@
     <ClCompile Include="PlayerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bulleto.cpp">
+    <ClCompile Include="HackjobBulletManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BulletoManager.cpp">
+    <ClCompile Include="HackjobBullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -208,10 +208,10 @@
     <ClInclude Include="PlayerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Bulleto.h">
+    <ClInclude Include="HackjobBullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BulletoManager.h">
+    <ClInclude Include="HackjobBulletManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

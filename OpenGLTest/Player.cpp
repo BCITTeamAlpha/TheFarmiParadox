@@ -2,6 +2,8 @@
 
 Player::Player()
 {
+	PLAYER_COUNT++;
+	playerID = PLAYER_COUNT; //assign a player id to each player
 	curChar = 0;
 	//chars = std::vector<Character *>();
 	weaps = new Inventory();
@@ -10,6 +12,10 @@ Player::Player()
 void Player::addCharacter(Character *c)
 {
 	chars.push_back(c);
+}
+
+Character* Player::getFirstCharacter() {
+	return chars[0];
 }
 
 void Player::addItem(Pickup item)

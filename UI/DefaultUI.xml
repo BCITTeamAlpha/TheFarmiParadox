@@ -8,6 +8,7 @@
   <component id="rBox" width="21.9%" height="100%" color="246DC2" anchor="top right">
     <component id="rBoxInner" width="90%" height="96%" color="3B86DB" anchor="center center">
       <text id="rText" size="64" anchor="top center" color="FFFFFF">K E K</text>
+      <text id="rInfoText" size="30" anchor="bottom center" color="FFFFFF" offset="0 100px"></text>
       <component id="hideButton" width="90%" height="50px" anchor="bottom center" offset="0 10px" color="2C2F33" onclick="toggleKaren">
         <text id="btnTex" size="40" anchor="center center" color="FFFFFF">Hide</text>
       </component>

@@ -266,6 +266,9 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
     } else if (type == "text") {
         const XMLAttribute *size = element->FindAttribute("size");
         const char *text = element->GetText();
+        if (text == nullptr) {
+            text = "";
+        }
 
         col = {1.0, 1.0, 1.0, 1.0};
 
