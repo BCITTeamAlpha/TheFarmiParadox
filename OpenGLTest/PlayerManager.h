@@ -23,7 +23,11 @@ public:
 	void AddPlayer(Player *player);
 
 	void RemovePlayer(int playerID);
+
+	int SecondsRemaining();
+
 	Player* GetCurrentPlayer();
+
 	void UpdatePlayerUI();
 
 	virtual void notify(EventName eventName, Param *params) override;
@@ -31,8 +35,10 @@ public:
 
 	int actionsTaken = 0;
 	int maxActionsPerTurn = 5;
+	int moveTime = 20;
+	int aimTime = 10;
 private:
 	int currentPlayerIndex;
 	size_t turnStage;
-
+	float timeElapsed;
 };
