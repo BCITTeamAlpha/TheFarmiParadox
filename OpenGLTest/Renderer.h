@@ -72,8 +72,5 @@ class Renderer : public ISubscriber {
 		GLuint shadowProgram, depthMap, depthMapFBO;
 		GLuint uiProgram;
 
-		TextComponent *infoText1; //used by BulletoManager to display when someone has been hit
-		TextComponent *infoTextTopRight; //display player turn and team
         UIManager *uim;
-
 };
