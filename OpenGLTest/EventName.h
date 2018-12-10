@@ -6,6 +6,8 @@ enum EventName {
 	RENDERER_ADD_TO_RENDERABLES,
     RENDERER_ADD_TO_UIRENDERABLES, // Tell renderer to add renderable to list
     RENDERER_POPULATE_BUFFERS, // Tell renderer to repopulate buffers for a renderable
+	RENDERER_SET_INFOTEXT, //a way to update the ui text labels created in Renderer.cpp
+	RENDERER_SET_INFOTEXT_TOPRIGHT,
     UI_CLICK, // Clicked on screen
 	PLAYER_JUMP,   // Used to trigger a player movement event
 	PLAYER_LEFT,

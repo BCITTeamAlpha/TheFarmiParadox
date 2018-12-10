@@ -10,9 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader.h"
-#include "TextComponent.h"
-#include "ImageComponent.h"
 
 enum {
 	UNIFORM_MODEL_MATRIX,
@@ -339,11 +336,19 @@ int Renderer::RenderLoop() {
     lText.hAnchor = ANCHOR_HCENTER;
     lText.color = { 1,1,1,1 };
 
-    TextComponent rText("K E K", 64, 0, 0);
+    TextComponent rText("K E K", 20, 0, 0);
 	rText.id = "rText";
     rText.vAnchor = ANCHOR_TOP;
     rText.hAnchor = ANCHOR_HCENTER;
     rText.color = { 1,1,1,1 };
+	infoTextTopRight = &rText;
+
+	TextComponent rInfoText1("", 30, 0, 100); 
+	rInfoText1.id = "rText";
+	rInfoText1.vAnchor = ANCHOR_BOTTOM;
+	rInfoText1.hAnchor = ANCHOR_HCENTER;
+	rInfoText1.color = { 1,1,1,1 };
+	infoText1 = &rInfoText1;
 
 	UIComponent hideButton(90, 50, 0, 10);
 	hideButton.id = "hideButton";
@@ -375,6 +380,7 @@ int Renderer::RenderLoop() {
     lBoxInner.Add(&lText);
     lBoxInner.Add(&imageTest);
     rBoxInner.Add(&rText);
+	rBoxInner.Add(&rInfoText1);
 	rBoxInner.Add(&hideButton);
 
     lBox.Add(&lBoxInner);
@@ -432,6 +438,16 @@ void Renderer::notify(EventName eventName, Param* params) {
 			PopulateBuffers(p->Param);
 			break;
 		}
+		case RENDERER_SET_INFOTEXT: { //some duplication here 
+			TypeParam<std::string*> *p = dynamic_cast<TypeParam<std::string*> *>(params);
+			infoText1->SetText(*p->Param);
+			break;
+		}
+		case RENDERER_SET_INFOTEXT_TOPRIGHT: {
+			TypeParam<std::string*> *p = dynamic_cast<TypeParam<std::string*> *>(params);
+			infoTextTopRight->SetText(*p->Param);
+			break;
+		}
 		default:
 			break;
     }
@@ -464,6 +480,8 @@ Renderer::Renderer() {
 	EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+	EventManager::subscribe(RENDERER_SET_INFOTEXT, this);	//ui element to display info 
+	EventManager::subscribe(RENDERER_SET_INFOTEXT_TOPRIGHT, this); //ui element to display data regarding player turn/team/hp
 }
 
 Renderer::~Renderer() {
