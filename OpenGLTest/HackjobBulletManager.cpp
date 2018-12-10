@@ -1,4 +1,6 @@
 #include "HackjobBulletManager.h"
+#include "UIManager.h"
+#include "TextComponent.h"
 
 
 HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map* map) {
@@ -9,9 +11,10 @@ HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, Physics
 }
 
 void HackjobBulletManager::SetInfoText(std::string info) { //this doesn't work (crashes) if called in Main
-	TypeParam<std::string*> param(&info);
-	EventManager::notify(RENDERER_SET_INFOTEXT, &param, false);
-
+    TextComponent *infoText = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rInfoText"));
+    if (infoText != nullptr) {
+        infoText->SetText(info);
+    }
 }
 
 void HackjobBulletManager::UpdateBullet() {
