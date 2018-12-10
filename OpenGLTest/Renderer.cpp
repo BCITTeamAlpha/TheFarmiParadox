@@ -15,14 +15,19 @@ enum {
 	UNIFORM_MODEL_MATRIX,
 	UNIFORM_VIEW_MATRIX,
 	UNIFORM_PROJECTION_MATRIX,
+	UNIFORM_LIGHTSPACE_MATRIX,
 	UNIFORM_MATERIAL_COLOR,
 	UNIFORM_MATERIAL_FULLBRIGHT,
 	UNIFORM_MATERIAL_ROUGHNESS,
 	UNIFORM_MATERIAL_METALLIC,
 	UNIFORM_MATERIAL_F0,
+	UNIFORM_AMBIENT_COLOR,
 	UNIFORM_LIGHT_COLOR,
 	UNIFORM_LIGHT_BRIGHTNESS,
 	UNIFORM_LIGHT_POSITION,
+	UNIFORM_SHADOWMAP_SAMPLER,
+	UNIFORM_SHADOW_MODEL_MATRIX,
+	UNIFORM_SHADOW_LIGHTSPACE_MATRIX,
 	UNIFORM_UI_VIEWPROJECTION_MATRIX,
 	UNIFORM_UI_MODEL_MATRIX,
 	UNIFORM_UI_MATERIAL_COLOR,
@@ -42,6 +47,7 @@ void Renderer::DrawRenderable(std::shared_ptr<Renderable> renderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, renderable->texture.loc);
 
 	glm::mat4 m = glm::mat4(1.0);
@@ -61,6 +67,24 @@ void Renderer::DrawRenderable(std::shared_ptr<Renderable> renderable) {
 	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
 }
 
+void Renderer::DrawRenderable_ShadowMap(std::shared_ptr<Renderable> renderable) {
+	glBindBuffer(GL_ARRAY_BUFFER, renderable->model.positionLoc);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderable->model.elementLoc);
+
+	glm::mat4 m = glm::mat4(1.0);
+	m = glm::translate(m, renderable->getPosition3());
+	m = glm::rotate(m, renderable->rotation.z * (float)M_PI / 180.0f, glm::vec3(0, 0, 1));
+	m = glm::rotate(m, renderable->rotation.y * (float)M_PI / 180.0f, glm::vec3(0, 1, 0));
+	m = glm::rotate(m, renderable->rotation.x * (float)M_PI / 180.0f, glm::vec3(1, 0, 0));
+	m = glm::scale(m, renderable->scale);
+
+	glUniformMatrix4fv(uniforms[UNIFORM_SHADOW_MODEL_MATRIX], 1, GL_FALSE, glm::value_ptr(m));
+
+	glDrawElements(GL_TRIANGLES, renderable->model.elements.size(), GL_UNSIGNED_INT, (void*)0);
+}
+
 void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
@@ -70,6 +94,7 @@ void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, UIrenderable->model.elementLoc);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, UIrenderable->texture.loc);
 
 	glm::mat4 m = glm::mat4(1.0);
@@ -86,28 +111,50 @@ void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
 }
 
 void Renderer::draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// draw shadow stuff
+	glm::mat4 light_view = glm::lookAt(
+		light_position,
+		light_target,
+		glm::vec3(0, 1, 0)
+	);
+	glm::mat4 light_projection = glm::perspective(light_FOV * (float)M_PI / 180.0f, 1.0f, light_nearclip, light_farclip);
+	glm::mat4 light_viewProjection = light_projection * light_view;
+	glUseProgram(shadowProgram);
+	glUniformMatrix4fv(uniforms[UNIFORM_SHADOW_LIGHTSPACE_MATRIX], 1, GL_FALSE, glm::value_ptr(light_viewProjection));
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT);
+	for (auto renderable : renderables) {
+		DrawRenderable_ShadowMap(renderable);
+	}
 
 	// draw 3d stuff
+	glm::mat4 view = glm::translate(glm::mat4(1.0), -cameraPosition);
+	glm::mat4 projection = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
+	glm::vec3 lightPos = view * glm::vec4(light_position, 1.0f);
 	glUseProgram(mainProgram);
-	glm::mat4 v = glm::translate(glm::mat4(1.0), -cameraPosition);
-	glm::mat4 p = glm::perspective(cameraFOV * (float)M_PI / 180.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, nearClip, farClip);
-	glm::vec3 lightPosition = v * glm::vec4(cameraPosition.x, cameraPosition.y, 20.0, 1.0f);
-
-	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(v));
-	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(p));
-	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(glm::vec3(1.0f, 1.0f, 1.0f))));
-	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], 800.0f);
-	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPosition));
-
+	glUniformMatrix4fv(uniforms[UNIFORM_VIEW_MATRIX], 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(uniforms[UNIFORM_PROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(uniforms[UNIFORM_LIGHTSPACE_MATRIX], 1, GL_FALSE, glm::value_ptr(light_viewProjection));
+	glUniform3fv(uniforms[UNIFORM_AMBIENT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(ambient_color)));
+	glUniform3fv(uniforms[UNIFORM_LIGHT_COLOR], 1, glm::value_ptr(glm::convertSRGBToLinear(light_color)));
+	glUniform1f(uniforms[UNIFORM_LIGHT_BRIGHTNESS], light_brightness);
+	glUniform3fv(uniforms[UNIFORM_LIGHT_POSITION], 1, glm::value_ptr(lightPos));
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glViewport(0, 0, WIDTH, HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_BACK);
 	for (auto renderable : renderables) {
 		DrawRenderable(renderable);
 	}
 
 	// draw 2d stuff
 	glUseProgram(uiProgram);
-	glm::mat4 ortho = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
-	glUniformMatrix4fv(uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(ortho));
+	glm::mat4 ui_viewProjection = glm::ortho(0.0f, (GLfloat)WIDTH, 0.0f, (GLfloat)HEIGHT, -100.0f, 100.0f);
+	glUniformMatrix4fv(uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX], 1, GL_FALSE, glm::value_ptr(ui_viewProjection));
     DrawUITree();
 }
 
@@ -249,11 +296,9 @@ int Renderer::RenderLoop() {
 	glDebugMessageCallback(MessageCallback, 0);
 	glEnable(GL_DEBUG_OUTPUT);
 
-	//Create the viewport
-	glViewport(0, 0, scrnWidth, scrnHeight);
-
-	CreateShaderProgram(mainProgram, "./VertexShader", "./FragmentShader");
-	CreateShaderProgram(uiProgram, "./VertexShader2", "./FragmentShader2");
+	CreateShaderProgram(mainProgram, "./Standard", "./Standard");
+	CreateShaderProgram(shadowProgram, "./ShadowMap", "./ShadowMap");
+	CreateShaderProgram(uiProgram, "./UI", "./UI");
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -262,22 +307,48 @@ int Renderer::RenderLoop() {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
+	// shadow stuff
+	glGenFramebuffers(1, &depthMapFBO);
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
 	// uniforms for 3d stuff
 	uniforms[UNIFORM_MODEL_MATRIX] = glGetUniformLocation(mainProgram, "model");
 	uniforms[UNIFORM_VIEW_MATRIX] = glGetUniformLocation(mainProgram, "view");
 	uniforms[UNIFORM_PROJECTION_MATRIX] = glGetUniformLocation(mainProgram, "projection");
+	uniforms[UNIFORM_LIGHTSPACE_MATRIX] = glGetUniformLocation(mainProgram, "lightSpace");
 	uniforms[UNIFORM_MATERIAL_FULLBRIGHT] = glGetUniformLocation(mainProgram, "u_fullBright");
 	uniforms[UNIFORM_MATERIAL_COLOR] = glGetUniformLocation(mainProgram, "u_color");
 	uniforms[UNIFORM_MATERIAL_ROUGHNESS] = glGetUniformLocation(mainProgram, "u_roughness");
 	uniforms[UNIFORM_MATERIAL_METALLIC] = glGetUniformLocation(mainProgram, "u_metallic");
 	uniforms[UNIFORM_MATERIAL_F0] = glGetUniformLocation(mainProgram, "u_f0");
+	uniforms[UNIFORM_SHADOWMAP_SAMPLER] = glGetUniformLocation(mainProgram, "u_shadowMapSampler");
+	uniforms[UNIFORM_AMBIENT_COLOR] = glGetUniformLocation(mainProgram, "u_ambientColor");
 	uniforms[UNIFORM_LIGHT_POSITION] = glGetUniformLocation(mainProgram, "u_lightPosition");
 	uniforms[UNIFORM_LIGHT_BRIGHTNESS] = glGetUniformLocation(mainProgram, "u_lightBrightness");
 	uniforms[UNIFORM_LIGHT_COLOR] = glGetUniformLocation(mainProgram, "u_lightColor");
+	// uniforms for shadow mapping
+	uniforms[UNIFORM_SHADOW_MODEL_MATRIX] = glGetUniformLocation(shadowProgram, "model");
+	uniforms[UNIFORM_SHADOW_LIGHTSPACE_MATRIX] = glGetUniformLocation(shadowProgram, "viewProjection");
 	// uniforms for 2d stuff
 	uniforms[UNIFORM_UI_MODEL_MATRIX] = glGetUniformLocation(uiProgram, "model");
 	uniforms[UNIFORM_UI_VIEWPROJECTION_MATRIX] = glGetUniformLocation(uiProgram, "viewProjection");
 	uniforms[UNIFORM_UI_MATERIAL_COLOR] = glGetUniformLocation(uiProgram, "u_color");
+
+	glUseProgram(mainProgram);
+	// binds UNIFORM_SHADOWMAP_SAMPLER to GL_TEXTURE1
+	glUniform1i(uniforms[UNIFORM_SHADOWMAP_SAMPLER], 1);
 
 	// wireframe mode if we want to enable it for debugging
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -288,9 +359,7 @@ int Renderer::RenderLoop() {
 	// don't draw polygons if they are behind other polygons
 	glEnable(GL_DEPTH_TEST);
 
-	// don't draw polygons if they are facing away from the camera
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 
 	// use alpha for transperancy
 	glEnable(GL_BLEND);

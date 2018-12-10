@@ -29,6 +29,16 @@ class Renderer : public ISubscriber {
 		GLfloat cameraFOV = 90.0f;
 		GLfloat nearClip = 0.1f;
 		GLfloat farClip = 1000.0f;
+
+		glm::vec3 ambient_color = { 0.1, 0.1, 0.1 };
+
+		glm::vec3 light_position = { 0.0f, 200.0f, 64.0f };
+		glm::vec3 light_target = { 90.0f, 90.0f, 0.0f };
+		glm::vec3 light_color = { 1.0f, 1.0f, 1.0f };
+		GLfloat light_brightness = 40000.0f;
+		GLfloat light_FOV = 60.0f;
+		GLfloat light_nearclip = 0.1f;
+		GLfloat	light_farclip = 1000.0f;
 	private:
 		void draw();
 
@@ -41,6 +51,7 @@ class Renderer : public ISubscriber {
         void AddToUIRenderables(UIComponent * renderable);
 
 		void DrawRenderable(std::shared_ptr<Renderable> renderable);
+		void DrawRenderable_ShadowMap(std::shared_ptr<Renderable> renderable);
         void DrawUIRenderable(UIComponent * renderable);
 
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
@@ -56,6 +67,9 @@ class Renderer : public ISubscriber {
 		const GLuint WIDTH = 1280;
 		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
+		const GLuint SHADOW_WIDTH = 1024;
+		const GLuint SHADOW_HEIGHT = 1024;
+		GLuint shadowProgram, depthMap, depthMapFBO;
 		GLuint uiProgram;
 
 		TextComponent *infoText1; //used by BulletoManager to display when someone has been hit

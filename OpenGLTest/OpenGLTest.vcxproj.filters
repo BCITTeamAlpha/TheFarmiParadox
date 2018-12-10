@@ -107,16 +107,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VertexShader.vsh">
+    <None Include="Standard.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FragmentShader.psh">
+    <None Include="ShadowMap.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="VertexShader2.vsh">
+    <None Include="UI.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FragmentShader2.psh">
+    <None Include="Standard.vsh">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ShadowMap.vsh">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="UI.vsh">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
