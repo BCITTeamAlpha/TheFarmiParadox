@@ -14,6 +14,8 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     yType = UNIT_PERCENT;
     parent = nullptr;
 
+    ClickAction = "";
+
     position = screenPosition;
     rotation = screenRotation;
     z = 0;
