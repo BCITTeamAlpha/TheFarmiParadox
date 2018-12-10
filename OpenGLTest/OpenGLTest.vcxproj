@@ -128,10 +128,12 @@
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.psh" />
-    <None Include="VertexShader.vsh" />
-    <None Include="FragmentShader2.psh" />
-    <None Include="VertexShader2.vsh" />
+    <None Include="Standard.psh" />
+    <None Include="Standard.vsh" />
+    <None Include="ShadowMap.psh" />
+    <None Include="ShadowMap.vsh" />
+    <None Include="UI.psh" />
+    <None Include="UI.vsh" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetLoader.h" />
