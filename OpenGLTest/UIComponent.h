@@ -36,6 +36,7 @@ public:
 
 	std::string			id;
     bool                visible;
+	bool				valid;
     glm::vec2           size;
     glm::vec2           anchor;
     VerticalAnchor      vAnchor;
