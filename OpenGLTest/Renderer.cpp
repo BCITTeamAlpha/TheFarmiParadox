@@ -381,10 +381,12 @@ int Renderer::RenderLoop() {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
+		renderables_waitList_mutex.lock();
 		while (renderables_waitList.size() != 0) {
 			AddToRenderables(renderables_waitList.back());
 			renderables_waitList.pop_back();
 		}
+		renderables_waitList_mutex.unlock();
 
 		for (std::shared_ptr<Renderable> &renderable : renderables) {
 			if (renderable.use_count() == 1) {
@@ -413,7 +415,9 @@ void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
 		case RENDERER_ADD_TO_RENDERABLES: {
 			TypeParam<std::shared_ptr<Renderable>> *p = dynamic_cast<TypeParam<std::shared_ptr<Renderable>> *>(params);
+			renderables_waitList_mutex.lock();
 			renderables_waitList.push_back(p->Param);
+			renderables_waitList_mutex.unlock();
 			break;
 		}
 		case RENDERER_ADD_TO_UIRENDERABLES: {
