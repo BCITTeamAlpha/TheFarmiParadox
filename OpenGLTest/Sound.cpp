@@ -91,31 +91,41 @@ void Sound::toggleLooping(ALuint source, bool loop) {
 
 }
 
-//method to read in a file as audio and attach it to a source
-void Sound::bufferData(ALuint buffer, ALuint source, const char * fn) {
+AudioData Sound::getAudioData(const char* fn) {
+    AudioData FileData = AudioData();
 
     //sound data variables
     int channel, sampleRate, bps, size;
-   
+
     //load the wav file
-    char* data = ReadWavFile(fn, channel, sampleRate, bps, size); 
+    char* data = ReadWavFile(fn, channel, sampleRate, bps, size);
     
     //check that we actually got a return from our read attempt
     if (data == NULL) {
         std::cout << "Data was not read correctly for WAV file" << std::endl;
-        return;
+        return FileData;
     }
 
+    FileData.BitsPerSample = bps;
+    FileData.SampleRate = sampleRate;
+    FileData.channel = channel;
+    FileData.size = size;
+    FileData.data = data;
+
+    return FileData;
+}
+
+//method to read in a file as audio and attach it to a source
+void Sound::bufferData(ALuint buffer, ALuint source, AudioData file) {
+
     //determine our format
-    unsigned int format = determineFormat(channel, bps);
+    unsigned int format = determineFormat(file.channel, file.BitsPerSample);
     
     //load in the buffer data
-    alBufferData(buffer, format, data, size, sampleRate);
+    alBufferData(buffer, format, file.data, file.size, file.SampleRate);
 
     //attach buffer to source
     alSourcei(source, AL_BUFFER, buffer);
-
-    delete[] data;
 
 }
 

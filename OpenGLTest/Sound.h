@@ -4,6 +4,19 @@
 #include "Al/al.h"
 #include "Al/alc.h"
 
+class AudioData{
+public:
+    int channel;
+    int BitsPerSample;
+    int size;
+    int SampleRate;
+    char* data;
+    AudioData() {
+        channel = 0; BitsPerSample = 0; size = 0; SampleRate = 0;
+        data = 0;
+    }
+};
+
 class Sound {
 public:
     //methods
@@ -18,7 +31,8 @@ public:
     void makeSource(ALuint* source);
     void placeSource(ALuint source, float x, float y, float z);
     void toggleLooping(ALuint source, bool loop);
-    void bufferData(ALuint buffer, ALuint source, const char * fn);
+    void bufferData(ALuint buffer, ALuint source, AudioData file);
+    AudioData getAudioData(const char* fn);
 
 
     //variables

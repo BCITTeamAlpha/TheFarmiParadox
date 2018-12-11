@@ -13,6 +13,32 @@ SoundManager::SoundManager() {
     soundObject->makeBuffer(&seBuffer);
     soundObject->makeSource(&bgmSource);
     soundObject->makeSource(&seSource);
+    loadAudioData();
+}
+
+void SoundManager::loadAudioData() {
+    //Load Music
+    
+    //load main BGM and store it
+    AudioData temp;
+    temp = soundObject->getAudioData(MAIN_BGM);
+    if (temp.data == NULL) {
+        std::cout << "Main BGM failed to store correctly." << std::endl;
+    }
+    Music.insert(std::pair<TrackList,AudioData>(MainBGM, temp));
+    //load menu BGM
+    temp = soundObject->getAudioData(MENU_BGM);
+    if (temp.data == NULL) {
+        std::cout << "Menu BGM failed to store correctly." << std::endl;
+    }
+    Music.insert(std::pair<TrackList, AudioData>(MenuBGM, temp));
+
+    //Load Sounds
+    temp = soundObject->getAudioData(JUMP);
+    if (temp.data == NULL) {
+        std::cout << "Jump SE failed to store correctly." << std::endl;
+    }
+    SoundEffects.insert(std::pair<SoundsList, AudioData>(Jump, temp));
 }
 
 SoundManager::~SoundManager() {
@@ -27,13 +53,13 @@ void SoundManager::playSong(TrackList track, float x, float y, float z) {
 
     switch (track){
         case MainBGM:
-            soundObject->bufferData(bgmBuffer, bgmSource, MAIN_BGM);
+            soundObject->bufferData(bgmBuffer, bgmSource, Music.find(MainBGM)->second);
             soundObject->toggleLooping(bgmSource, true);
             soundObject->placeSource(bgmSource, x, y, z);
             soundObject->PlayAudio(bgmSource);
             break;
         case MenuBGM:
-            soundObject->bufferData(bgmBuffer, bgmSource, MENU_BGM);
+            soundObject->bufferData(bgmBuffer, bgmSource, Music.find(MenuBGM)->second);
             soundObject->toggleLooping(bgmSource, true);
             soundObject->placeSource(bgmSource, x, y, z);
             soundObject->PlayAudio(bgmSource);
@@ -51,7 +77,7 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
 
     switch (soundEffect) {
     case Jump:
-        soundObject->bufferData(seBuffer, seSource, JUMP);
+        soundObject->bufferData(seBuffer, seSource, SoundEffects.find(Jump)->second);
         soundObject->toggleLooping(seSource, false);
         soundObject->placeSource(seSource, x, y, z);
         soundObject->PlayAudio(seSource);
