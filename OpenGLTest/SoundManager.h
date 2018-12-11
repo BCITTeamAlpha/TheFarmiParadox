@@ -2,6 +2,7 @@
 //has Sounds; created by main
 #include "Sound.h"
 #include "EventManager.h"
+#include <unordered_map>
 
 //for referencing songs
 enum TrackList
@@ -27,6 +28,7 @@ struct SoundParams {
     float z;
 };
 
+//actual Manager class
 class SoundManager : public ISubscriber {
 public:
 	SoundManager();
@@ -37,9 +39,12 @@ public:
     void ISubscriber::notify(EventName eventName, Param* param);
 
 private:
+    void loadAudioData();
     ALuint bgmBuffer;
     ALuint bgmSource;
     ALuint seBuffer;
     ALuint seSource;
     Sound* soundObject;
+    std::unordered_map<TrackList, AudioData> Music;
+    std::unordered_map<SoundsList, AudioData> SoundEffects;
 };
