@@ -62,6 +62,7 @@ class Renderer : public ISubscriber {
 
         std::list<UIComponent*> transparentList;
 
+		std::mutex renderables_waitList_mutex;
 		std::list<std::shared_ptr<Renderable>> renderables_waitList;
 		std::list<std::shared_ptr<Renderable>> renderables;
 		const GLuint WIDTH = 1280;
