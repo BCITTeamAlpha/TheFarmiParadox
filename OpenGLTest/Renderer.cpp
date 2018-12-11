@@ -85,6 +85,9 @@ void Renderer::DrawRenderable_ShadowMap(std::shared_ptr<Renderable> renderable) 
 }
 
 void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
+	if (!UIrenderable->valid)
+		UIrenderable->Resize();
+
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
