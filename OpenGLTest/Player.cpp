@@ -1,5 +1,7 @@
 #include "Player.h"
 
+int Player::PLAYER_COUNT = 0;
+
 Player::Player()
 {
 	PLAYER_COUNT++;

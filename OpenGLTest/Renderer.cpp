@@ -10,7 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 enum {
 	UNIFORM_MODEL_MATRIX,
 	UNIFORM_VIEW_MATRIX,
@@ -374,10 +373,6 @@ int Renderer::RenderLoop() {
 	cv.notify_all();
 
     uim = new UIManager(WIDTH, HEIGHT);
-    UIManager::DefineClickFunction("toggleKaren", []() {
-        UIComponent *karen = UIManager::GetComponentById("Karen");
-        karen->visible = !karen->visible;
-    });
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
@@ -423,11 +418,18 @@ void Renderer::notify(EventName eventName, Param* params) {
 			AddToUIRenderables(p->Param);
 			break;
 		}
-		case RENDERER_POPULATE_BUFFERS: {
-			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-			PopulateBuffers(p->Param);
-			break;
-		}
+        case RENDERER_POPULATE_BUFFERS: {
+            TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+            PopulateBuffers(p->Param);
+            break;
+        }
+        case RENDERER_SET_CAMERA: {
+            TypeParam<glm::vec3> *p = dynamic_cast<TypeParam<glm::vec3> *>(params);
+            glm::vec3 pos = p->Param;
+            cameraPosition = pos;
+            cameraPosition.z /= std::tan(cameraFOV * M_PI / 360.0f);
+            break;
+        }
 		default:
 			break;
     }
@@ -440,18 +442,24 @@ void Renderer::DrawUITree() {
     for (UIComponent *t : transparentList) {
         DrawUIRenderable(t);
     }
+
+    UIComponent* black = UIManager::GetComponentById("BlackOverlay");
+    if (black != nullptr && black->visible)
+        DrawUIRenderable(black);
 }
 
 void Renderer::traverseChild(UIComponent *component) {
-    if (component->IsTransparent()) {
-        transparentList.push_back(component);
-    } else {
-        DrawUIRenderable(component);
-    }
+    if (component != nullptr && component->id != "BlackOverlay") {
+        if (component->IsTransparent()) {
+            transparentList.push_back(component);
+        } else {
+            DrawUIRenderable(component);
+        }
 
-    for (UIComponent *child : component->children) {
-        if (child->visible) {
-            traverseChild(child);
+        for (UIComponent *child : component->children) {
+            if (child->visible) {
+                traverseChild(child);
+            }
         }
     }
 }
@@ -460,6 +468,7 @@ Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+    EventManager::subscribe(RENDERER_SET_CAMERA, this);
 }
 
 Renderer::~Renderer() {

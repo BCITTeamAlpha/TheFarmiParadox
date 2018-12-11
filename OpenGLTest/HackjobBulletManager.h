@@ -10,7 +10,7 @@
 #include <vector>
 
 //This is a class that manages bullet projectiles 
-class HackjobBulletManager {
+class HackjobBulletManager : public ISubscriber {
 
 public:
 
@@ -18,6 +18,8 @@ public:
 	void UpdateBullet();
 	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
 	void SetInfoText(std::string info);
+
+    void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
 
 private:
 	PhysicsManager *physics;

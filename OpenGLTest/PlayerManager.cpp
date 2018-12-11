@@ -10,6 +10,13 @@ PlayerManager::PlayerManager()
 	currentPlayerIndex = 0;
 	turnStage = 0; //moving, aiming, firing
 	timeElapsed = 0;
+
+    EventManager::subscribe(PLAYER_LEFT, this);
+    EventManager::subscribe(PLAYER_RIGHT, this);
+    EventManager::subscribe(PLAYER_JUMP, this);
+    EventManager::subscribe(AIM_LEFT, this);
+    EventManager::subscribe(AIM_RIGHT, this);
+    EventManager::subscribe(PLAYER_FIRE, this);
 }
 
 
@@ -175,10 +182,9 @@ void PlayerManager::UpdatePlayerUI() {
 			info += " Has won!";
 		}
 
-        UIComponent *topRightInfo = UIManager::GetComponentById("rText");
+        TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
         if (topRightInfo != nullptr) {
-            TextComponent *trText = dynamic_cast<TextComponent*>(topRightInfo);
-            trText->SetText(info);
+            topRightInfo->SetText(info);
         }
 	}
 }
@@ -195,6 +201,7 @@ void PlayerManager::notify(EventName eventName, Param *params)
 		{
 			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->moveLeft(p->Param);
+            actionsTaken++;
 		}
 		break;
 	}
@@ -204,6 +211,7 @@ void PlayerManager::notify(EventName eventName, Param *params)
 		{
 			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->moveRight(p->Param);
+            actionsTaken++;
 		}
 		break;
 	}
@@ -213,19 +221,24 @@ void PlayerManager::notify(EventName eventName, Param *params)
 		{
 			if (actionsTaken > maxActionsPerTurn && p->Param) return;
 			players[currentPlayerIndex]->jump(p->Param);
+            actionsTaken++;
 		}
 		break;
 	}
 	case AIM_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr && turnStage == 1)
-			players[currentPlayerIndex]->setAimLeft(p->Param);
+        if (p != nullptr && turnStage == 1) {
+            players[currentPlayerIndex]->setAimLeft(p->Param);
+            actionsTaken++;
+        }
 		break;
 	}
 	case AIM_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr && turnStage == 1)
-			players[currentPlayerIndex]->setAimRight(p->Param);
+        if (p != nullptr && turnStage == 1) {
+            players[currentPlayerIndex]->setAimRight(p->Param);
+            actionsTaken++;
+        }
 		break;
 	}
 	case PLAYER_FIRE: {
