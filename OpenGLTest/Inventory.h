@@ -19,9 +19,8 @@ public:
 	void emptySlot();
 	void addItem(Pickup item);
 	void useWeapon();
-	void angleWeapon(float dAngle);
 	Weapon* curWeapon();
+	float angle;
 private:
 	const int capacity = 5;
-	float angle;
 };

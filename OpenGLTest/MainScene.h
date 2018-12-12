@@ -21,6 +21,7 @@ private:
     HackjobBulletManager *_bulletoManager;
 	PickupManager *_pickupManager;
     GameObject *_background;
+	GameObject *_aimIndicator;
 
     std::vector<Planetoid> _planets;
 	std::vector<Core> _cores;

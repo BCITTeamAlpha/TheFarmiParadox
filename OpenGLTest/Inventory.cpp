@@ -86,18 +86,6 @@ void Inventory::useWeapon()
 		emptySlot();
 }
 
-void Inventory::angleWeapon(float dAngle)
-{
-	angle += dAngle;
-
-	std::cout << "Weapon Angle = " << angle / 3.14 * 180 << " degrees" << std::endl;
-
-	if (angle >= 6.28)
-		angle -= 6.28;
-	else if (angle <= -6.28)
-		angle += 6.28;
-}
-
 Weapon* Inventory::curWeapon()
 {
 	return _slots[currentSlot];
