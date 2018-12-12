@@ -1,7 +1,7 @@
 #pragma once
 //for referencing songs
 enum TrackList {
-    MainBGM, MenuBGM
+    MainBGM, MenuBGM, WelcomeBGM
 };
 
 

@@ -135,6 +135,7 @@ int main() {
     noise = new SoundManager();
     EventManager::subscribe(PLAY_SONG, noise);
     EventManager::subscribe(PLAY_SOUND, noise);
+    EventManager::subscribe(GAME_START, noise);
 
     //start initial music track
     TrackParams * initial = new TrackParams();

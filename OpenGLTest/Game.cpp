@@ -7,7 +7,7 @@ Game::Game() {
     _currScene = new MenuScene();
     _currScene->InitScene();
 
-    EventManager::subscribe(GAME_START, this);
+    EventManager::subscribe(SOUND_COMPLETE, this);
 }
 
 Game::~Game() {
@@ -17,7 +17,7 @@ Game::~Game() {
 
 void Game::notify(EventName eventName, Param *params) {
     switch (eventName) {
-    case GAME_START:
+    case SOUND_COMPLETE:
         Transition(new MainScene());
         break;
     default:
