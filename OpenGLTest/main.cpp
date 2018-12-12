@@ -72,17 +72,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
             
-            //SoundParams * JumpNoise = new SoundParams();
-
-            //JumpNoise->sound = Jump;
-
-            //JumpNoise->x = 0;
-            //JumpNoise->y = 0;
-            //JumpNoise->z = 0;
-
-            //TypeParam<SoundParams*> jumpSound(JumpNoise);
-            //EventManager::notify(PLAY_SOUND, &jumpSound);
-            noise->playSound(Jump, 0, 0, 0);
 		}
 		break;
 	case GLFW_KEY_F:
@@ -125,7 +114,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 int main() {
-	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::unique_lock<std::mutex> lck(mtx);
