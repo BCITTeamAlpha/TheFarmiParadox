@@ -111,8 +111,8 @@ void MainScene::InitScene() {
 		player->playerID = playerID++;
 
 		//set up a test pickup to give the player weapons
-		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+		Pickup pickup1 = Pickup(new Weapon("Pistol", 8, 100, 4, 40));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 16, 30));
 
 		player->addItem(pickup1);
 		player->addItem(pickup2);
@@ -152,7 +152,7 @@ void MainScene::InitScene() {
 
     _map->explosion(Planetoid(184, 117, 8));
 
-    _bulletoManager = new HackjobBulletManager(_playerManager, _physics, _map); //initializes bullet manager
+    _bulletoManager = new HackjobBulletManager(_physics, _map); //initializes bullet manager
 	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 

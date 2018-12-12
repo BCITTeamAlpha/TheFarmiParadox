@@ -8,12 +8,16 @@ PickupManager::PickupManager(PlayerManager *playerManager, PhysicsManager *physi
 	pickupList = std::vector<Pickup*>();
 	weapons = std::vector<Weapon>();
 	
-	Weapon weap1 = Weapon("Pistol", 8, 10);
-	Weapon weap2 = Weapon("Rifle", 5, 20);
-	Weapon weap3 = Weapon("Shotgun", 3, 30);
+	Weapon weap1 = Weapon("Pistol", 8, 100, 4, 40);
+	Weapon weap2 = Weapon("Rifle", 5, 200, 6, 50);
+	Weapon weap3 = Weapon("Shotgun", 3, 300, 8, 40);
+	Weapon weap4 = Weapon("Rocket Launcher", 2, 200, 12, 40);
+	Weapon weap5 = Weapon("Grenade", 1, 100, 14, 30);
 	weapons.push_back(weap1);
 	weapons.push_back(weap2);
 	weapons.push_back(weap3);
+	weapons.push_back(weap4);
+	weapons.push_back(weap5);
 
 	EventManager::subscribe(PICKUP_SPAWN, this);
 }
@@ -30,8 +34,8 @@ void PickupManager::updatePickup() {
 			Character *character = playerManager->instance->players[j]->getCurrentCharacter();
 
 			// Checks every weapon inside the Player's Inventory
-			for (int n = 0; n < playerManager->instance->players[j]->getWeapons()._slots.size(); n++) {
-				Weapon *weapon = playerManager->instance->players[j]->getWeapons()._slots[n];
+			for (int n = 0; n < playerManager->instance->players[j]->getWeapons()->_slots.size(); n++) {
+				Weapon *weapon = playerManager->instance->players[j]->getWeapons()->_slots[n];
 
 				// If pickup collides with a player and they do not have the pickup in their inventory
 				if (pickup->colliding_with_player(character->get_position())) {
