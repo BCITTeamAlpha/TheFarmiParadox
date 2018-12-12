@@ -42,7 +42,8 @@ void PickupManager::updatePickup() {
 					if (pickup->pickedUp()->_name == weapon->_name) {
 
 						// Adds pickup's ammo to players weapon ammo
-						weapon->_charges += pickup->pickedUp()->_charges; pickup->renderable = NULL;
+						weapon->_charges += pickup->pickedUp()->_charges;
+						pickup->renderable = NULL;
 						pickupList.erase(pickupList.begin() + i);
 						removed = true;
 						break;

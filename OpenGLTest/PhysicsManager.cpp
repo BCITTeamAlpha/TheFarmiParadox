@@ -117,10 +117,6 @@ void PhysicsManager::calcPhysics(float dTime)
 					character->renderable = NULL;
 					int playerToBeRemovedID = character->playerID;
 					PlayerManager::instance->players[j]->RemoveCharacter(k);
-
-					if (PlayerManager::instance->players[j]->chars.size() == 0) {
-						PlayerManager::instance->RemovePlayer(playerToBeRemovedID);
-					}
 				}
 			}
 		}

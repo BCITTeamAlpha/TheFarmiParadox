@@ -88,5 +88,7 @@ void Inventory::useWeapon()
 
 Weapon* Inventory::curWeapon()
 {
+	if (currentSlot >= _slots.size())
+		return nullptr;
 	return _slots[currentSlot];
 }
