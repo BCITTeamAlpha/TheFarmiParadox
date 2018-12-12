@@ -102,8 +102,11 @@ void MainScene::InitScene() {
 	*/
 
     _models.push_back("../Models/Cat.obj");
-    _models.push_back("../Models/Cow.obj");
     _models.push_back("../Models/Chick.obj");
+    _models.push_back("../Models/Cow.obj");
+    _models.push_back("../Models/Dolphin.obj");
+    _models.push_back("../Models/Pug.obj");
+    _models.push_back("../Models/Red Fox.obj");
     _models.push_back("../Models/Slime.obj");
 
     //create players

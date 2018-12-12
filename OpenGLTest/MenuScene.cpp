@@ -1,23 +1,27 @@
 #include "MenuScene.h"
 #include "Planetoid.h"
 #include "Map.h"
+#include "TextComponent.h"
 
 void MenuScene::InitScene() {
+    EventManager::subscribe(MENU_MODEL_NEXT, this);
+    EventManager::subscribe(MENU_MODEL_PREV, this);
+    EventManager::subscribe(MENU_MODEL_SELECT, this);
+    EventManager::subscribe(MENU_SHOW_MODEL, this);
+
     UIComponent *menuUI = UIManager::GetComponentById("MenuScene");
     if (menuUI != nullptr)
         menuUI->visible = true;
 
     _models.push_back(AssetLoader::loadModel("../Models/Cat.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Chick.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Cow.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Dolphin.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Pug.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Red Fox.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Slime.obj"));
 
-    glm::vec4 playerColors[4] = {
-        {0.447, 0.098, 0.745, 1.0}, 
-        {0.922, 0.373, 0, 1.0},
-        {0.047, 0.714, 0.604, 1.0},
-        {0.922, 0.878, 0, 1.0},
-    };
+    _currModel = 0;
 
     int mapWidth = 362, mapHeight = 205;
 
@@ -64,17 +68,20 @@ void MenuScene::InitScene() {
     
     c = new GameObject();
     Renderable *cSkin = new Renderable();
-    cSkin->z = 0;
-    cSkin->model = AssetLoader::loadModel("../Models/Cat.obj");
-    cSkin->color = playerColors[0];
-    cSkin->position = { mapWidth / 2.0f, mapHeight / 2.0f };
-    cSkin->scale = glm::vec3(10.0f);
     c->setRenderable(cSkin);
+    cSkin->z = 0;
+    cSkin->model = _models[_currModel];
+    cSkin->color = playerColors[0];
+    cSkin->position = {-mapWidth / 2.0f, -mapHeight / 2.0f };
+    cSkin->scale = glm::vec3(10.0f);
+    cSkin->fullBright = true;
 
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 }
 
 int MenuScene::Update(const float delta) {
+    c->set_rotation(c->get_rotation() + glm::vec3({0, 1, 0}));
+    c->renderable->color = playerColors[_currPlayer];
 	return -1;
 }
 
@@ -85,4 +92,55 @@ void MenuScene::CleanUp() {
 
     delete _background;
     delete c;
+}
+
+void MenuScene::notify(EventName eventName, Param *params) {
+    switch (eventName) {
+    case MENU_MODEL_NEXT: {
+        _currModel++;
+        if (_currModel >= _models.size())
+            _currModel = 0;
+        UIComponent *pModel = UIManager::GetComponentById("dataP" + std::to_string(_currPlayer + 1) + "Model");
+        pModel->size.x = _currModel;
+        c->renderable->model.positions = _models[_currModel].positions;
+        c->renderable->model.normals = _models[_currModel].normals;
+        c->renderable->model.UVs = _models[_currModel].UVs;
+        c->renderable->model.elements = _models[_currModel].elements;
+        c->renderable->invalidated = true;
+        break;
+    }
+    case MENU_MODEL_PREV: {
+        _currModel--;
+        if (_currModel < 0)
+            _currModel = _models.size() - 1;
+        UIComponent *pModel = UIManager::GetComponentById("dataP" + std::to_string(_currPlayer + 1) + "Model");
+        pModel->size.x = _currModel;
+        c->renderable->model.positions = _models[_currModel].positions;
+        c->renderable->model.normals = _models[_currModel].normals;
+        c->renderable->model.UVs = _models[_currModel].UVs;
+        c->renderable->model.elements = _models[_currModel].elements;
+        c->renderable->invalidated = true;
+        break;
+    }
+    case MENU_MODEL_SELECT: {
+        _currPlayer++;
+        UIComponent *data = UIManager::GetComponentById("dataPNum");
+        int numPlayers = data->size.x;
+        TextComponent *playerString = dynamic_cast<TextComponent*>(UIManager::GetComponentById("selectAnimal"));
+        playerString->SetText("Select Player " + std::to_string(_currPlayer + 1) + "'s Animal");
+        if (_currPlayer == numPlayers - 1) {
+            UIComponent *btn = UIManager::GetComponentById("nextPlayerModel");
+            btn->visible = false;
+            btn = UIManager::GetComponentById("startGame");
+            btn->visible = true;
+        }
+        break;
+    }
+    case MENU_SHOW_MODEL: {
+        c->renderable->position *= -1;
+        break;
+    }
+    default:
+        break;
+    }
 }
