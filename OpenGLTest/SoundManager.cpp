@@ -97,12 +97,8 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
     }
     SoundMtx.unlock();
     
-
-    //check if our selected buffer
-    if (soundObject->isPlaying(seSource[selectedBuffer])) {
-        soundObject->PauseAudio(seSource[selectedBuffer]);
-        soundObject->clearBuffer(seBuffer[selectedBuffer], seSource[selectedBuffer]);
-    }
+    soundObject->PauseAudio(seSource[selectedBuffer]);
+    soundObject->clearBuffer(seBuffer[selectedBuffer], seSource[selectedBuffer]);
 
     switch (soundEffect) {
     case Jump:

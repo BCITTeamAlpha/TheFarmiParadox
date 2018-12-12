@@ -5,12 +5,14 @@ const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
 const float ROT_CAP = 700.0f;
+const unsigned int JUMP_SOUND_PERIOD = 29;
 
 PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
 {
 	map = m;
 	planets = p;
 	objects = std::vector<PhysicsObject*>();
+    frames_since_jump_sound = 0;
 }
 
 void PhysicsManager::calcPhysics(float dTime)
@@ -38,19 +40,21 @@ void PhysicsManager::calcPhysics(float dTime)
 			float T_comp = dot(T_acc, vel);
 
 			if (character->jump_input) {
+                if (frames_since_jump_sound > JUMP_SOUND_PERIOD) {
+                    frames_since_jump_sound = 0;
+                    SoundParams * JumpNoise = new SoundParams();
+
+                    JumpNoise->sound = Jump;
+
+                    JumpNoise->x = 0;
+                    JumpNoise->y = 0;
+                    JumpNoise->z = 0;
+
+                    TypeParam<SoundParams*> *jumpSound = new TypeParam<SoundParams*>(JumpNoise);
+                    EventManager::notify(PLAY_SOUND, jumpSound);
+                }
 				player_input = true;
 				N_comp = player_jump_speed;
-                
-                SoundParams * JumpNoise = new SoundParams();
-
-                JumpNoise->sound = Jump;
-
-                JumpNoise->x = 0;
-                JumpNoise->y = 0;
-                JumpNoise->z = 0;
-
-                TypeParam<SoundParams*> *jumpSound = new TypeParam<SoundParams*>(JumpNoise);
-                EventManager::notify(PLAY_SOUND, jumpSound);
 			}
 		   	if (character->left_input || character->right_input) {
 				player_input = true;
@@ -98,6 +102,8 @@ void PhysicsManager::calcPhysics(float dTime)
 		object->velocity = vel;
 		object->grounded = colliding;
 	}
+
+    frames_since_jump_sound++;
 }
 
 //Finds the net force on a given point in space
