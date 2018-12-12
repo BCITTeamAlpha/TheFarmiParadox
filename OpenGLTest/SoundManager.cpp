@@ -1,8 +1,6 @@
 #include "SoundManager.h"
 #include <iostream>
 #include <mutex>
-#include <condition_variable>
-
 //defines for track filenames
 #define MAIN_BGM "../Music/bgm1.wav" 
 #define MENU_BGM "../Music/bgm2.wav"
@@ -12,7 +10,6 @@
 
 //private mutex variables
 std::mutex SoundMtx;
-std::condition_variable SoundCv;
 int currentSoundBuffer;
 
 SoundManager::SoundManager() {

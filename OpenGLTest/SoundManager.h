@@ -2,32 +2,13 @@
 //has Sounds; created by main
 #include "Sound.h"
 #include "EventManager.h"
+#include "SoundParams.h"
+#include "TrackParams.h"
 #include <unordered_map>
 #define MAX_SOUND_BUFFERS 5
 
-//for referencing songs
-enum TrackList
-{MainBGM, MenuBGM};
 
-//for referencing sounds
-enum SoundsList
-{Jump};
 
-//for notifying the song event
-struct TrackParams {
-    TrackList track;
-    float x;
-    float y;
-    float z;
-};
-
-//for notifying the sound event
-struct SoundParams {
-    SoundsList sound;
-    float x;
-    float y;
-    float z;
-};
 
 //actual Manager class
 class SoundManager : public ISubscriber {
