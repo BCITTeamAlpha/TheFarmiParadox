@@ -46,7 +46,7 @@ void PlayerManager::fireWeapon()
 {
 	instance->turnStage = 2;
 	instance->players[instance->currentPlayerIndex]->fireWeapon();
-	instance->NextPlayer();
+	//instance->NextPlayer();  moved this into denny code (hackjobbulletmanager.cpp) when the bullet makes contact with terrain or another player
 }
 
 int PlayerManager::SecondsRemaining()

@@ -12,7 +12,7 @@ HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, Physics
     EventManager::subscribe(BULLET_SPAWN, this);
 }
 
-void HackjobBulletManager::SetInfoText(std::string info) { //this doesn't work (crashes) if called in Main
+void HackjobBulletManager::SetInfoText(std::string info) {
     TextComponent *infoText = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rInfoText"));
     if (infoText != nullptr) {
         infoText->SetText(info);
@@ -73,6 +73,9 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 
 					bullet->renderable = NULL; //delete bullet's renderable share pointer
 					bulletList.erase(bulletList.begin() + i);
+
+					playerManager->NextPlayer();
+
 					break;
 					
 				}
@@ -103,6 +106,9 @@ void HackjobBulletManager::UpdateBullet() {
 			EventManager::notify(PLAY_SOUND, bulletSound);
 			bulletList[i]->renderable = NULL;
 			bulletList.erase(bulletList.begin() + i);
+
+			playerManager->NextPlayer();
+
 			break; //break in order to avoid vector iteration errors
 		}
 	} 
@@ -110,7 +116,7 @@ void HackjobBulletManager::UpdateBullet() {
 
 }
 
-float xBaseMultiplier = 9.0f, yBaseMultiplier = 1.0f;
+float xBaseMultiplier = 8.0f, yBaseMultiplier = 1.0f;
 
 void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float explodeRadius) { //spawns a projectile from where the player is located at
 

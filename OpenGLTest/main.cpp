@@ -96,7 +96,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
 		//printf("%lf %lf\n", xpos, ypos);
-        EventManager::notify(BULLET_SPAWN, nullptr);
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
