@@ -27,7 +27,7 @@ void PickupManager::updatePickup() {
 
 		// Checks every Player
 		for (int j = 0; j < playerManager->instance->players.size() && !removed; j++) {
-			Character *character = playerManager->instance->players[j]->getFirstCharacter();
+			Character *character = playerManager->instance->players[j]->getCurrentCharacter();
 
 			// Checks every weapon inside the Player's Inventory
 			for (int n = 0; n < playerManager->instance->players[j]->getWeapons()._slots.size(); n++) {
