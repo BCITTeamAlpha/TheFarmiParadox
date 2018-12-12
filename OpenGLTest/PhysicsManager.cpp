@@ -5,7 +5,7 @@ const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
 const float ROT_CAP = 700.0f;
 
-PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
+PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, std::vector<Core> *c, Map *m)
 {
 	map = m;
 	planets = p;

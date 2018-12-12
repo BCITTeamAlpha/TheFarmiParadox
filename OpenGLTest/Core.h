@@ -1,9 +1,10 @@
 #pragma once
-#include "GameObject.h"
+#include "PhysicsObject.h"
+#include "Planetoid.h"
 
-class Core : public GameObject {
+class Core : public PhysicsObject {
 public:
-	Core();
+	Core(Planetoid p);
 private:
 
 };
