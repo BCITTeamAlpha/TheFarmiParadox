@@ -120,7 +120,9 @@ void PlayerManager::RemovePlayer(int playerID) {
 	for (int i = 0; i < players.size(); i++) {	
 		if (players[i]->playerID == playerID) {
 			players.erase(players.begin() + i);
-			currentPlayerIndex = currentPlayerIndex % players.size();
+			if (players.size() > 0) {
+				currentPlayerIndex = currentPlayerIndex % players.size();
+			}
 			break;
 		}
 	}

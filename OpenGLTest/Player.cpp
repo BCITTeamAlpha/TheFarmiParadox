@@ -111,7 +111,9 @@ void Player::jump(bool v)
 }
 void Player::RemoveCharacter(int index) {
 	chars.erase(chars.begin() + index);
-	currentCharacterIndex = currentCharacterIndex % chars.size();
+	if (chars.size() > 0) {
+		currentCharacterIndex = currentCharacterIndex % chars.size();
+	}
 }
 
 Inventory Player::getWeapons() {
