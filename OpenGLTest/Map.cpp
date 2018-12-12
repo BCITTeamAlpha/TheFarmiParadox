@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <limits>
 #include "MarchingSquares.h"
-#include "SoundParams.h"
-#include "EventManager.h"
 
 using std::numeric_limits;
 using std::vector;
@@ -85,16 +83,6 @@ void Map::explosion(Planetoid p) {
 			);
 		}
 	}
-    SoundParams * bulletNoise = new SoundParams();
-
-    bulletNoise->sound = Damage;
-
-    bulletNoise->x = 0;
-    bulletNoise->y = 0;
-    bulletNoise->z = 0;
-
-    TypeParam<SoundParams*> *bulletSound = new TypeParam<SoundParams*>(bulletNoise);
-    EventManager::notify(PLAY_SOUND, bulletSound);
 
 	Model m = MarchingSquares::GenerateModel(*this);
 	renderable->model.positions = m.positions;
