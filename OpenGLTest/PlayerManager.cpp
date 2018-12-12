@@ -66,7 +66,7 @@ void PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
 
-	printf("Time Remaining:%d\n", SecondsRemaining());
+	//printf("Time Remaining:%d\n", SecondsRemaining());
 
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
@@ -88,7 +88,8 @@ void PlayerManager::NextPlayer()
 {
 	turnStage = 0;
 	timeElapsed = 0;
-	players[currentPlayerIndex]->setControllable(true);
+	//players[currentPlayerIndex]->setControllable(true);
+	players[currentPlayerIndex]->setNextCharacter();
 
 	if (players.size())
 	{
@@ -97,7 +98,7 @@ void PlayerManager::NextPlayer()
 	}
 	printf("next player index:%d\n", currentPlayerIndex);
 
-	players[currentPlayerIndex]->getFirstCharacter()->bulletoAmmo = players[currentPlayerIndex]->getFirstCharacter()->maxBulletsPerTurn;
+	players[currentPlayerIndex]->getCurrentCharacter()->bulletoAmmo = players[currentPlayerIndex]->getCurrentCharacter()->maxBulletsPerTurn;
 
 	UpdatePlayerUI();
 }
@@ -142,7 +143,7 @@ Player* PlayerManager::GetCurrentPlayer() {
 void PlayerManager::UpdatePlayerUI() {
 
 	if (players[currentPlayerIndex] != NULL) { //update ui with info pertaining to whose turn it is, the team they belong to, and their hp
-
+		/*
 		std::vector<int> teams;
 		teams.push_back(players[currentPlayerIndex]->getFirstCharacter()->teamID);
 		bool containsTeam = false;
@@ -184,7 +185,20 @@ void PlayerManager::UpdatePlayerUI() {
         TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
         if (topRightInfo != nullptr) {
             topRightInfo->SetText(info);
-        }
+        }*/
+		std::string info = "";
+
+		info += "P:";
+		info += std::to_string(players[currentPlayerIndex]->playerID);
+		info += "C:";
+		info += std::to_string(players[currentPlayerIndex]->getCurrentCharacter()->characterID);
+		info += " HP:";
+		info += std::to_string(players[currentPlayerIndex]->getFirstCharacter()->health);
+
+		TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
+		if (topRightInfo != nullptr) {
+			topRightInfo->SetText(info);
+		}
 	}
 }
 
@@ -196,30 +210,35 @@ void PlayerManager::notify(EventName eventName, Param *params)
 	switch (eventName) {
 	case PLAYER_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr && turnStage == 0) players[currentPlayerIndex]->moveLeft(p->Param);
+		if (p != nullptr && turnStage == 0) 
+			players[currentPlayerIndex]->moveLeft(p->Param);
 		
 		break;
 	}
 	case PLAYER_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr && turnStage == 0) players[currentPlayerIndex]->moveRight(p->Param);
+		if (p != nullptr && turnStage == 0) 
+			players[currentPlayerIndex]->moveRight(p->Param);
 		
 		break;
 	}
 	case PLAYER_JUMP: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-		if (p != nullptr) players[currentPlayerIndex]->jump(p->Param);
+		if (p != nullptr) 
+			players[currentPlayerIndex]->jump(p->Param);
 		break;
 	}
 	case AIM_LEFT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-        if (p != nullptr && turnStage == 1) players[currentPlayerIndex]->setAimLeft(p->Param);
+        if (p != nullptr && turnStage == 1) 
+			players[currentPlayerIndex]->setAimLeft(p->Param);
         
 		break;
 	}
 	case AIM_RIGHT: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
-        if (p != nullptr && turnStage == 1)  players[currentPlayerIndex]->setAimRight(p->Param);
+        if (p != nullptr && turnStage == 1)  
+			players[currentPlayerIndex]->setAimRight(p->Param);
 		break;
 	}
 	case PLAYER_FIRE: {

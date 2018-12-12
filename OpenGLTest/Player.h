@@ -9,11 +9,13 @@ public:
 	Player();
 	void addCharacter(Character *c);
 	Character *getFirstCharacter();
+	Character *getCurrentCharacter();
 	void addItem(Pickup item);
 	void prevWeapon();
 	void nextWeapon();
 	void fireWeapon();
 	void setControllable(bool c);
+	void setNextCharacter();
 	void adjustAim(float dTime);
 	void setAimLeft(bool b);
 	void setAimRight(bool b);
@@ -22,10 +24,9 @@ public:
 	void moveRight(bool v);
 	void jump(bool v);
 	int playerID;
-	static int PLAYER_COUNT;
-	//static Player *me;
-private:
 	std::vector<Character *> chars;
+
+private:
 	Inventory *weaps;
 	int curChar;
 	bool aimLeft, aimRight;

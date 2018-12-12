@@ -1,11 +1,7 @@
 #include "Player.h"
 
-int Player::PLAYER_COUNT = 0;
-
 Player::Player()
 {
-	PLAYER_COUNT++;
-	playerID = PLAYER_COUNT; //assign a player id to each player
 	curChar = 0;
 	//chars = std::vector<Character *>();
 	weaps = new Inventory();
@@ -18,6 +14,10 @@ void Player::addCharacter(Character *c)
 
 Character* Player::getFirstCharacter() {
 	return chars[0];
+}
+
+Character* Player::getCurrentCharacter() {
+	return chars[curChar];
 }
 
 void Player::addItem(Pickup item)
@@ -38,6 +38,13 @@ void Player::nextWeapon()
 void Player::setControllable(bool c)
 {
 	chars[curChar]->controllable = c;
+}
+
+void Player::setNextCharacter() {
+	clearInput(); //sets previous to not controllable
+	curChar++;
+	if (curChar >= chars.size()) curChar = 0; //checks for wrap around
+	setControllable(true); //sets current to controllable
 }
 
 void Player::fireWeapon()
