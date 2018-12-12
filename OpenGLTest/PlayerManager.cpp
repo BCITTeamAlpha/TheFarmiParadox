@@ -39,6 +39,7 @@ void PlayerManager::aimWeapon()
 {
 	instance->turnStage = 1;
 	instance->players[instance->currentPlayerIndex]->setControllable(false);
+	instance->players[instance->currentPlayerIndex]->aim_angle = 0.0f;
 	instance->timeElapsed = 0;
 }
 

@@ -27,7 +27,7 @@ public:
 	Inventory getWeapons();
 	int playerID;
 	std::vector<Character *> chars;
-
+	float aim_angle;
 private:
 	Inventory *weaps;
 	int currentCharacterIndex;

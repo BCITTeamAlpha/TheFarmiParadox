@@ -146,6 +146,15 @@ void MainScene::InitScene() {
 		_playerManager->AddPlayer(player);
     }
 
+	_aimIndicator = new GameObject();
+	Renderable *aimSkin = new Renderable();
+	aimSkin->model = AssetLoader::loadModel("../Models/cube.obj");
+	aimSkin->scale = glm::vec3(2.0);
+	aimSkin->color = glm::vec4(1.0, 0.25, 0.0, 1.0);
+	aimSkin->fullBright = true;
+	_aimIndicator->setRenderable(aimSkin);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_aimIndicator->renderable), false);
+
     // send Renderables to renderer
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_map->renderable), false);
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_background->renderable), false);
@@ -161,6 +170,15 @@ void MainScene::Update(const float delta) {
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
 	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
+
+	Character* c = _playerManager->GetCurrentPlayer()->getCurrentCharacter();
+	glm::vec2 pos = c->get_position();
+	glm::vec3 rot = c->get_rotation();
+	rot.z += _playerManager->GetCurrentPlayer()->aim_angle;
+	rot.z += (rot.y == 0.0f) ? -45 : 45;
+	pos.x += -sin(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
+	pos.y += cos(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
+	_aimIndicator->set_position(pos);
 
 	if (win != -1)
 		printf("Player %d wins!!!!!!!!!!!!!!!!", win);

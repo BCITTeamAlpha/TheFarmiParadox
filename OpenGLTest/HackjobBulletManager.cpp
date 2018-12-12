@@ -116,8 +116,6 @@ void HackjobBulletManager::UpdateBullet() {
 
 }
 
-float xBaseMultiplier = 8.0f, yBaseMultiplier = 1.0f;
-
 void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float explodeRadius) { //spawns a projectile from where the player is located at
 
 	if (playerManager->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo-- <= 0) return; //dont shoot if we don't have "bulleto ammo"
@@ -135,24 +133,12 @@ void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float exp
 	bullet->radius = 2.0f;
 	bullet->set_position(playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 
 
-	int zOrientation = (int)playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation().z % 360; //set projectile angle based on player  orientation
-	if (zOrientation < 0) zOrientation += 360; //normalize z rotation to a value between 0 - 360
-	
-
-	float dir = playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation().y;
-	if (dir != 0) {
-		if(zOrientation > 90 && zOrientation < 270) //between 90 and 270 exclusive
-			bullet->velocity = glm::vec2(xBaseMultiplier, yBaseMultiplier) * speedScalar;
-		if ((zOrientation > 0 && zOrientation < 90) || (zOrientation > 270 && zOrientation < 360))
-			bullet->velocity =  glm::vec2(-xBaseMultiplier, yBaseMultiplier) * speedScalar;
-	}
-	else {
-		if (zOrientation > 90 && zOrientation < 270)
-			bullet->velocity = glm::vec2(-xBaseMultiplier, yBaseMultiplier) * speedScalar;
-		if ((zOrientation > 0 && zOrientation < 90) || (zOrientation > 270 && zOrientation < 360))
-			bullet->velocity = glm::vec2(xBaseMultiplier, yBaseMultiplier) * speedScalar;
-	}
-
+	glm::vec3 rot = playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
+	rot.z += playerManager->GetCurrentPlayer()->aim_angle;
+	rot.z += (rot.y == 0.0f) ? -45 : 45;
+	float x = -sin(rot.z * (float)M_PI / 180.0f);
+	float y = cos(rot.z * (float)M_PI / 180.0f);
+	bullet->velocity = glm::vec2(x, y) * speedScalar;
 
 	Renderable *pSkin = new Renderable();
 	pSkin->z = 0;
