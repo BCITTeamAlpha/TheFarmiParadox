@@ -99,7 +99,7 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int numberOfPlayers = 3;
+    int numberOfPlayers = 2;
     int charactersPerPlayer = 2;
 	int playerID = 1;
 	int characterID = 1;
@@ -124,7 +124,7 @@ void MainScene::InitScene() {
 				c->controllable = true; //sets only the first character to controllable initially
             c->radius = 2.5f;
 			c->characterID = characterID++;
-            c->set_position(_physics->genSpawnPos(c->radius));
+			c->set_position(glm::vec2(50,50));//(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
             cSkin->z = 0;
@@ -143,7 +143,6 @@ void MainScene::InitScene() {
             EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
         }
 		_playerManager->AddPlayer(player);
-		characterID = 1;
     }
 
     // send Renderables to renderer

@@ -65,8 +65,8 @@ class Renderer : public ISubscriber {
 		std::mutex renderables_waitList_mutex;
 		std::list<std::shared_ptr<Renderable>> renderables_waitList;
 		std::list<std::shared_ptr<Renderable>> renderables;
-		const GLuint WIDTH = 2600;//1280
-		const GLuint HEIGHT = 1300; //720
+		const GLuint WIDTH = 1280;
+		const GLuint HEIGHT = 720;
 		GLuint mainProgram, VAO;
 		const GLuint SHADOW_WIDTH = 1024;
 		const GLuint SHADOW_HEIGHT = 1024;

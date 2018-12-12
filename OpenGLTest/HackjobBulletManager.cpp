@@ -33,18 +33,7 @@ void HackjobBulletManager::notify(EventName eventName, Param *params) {
     }
 }
 
-void HackjobBulletManager::UpdateBullet() {
-	/*
-	for (int i = 0; i < bulletList.size(); i++)
-	{
-
-		if (bulletList[i]->bulletAliveTicks++ > bulletList[i]->bulletMaxAliveTicks) { //delete bullets once they've existed for longer than the maximum allowed ticks
-			bulletList[i]->renderable = NULL;
-			bulletList.erase(bulletList.begin() + i);
-			break; //break in order to avoid vector iteration errors
-		}
-	}*/
-
+void HackjobBulletManager::CheckIfPlayersDamaged() {
 
 	for (int i = 0; i < bulletList.size(); i++) {	//For every bullet in the game, check if they have hit any of the players 
 
@@ -57,7 +46,8 @@ void HackjobBulletManager::UpdateBullet() {
 				Character *character = playerManager->instance->players[j]->chars[k];
 
 				if (bullet->colliding_with_player(character->get_position())
-					&& character->playerID != bullet->shooter_PlayerID) {
+					&& character->playerID != bullet->shooter_PlayerID && character->characterID != bullet->shooterCharacterID) {
+
 
 					character->TakeDamage(bullet->damage);
 					//printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
@@ -68,8 +58,9 @@ void HackjobBulletManager::UpdateBullet() {
 					hitInfo += " hit hp:";
 					hitInfo += std::to_string(character->health);
 					SetInfoText(hitInfo);
-					map->explosion(Planetoid(character->get_position().x, character->get_position().y, bullet->explosionRadius));
-					//printf("\nExplosion radius: %lf\n", bullet->explosionRadius);
+
+					map->explosion(Planetoid(bullet->get_position().x, bullet->get_position().y, bullet->explosionRadius));
+
 
 					if (character->health <= 0) { //kills character and removes the dead dude from player manager
 						character->renderable = NULL;
@@ -84,12 +75,26 @@ void HackjobBulletManager::UpdateBullet() {
 					bullet->renderable = NULL; //delete bullet's renderable share pointer
 					bulletList.erase(bulletList.begin() + i);
 					break;
+					
 				}
 			}
 
 		}
 	}
+}
 
+void HackjobBulletManager::UpdateBullet() {
+	/*
+	for (int i = 0; i < bulletList.size(); i++)
+	{
+
+		if (bulletList[i]->bulletAliveTicks++ > bulletList[i]->bulletMaxAliveTicks) { //delete bullets once they've existed for longer than the maximum allowed ticks
+			bulletList[i]->renderable = NULL;
+			bulletList.erase(bulletList.begin() + i);
+			break; //break in order to avoid vector iteration errors
+		}
+	}*/
+	CheckIfPlayersDamaged();
 
 	for (int i = 0; i < bulletList.size(); i++)
 	{
@@ -101,8 +106,6 @@ void HackjobBulletManager::UpdateBullet() {
 			break; //break in order to avoid vector iteration errors
 		}
 	} 
-
-
 
 
 }
@@ -121,6 +124,7 @@ void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float exp
 
 	HackjobBullet *bullet = new HackjobBullet(damage, explodeRadius); //default dmg is float 100.0f, if no args are provided to the bullet, second argument = bullet's explode radius
 	bullet->shooter_PlayerID = playerManager->GetCurrentPlayer()->playerID;
+	bullet->shooterCharacterID = playerManager->GetCurrentPlayer()->getCurrentCharacter()->characterID;
 	bullet->mass = 15;
 	bullet->radius = 2.0f;
 	bullet->set_position(playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 

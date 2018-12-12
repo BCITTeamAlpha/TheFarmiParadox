@@ -1,6 +1,6 @@
 #include "HackjobBullet.h"
 
-float minimumCollisionDitance = 1.5f;
+float minimumCollisionDitance = 3.5f;
 
 HackjobBullet::HackjobBullet(int damage, float explosionRadius) {
 	this->damage = damage;

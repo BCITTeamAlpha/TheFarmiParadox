@@ -74,7 +74,6 @@ int PlayerManager::handlePlayers(float dTime)
 		players[currentPlayerIndex]->setControllable(false);
 		timeElapsed = 0;
 		instance->NextPlayer();
-		return;
 	}
 	else if (turnStage == 1)
 	{
@@ -151,49 +150,6 @@ Player* PlayerManager::GetCurrentPlayer() {
 void PlayerManager::UpdatePlayerUI() {
 
 	if (players[currentPlayerIndex] != NULL) { //update ui with info pertaining to whose turn it is, the team they belong to, and their hp
-		/*
-		std::vector<int> teams;
-		teams.push_back(players[currentPlayerIndex]->getFirstCharacter()->teamID);
-		bool containsTeam = false;
-
-
-		for (int i = 0;i < players.size();i++) { //check how many teams are left
-
-			for (int j = 0;j < teams.size();j++) {
-				if (teams[j] == players[i]->getFirstCharacter()->teamID) {
-					containsTeam = true;
-				}
-			}
-
-			if (!containsTeam) {
-				teams.push_back(players[i]->getFirstCharacter()->teamID);
-			}
-
-			containsTeam = false;
-		}
-
-		//printf("teams size: %d\n", teams.size());
-
-		std::string info = "";
-
-		if (teams.size() > 1) {
-			info += "P:";
-			info += std::to_string(players[currentPlayerIndex]->playerID);
-			info += " Team:";
-			info += std::to_string(players[currentPlayerIndex]->getFirstCharacter()->teamID);
-			info += " HP:";
-			info += std::to_string(players[currentPlayerIndex]->getFirstCharacter()->health);
-		}
-		else {
-			info += "Team ";
-			info += std::to_string(players[currentPlayerIndex]->getFirstCharacter()->teamID);
-			info += " Has won!";
-		}
-
-        TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
-        if (topRightInfo != nullptr) {
-            topRightInfo->SetText(info);
-        }*/
 		std::string info = "";
 
 		info += "P:";
@@ -201,7 +157,7 @@ void PlayerManager::UpdatePlayerUI() {
 		info += "C:";
 		info += std::to_string(players[currentPlayerIndex]->getCurrentCharacter()->characterID);
 		info += " HP:";
-		info += std::to_string(players[currentPlayerIndex]->getFirstCharacter()->health);
+		info += std::to_string(players[currentPlayerIndex]->getCurrentCharacter()->health);
 
 		TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
 		if (topRightInfo != nullptr) {
