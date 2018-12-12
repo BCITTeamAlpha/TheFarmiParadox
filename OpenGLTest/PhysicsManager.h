@@ -29,7 +29,7 @@ private:
 	
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
-	std::vector<Character*> chars;
+	std::vector<Core> *cores;
 	Map *map;
 
     unsigned int frames_since_jump_sound;

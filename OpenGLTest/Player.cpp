@@ -110,17 +110,8 @@ void Player::jump(bool v)
 	}
 }
 void Player::RemoveCharacter(int index) {
-
-
-	if (index == currentCharacterIndex) {
-		currentCharacterIndex = (currentCharacterIndex + 1) & chars.size();
-	}
-	else if (index < currentCharacterIndex) {
-		currentCharacterIndex--;
-	}
-
-	if (currentCharacterIndex >= chars.size() || currentCharacterIndex < 0)
-		currentCharacterIndex = 0; //dont want to access out of bounds element
+	chars.erase(chars.begin() + index);
+	currentCharacterIndex = currentCharacterIndex % chars.size();
 }
 
 Inventory Player::getWeapons() {

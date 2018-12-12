@@ -116,29 +116,11 @@ void PlayerManager::AddPlayer(Player * player)
 	players.push_back(player); 
 }
 
-void PlayerManager::RemovePlayer(int playerID)
-{
-
-	for (int i = 0; i < players.size(); i++)
-	{	
-		if (players[i]->playerID == playerID)
-		{
+void PlayerManager::RemovePlayer(int playerID) {
+	for (int i = 0; i < players.size(); i++) {	
+		if (players[i]->playerID == playerID) {
 			players.erase(players.begin() + i);
-
-			if (i == currentPlayerIndex)
-			{
-				currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-			}
-			else if (i < currentPlayerIndex)
-			{
-				//p1(index 0) p2(index 1) p3(index 2) p4(index 3) --> if we delete p2, while the current player is p3, then currentIndex should be 2
-				//However, after p2 has been deleted, an index of 2 will point at p4, so we need to decrement by 1.
-				currentPlayerIndex--;
-			}
-			
-			if(currentPlayerIndex >= players.size() || currentPlayerIndex < 0)
-				currentPlayerIndex = 0; //dont want to access out of bounds element
-
+			currentPlayerIndex = currentPlayerIndex % players.size();
 			break;
 		}
 	}
