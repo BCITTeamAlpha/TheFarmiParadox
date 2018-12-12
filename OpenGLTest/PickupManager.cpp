@@ -23,9 +23,10 @@ void PickupManager::updatePickup() {
 	// Checks every Pickup
 	for (int i = 0; i < pickupList.size(); i++) {
 		Pickup *pickup = pickupList[i];
+		boolean removed = false;
 
 		// Checks every Player
-		for (int j = 0; j < playerManager->instance->players.size(); j++) {
+		for (int j = 0; j < playerManager->instance->players.size() && !removed; j++) {
 			Character *character = playerManager->instance->players[j]->getFirstCharacter();
 
 			// Checks every weapon inside the Player's Inventory
@@ -33,18 +34,24 @@ void PickupManager::updatePickup() {
 				Weapon *weapon = playerManager->instance->players[j]->getWeapons()._slots[n];
 
 				// If pickup collides with a player and they do not have the pickup in their inventory
-				if (pickup->colliding_with_player(character->get_position())
-					&& (pickup->pickedUp()->_name == weapon->_name)) {
-					// Adds pickup's ammo to players weapon ammo
-						weapon->_charges += pickup->pickedUp()->_charges;
-				// Else add pickup to Player Inventory and destroy pickup from map
-				} else {
-					playerManager->instance->players[j]->addItem(*pickup);
+				if (pickup->colliding_with_player(character->get_position())) {
+					if (pickup->pickedUp()->_name == weapon->_name) {
 
-					pickup->renderable = NULL;
-					pickupList.erase(pickupList.begin() + i);
-					break;
-				}
+						// Adds pickup's ammo to players weapon ammo
+						weapon->_charges += pickup->pickedUp()->_charges; pickup->renderable = NULL;
+						pickupList.erase(pickupList.begin() + i);
+						removed = true;
+						break;
+
+						// Else add pickup to Player Inventory and destroy pickup from map
+					}
+					else {
+						playerManager->instance->players[j]->addItem(*pickup); pickup->renderable = NULL;
+						pickupList.erase(pickupList.begin() + i);
+						removed = true;
+						break;
+					}
+				}				
 			}
 		}
 	}
