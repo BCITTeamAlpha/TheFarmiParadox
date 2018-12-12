@@ -17,9 +17,18 @@ void MenuScene::InitScene() {
     _models.push_back(AssetLoader::loadModel("../Models/Chick.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Cow.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Dolphin.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Dragon.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Horse.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Llama.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Pig.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Dog.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Pug.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Red Fox.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Sheep.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Whale.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Wolf.obj"));
     _models.push_back(AssetLoader::loadModel("../Models/Slime.obj"));
+    _models.push_back(AssetLoader::loadModel("../Models/Zebra.obj"));
 
     _currModel = 0;
 

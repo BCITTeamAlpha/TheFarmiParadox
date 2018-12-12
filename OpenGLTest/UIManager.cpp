@@ -166,8 +166,22 @@ void UIManager::defineClicks() {
         UIComponent *comp = UIManager::GetComponentById("modelSelect");
         comp->visible = true;
 
+        EventManager::notify(MENU_SHOW_MODEL, nullptr);
+
         comp = UIManager::GetComponentById("splashScreen");
         comp->visible = false;
+    });
+
+    DefineClickFunction("prevModel", []() {
+        EventManager::notify(MENU_MODEL_PREV, nullptr);
+    });
+
+    DefineClickFunction("nextModel", []() {
+        EventManager::notify(MENU_MODEL_NEXT, nullptr);
+    });
+
+    DefineClickFunction("nextPlayerModel", []() {
+        EventManager::notify(MENU_MODEL_SELECT, nullptr);
     });
 
     DefineClickFunction("incrementPlayers", []() {

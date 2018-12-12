@@ -101,9 +101,18 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Chick.obj");
     _models.push_back("../Models/Cow.obj");
     _models.push_back("../Models/Dolphin.obj");
+    _models.push_back("../Models/Dragon.obj");
+    _models.push_back("../Models/Horse.obj");
+    _models.push_back("../Models/Llama.obj");
+    _models.push_back("../Models/Pig.obj");
+    _models.push_back("../Models/Dog.obj");
     _models.push_back("../Models/Pug.obj");
     _models.push_back("../Models/Red Fox.obj");
+    _models.push_back("../Models/Sheep.obj");
+    _models.push_back("../Models/Whale.obj");
+    _models.push_back("../Models/Wolf.obj");
     _models.push_back("../Models/Slime.obj");
+    _models.push_back("../Models/Zebra.obj");
 
     //create players
     int charactersPerPlayer = 12 / _numPlayers;
