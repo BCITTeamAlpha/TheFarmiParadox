@@ -37,6 +37,7 @@ public:
 
 	int moveTime = 20;
 	int aimTime = 10;
+    int charPerPlayer;
 private:
     std::string getTimeString();
 	int currentPlayerIndex;

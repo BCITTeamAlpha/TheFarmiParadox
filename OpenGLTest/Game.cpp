@@ -17,9 +17,22 @@ Game::~Game() {
 
 void Game::notify(EventName eventName, Param *params) {
     switch (eventName) {
-    case GAME_START:
-        Transition(new MainScene());
+    case GAME_START: {
+        int numPlayer = 2;
+        int models[] = { 0, 1, 2, 3 };
+
+        TypeParam<std::pair<int, int*>> *p = dynamic_cast<TypeParam<std::pair<int,int*>>*>(params);
+        if (p != nullptr) {
+            numPlayer = p->Param.first;
+            for (int i = 0; i < 4; i++)
+                models[i] = p->Param.second[i];
+            delete p->Param.second;
+            delete params;
+        }
+
+        Transition(new MainScene(numPlayer, models));
         break;
+    }
     default:
         break;
     }

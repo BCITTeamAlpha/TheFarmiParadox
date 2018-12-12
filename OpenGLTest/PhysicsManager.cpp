@@ -96,7 +96,7 @@ void PhysicsManager::calcPhysics(float dTime)
 
 		float rot_desired = atan2(max_acc.x, -max_acc.y) * 180.0f / M_PI;
 		float rot_diff = normalizeAngle(rot_desired - rot.z);
-		float rot_diff_clamped = std::max(std::min(rot_diff, ROT_CAP * dTime), -ROT_CAP * dTime);
+		float rot_diff_clamped = std::max<float>(std::min<float>(rot_diff, ROT_CAP * dTime), -ROT_CAP * dTime);
 		rot.z += rot_diff_clamped;
 
 		object->set_position(pos);

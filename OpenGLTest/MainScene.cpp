@@ -6,6 +6,9 @@
 #include "AssetLoader.h"
 #include "UIManager.h"
 
+MainScene::MainScene(int numPlayers, int *models) 
+    : _numPlayers(numPlayers), _modelNums(models) { }
+
 void MainScene::InitScene() {
 	srand(time(NULL));
     UIComponent *mainUI = UIManager::GetComponentById("MainScene");
@@ -100,15 +103,31 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int numberOfPlayers = 2;
-    int charactersPerPlayer = 2;
+    int charactersPerPlayer = 12 / _numPlayers;
+    _playerManager->charPerPlayer = charactersPerPlayer;
 	int playerID = 1;
 	int characterID = 1;
 
-    for (int i = 0; i < numberOfPlayers; i++) {
+    glm::vec4 playerColors[4][2] = {
+        {{0.447, 0.098, 0.745, 1.0}, {0.271, 0.024, 0.482, 1.0}},
+        {{0.922, 0.373, 0, 1.0}, {0.714, 0.29, 0, 1.0}},
+        {{0.047, 0.714, 0.604, 1.0}, {0.0, 0.451, 0.376, 1.0}},
+        {{0.922, 0.878, 0, 1.0}, {0.714, 0.682, 0.0, 1.0}},
+    };
+
+    UIComponent *component;
+
+    for (int i = 0; i < _numPlayers; i++) {
 		//set up a player 
 		Player *player = new Player();
 		player->playerID = playerID++;
+
+        player->color = playerColors[i][0];
+        player->accent = playerColors[i][1];
+
+        component = UIManager::GetComponentById("p" + std::to_string(player->playerID) + "Container");
+        if (component != nullptr)
+            component->visible = true;
 
 		//set up a test pickup to give the player weapons
 		Pickup pickup1 = Pickup(new Weapon("Pistol", 8, 100, 4, 40));
@@ -129,10 +148,11 @@ void MainScene::InitScene() {
 
             Renderable *cSkin = new Renderable();
             cSkin->z = 0;
-            cSkin->model = AssetLoader::loadModel(_models[j % _models.size()]);
-            float hue = i / (float)numberOfPlayers + j / ((float)numberOfPlayers * (float)charactersPerPlayer * 3);
-            hue = hue * 2.0 * M_PI;
-            cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
+            cSkin->model = AssetLoader::loadModel(_models[_modelNums[i]]);
+//            float hue = i / (float)_numPlayers + j / ((float)_numPlayers * (float)charactersPerPlayer * 3);
+ //           hue = hue * 2.0 * M_PI;
+            cSkin->color = player->color;
+//            cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
             cSkin->scale = glm::vec3(2.5f);
             c->setRenderable(cSkin);
 
@@ -142,6 +162,10 @@ void MainScene::InitScene() {
             // send physicsobjects to physicsmanager
             _physics->addObject(c);
             EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
+
+            component = UIManager::GetComponentById("c" + std::to_string(j + 1) + "Container");
+            if (component != nullptr)
+                component->visible = true;
         }
 		_playerManager->AddPlayer(player);
     }
@@ -183,7 +207,7 @@ void MainScene::Update(const float delta) {
 	if (win != -1)
 		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
 
-    //_playerManager->UpdatePlayerUI();
+    _playerManager->UpdatePlayerUI();
 }
 
 void MainScene::CleanUp() {
@@ -194,6 +218,7 @@ void MainScene::CleanUp() {
     delete _bulletoManager;
     delete _physics;
     delete _background;
+    delete _aimIndicator;
     delete _map;
     delete _playerManager;
 }

@@ -108,7 +108,7 @@ void UIComponent::Resize() {
 
     // Tell Renderer to recreate buffers with new position data
     TypeParam<UIComponent*> param(this);
-    EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
+    EventManager::notify(RENDERER_REPOPULATE_BUFFERS, &param, false);
 
     // Iterate resize on child panels
     for (UIComponent *child : children) {

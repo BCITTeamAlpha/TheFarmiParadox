@@ -28,6 +28,7 @@ public:
 	int playerID;
 	std::vector<Character *> chars;
 	float aim_angle;
+    glm::vec4 color, accent;
 private:
 	Inventory *weaps;
 	int currentCharacterIndex;

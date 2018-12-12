@@ -127,12 +127,81 @@ bool UIManager::pointInRect(float px, float py, float rTop, float rRight, float 
 
 void UIManager::defineClicks() {
     DefineClickFunction("toggleKaren", []() {
-        UIComponent *karen = UIManager::GetComponentById("Karen");
-        karen->visible = !karen->visible;
+        UIComponent *karen = UIManager::GetComponentById("karen");
+        if (karen->anchor.y < 0)
+            karen->anchor.y = 0;
+        else
+            karen->anchor.y = -47;
+        karen->Resize();
     });
 
     DefineClickFunction("startGame", []() {
-        EventManager::notify(GAME_START, nullptr);
+        int numPlayer = 2;
+        int *models = new int[4];
+        UIComponent *comp = UIManager::GetComponentById("dataPNum");
+        if (comp != nullptr)
+            numPlayer = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP1Model");
+        if (comp != nullptr)
+            models[0] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP2Model");
+        if (comp != nullptr)
+            models[1] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP3Model");
+        if (comp != nullptr)
+            models[2] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP4Model");
+        if (comp != nullptr)
+            models[3] = comp->size.x;
+
+        TypeParam<std::pair<int,int*>> *param = new TypeParam<std::pair<int,int*>>(std::pair<int,int*>(numPlayer, models));
+        EventManager::notify(GAME_START, param);
+    });
+
+    DefineClickFunction("playButton", []() {
+        UIComponent *comp = UIManager::GetComponentById("modelSelect");
+        comp->visible = true;
+
+        comp = UIManager::GetComponentById("splashScreen");
+        comp->visible = false;
+    });
+
+    DefineClickFunction("incrementPlayers", []() {
+        UIComponent *data = UIManager::GetComponentById("dataPNum");
+        int numPlayers = ++(data->size.x);
+
+        TextComponent *players = dynamic_cast<TextComponent*>(UIManager::GetComponentById("playerNum"));
+        if (players != nullptr)
+            players->SetText(std::to_string(numPlayers));
+
+        UIComponent *dec = UIManager::GetComponentById("decButton");
+        dec->visible = true;
+
+        if (numPlayers == 4) {
+            UIComponent *inc = UIManager::GetComponentById("incButton");
+            inc->visible = false;
+        }
+    });
+
+    DefineClickFunction("decrementPlayers", []() {
+        UIComponent *data = UIManager::GetComponentById("dataPNum");
+        int numPlayers = --(data->size.x);
+
+        TextComponent *players = dynamic_cast<TextComponent*>(UIManager::GetComponentById("playerNum"));
+        if (players != nullptr)
+            players->SetText(std::to_string(numPlayers));
+
+        UIComponent *inc = UIManager::GetComponentById("incButton");
+        inc->visible = true;
+
+        if (numPlayers == 2) {
+            UIComponent *dec = UIManager::GetComponentById("decButton");
+            dec->visible = false;
+        }
     });
 }
 
