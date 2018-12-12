@@ -15,15 +15,16 @@ class HackjobBulletManager : public ISubscriber {
 public:
 
 	HackjobBulletManager(PhysicsManager *physics, Map *map);
-	void UpdateBullet();
+	void UpdateBullet(float dTime);
 	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
 	void SetInfoText(std::string info);
 	void CheckIfPlayersDamaged();
     void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
-
+	float waitTime = 10;
 private:
 	PhysicsManager *physics;
 	PlayerManager *playerManager;
 	Map *map;
+	float timeSince;
 	std::vector<HackjobBullet*> bulletList;		//vector of current bullets
 };

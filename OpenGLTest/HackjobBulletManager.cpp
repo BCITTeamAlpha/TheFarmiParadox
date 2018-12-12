@@ -7,7 +7,7 @@ HackjobBulletManager::HackjobBulletManager(PhysicsManager *physics, Map* map) {
 	this->physics = physics;
 	this->map = map;
 	bulletList = std::vector<HackjobBullet*>();
-
+	timeSince = 0;
     EventManager::subscribe(BULLET_SPAWN, this);
 }
 
@@ -85,13 +85,25 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 	}
 }
 
-void HackjobBulletManager::UpdateBullet() {
+void HackjobBulletManager::UpdateBullet(float dTime) {
 
 	CheckIfPlayersDamaged();
 
+	if (bulletList.size() != 0)
+	{
+		timeSince += dTime;
+		if (timeSince >= waitTime)
+		{
+			timeSince = 0;
+			bulletList[0]->renderable = NULL;
+			bulletList.erase(bulletList.begin());
+
+			PlayerManager::instance->NextPlayer();
+		}
+	}
+
 	for (int i = 0; i < bulletList.size(); i++)
 	{
-
 		if (bulletList[i]->grounded && bulletList[i]->bulletMaxAliveTicks++ > 50) { //check if alive ticks greater than 10 so bullets dont immediately explode as we're shooting 
 			map->explosion(Planetoid(bulletList[i]->get_position().x, bulletList[i]->get_position().y, bulletList[i]->explosionRadius));
 			SoundParams * bulletNoise = new SoundParams();

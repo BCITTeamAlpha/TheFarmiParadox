@@ -193,9 +193,9 @@ void MainScene::InitScene() {
 	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 
-void MainScene::Update(const float delta) {
+int MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
-    _bulletoManager->UpdateBullet(); //updates hackjob bullets 
+    _bulletoManager->UpdateBullet(delta); //updates hackjob bullets 
 	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
 
@@ -208,10 +208,9 @@ void MainScene::Update(const float delta) {
 	pos.y += cos(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
 	_aimIndicator->set_position(pos);
 
-	if (win != -1)
-		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
-
     _playerManager->UpdatePlayerUI();
+
+	return win;
 }
 
 void MainScene::CleanUp() {

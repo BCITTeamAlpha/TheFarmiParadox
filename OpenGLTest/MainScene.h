@@ -14,7 +14,7 @@ public:
     MainScene(int numPlayers, int *models);
 
     void InitScene();
-    void Update(const float delta);
+    int Update(const float delta);
     void CleanUp();
 private:
     PlayerManager *_playerManager;
