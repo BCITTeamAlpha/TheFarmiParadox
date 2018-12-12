@@ -60,8 +60,12 @@ void Game::Transition(Scene *nextScene) {
 
     Scene *scene = _currScene;
     _currScene = nullptr;
-    scene->CleanUp();
-    delete scene;
+
+	if (scene != nullptr)
+	{
+		scene->CleanUp();
+		delete scene;
+	}
     nextScene->InitScene();
     _currScene = nextScene;
 
