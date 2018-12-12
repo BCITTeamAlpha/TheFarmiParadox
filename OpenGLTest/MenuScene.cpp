@@ -79,9 +79,10 @@ void MenuScene::InitScene() {
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 }
 
-void MenuScene::Update(const float delta) {
+int MenuScene::Update(const float delta) {
     c->set_rotation(c->get_rotation() + glm::vec3({0, 1, 0}));
     c->renderable->color = playerColors[_currPlayer];
+	return -1;
 }
 
 void MenuScene::CleanUp() {

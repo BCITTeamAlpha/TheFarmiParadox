@@ -29,8 +29,8 @@ public:
 	std::vector<Character *> chars;
 	float aim_angle;
     glm::vec4 color, accent;
+	int currentCharacterIndex;
 private:
 	Inventory *weaps;
-	int currentCharacterIndex;
 	bool aimLeft, aimRight;
 };

@@ -11,7 +11,7 @@
 class MenuScene : public Scene, public ISubscriber {
 public:
     void InitScene();
-    void Update(const float delta);
+    int Update(const float delta);
     void CleanUp();
 
     void notify(EventName eventName, Param *params); // overrides ISubscriber::notify

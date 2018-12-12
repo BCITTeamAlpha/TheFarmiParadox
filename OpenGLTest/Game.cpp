@@ -60,8 +60,12 @@ void Game::Transition(Scene *nextScene) {
 
     Scene *scene = _currScene;
     _currScene = nullptr;
-    scene->CleanUp();
-    delete scene;
+
+	if (scene != nullptr)
+	{
+		scene->CleanUp();
+		delete scene;
+	}
     nextScene->InitScene();
     _currScene = nextScene;
 
@@ -71,7 +75,8 @@ void Game::Transition(Scene *nextScene) {
 
 void Game::Update(const float delta) {
     if (_currScene != nullptr && !FadeOut && !FadeIn) {
-        _currScene->Update(delta);
+		if (_currScene->Update(delta) != -1)
+			Transition(new MenuScene());
     }
     if (FadeOut) {
         if (Black->color.a < 1)

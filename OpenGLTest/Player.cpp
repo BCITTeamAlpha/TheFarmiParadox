@@ -70,6 +70,7 @@ void Player::adjustAim(float dTime)
 
 void Player::clearInput()
 {
+	setControllable(false);
 	for (auto &c : chars)
 	{
 		c->left_input = false;

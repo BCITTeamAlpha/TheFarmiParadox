@@ -68,6 +68,12 @@ int PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
 
+	for (int i = 0; i < players.size(); i++)
+	{
+		if (players[i]->chars.size() == 0)
+			RemovePlayer(i);
+	}
+
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
 		turnStage = 1;
@@ -82,13 +88,8 @@ int PlayerManager::handlePlayers(float dTime)
 			players[currentPlayerIndex]->adjustAim(dTime);
 	}
 
-	for (int i = 0; i < players.size(); i++)
-	{
-		//if players[i] has no more characters delete it
-	}
-
-	//if there is only one player left, return the winning player's id
-
+	if (players.size() == 1)
+		return players[0]->playerID;
 	return -1;
 }
 
@@ -96,11 +97,13 @@ void PlayerManager::NextPlayer()
 {
 	turnStage = 0;
 	timeElapsed = 0;
-	players[currentPlayerIndex]->setNextCharacter();
 
-	//players[currentPlayerIndex]->nextChar();
+	players[currentPlayerIndex]->setControllable(false);
+
 	players[currentPlayerIndex]->clearInput();
 	currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+
+	players[currentPlayerIndex]->setNextCharacter();
 	
 	printf("next player index:%d\n", currentPlayerIndex);
 
@@ -187,12 +190,22 @@ void PlayerManager::UpdatePlayerUI() {
             text->SetText("Player " + std::to_string(p->playerID) + "'s Turn");
        
         text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("ammoCount"));
-        if (text != nullptr)
-            text->SetText(std::to_string(currWeapon->_charges));
+		if (text != nullptr)
+		{
+			if (currWeapon != nullptr)
+				text->SetText(std::to_string(currWeapon->_charges));
+			else
+				text->SetText(std::to_string(0));
+		}
 
         text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("currWeapon"));
-        if (text != nullptr)
-            text->SetText(currWeapon->_name);
+		if (text != nullptr)
+		{
+			if (currWeapon != nullptr)
+				text->SetText(currWeapon->_name);
+			else
+				text->SetText("No Weapon");
+		}
 
         for (int i = 0; i < p->chars.size(); i++) {
             Character *c = p->chars[i];

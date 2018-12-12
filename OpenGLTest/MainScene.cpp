@@ -18,12 +18,16 @@ void MainScene::InitScene() {
     _playerManager = new PlayerManager();
 
     // setup Map IRenderable
+	_planets.push_back(Planetoid(300.0f, 80.0f, 32.0f));
+	_planets.push_back(Planetoid(295.0f, 135.0f, 12.0f));
+	_planets.push_back(Planetoid(320.0f, 160.0f, 12.0f));
+
     _planets.push_back(Planetoid(147.0f, 120.0f, 16.0f));
     _planets.push_back(Planetoid(188.0f, 82.0f, 8.0f));
     _planets.push_back(Planetoid(131.0f, 64.0f, 32.0f));
     _planets.push_back(Planetoid(107.0f, 152.0f, 12.0f));
     _planets.push_back(Planetoid(219.0f, 152.0f, 48.0f));
-    _planets.push_back(Planetoid(227.0f, 32.0f, 32.0f));
+    _planets.push_back(Planetoid(227.0f, 40.0f, 32.0f));
 
     _map = new Map(_planets, 365, 205);
 
@@ -133,8 +137,9 @@ void MainScene::InitScene() {
             component->visible = true;
 
 		//set up a test pickup to give the player weapons
-		Pickup pickup1 = Pickup(new Weapon("Pistol", 8, 100, 4, 40));
-		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 16, 30));
+		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 100, 4, 40));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 14, 30));
+		
 
 		player->addItem(pickup1);
 		player->addItem(pickup2);
@@ -150,7 +155,7 @@ void MainScene::InitScene() {
 			c->set_position(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
-            cSkin->z = 0;
+            cSkin->z = 2.5f;
             cSkin->model = AssetLoader::loadModel(_models[_modelNums[i]]);
 //            float hue = i / (float)_numPlayers + j / ((float)_numPlayers * (float)charactersPerPlayer * 3);
  //           hue = hue * 2.0 * M_PI;
@@ -192,9 +197,9 @@ void MainScene::InitScene() {
 	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 
-void MainScene::Update(const float delta) {
+int MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
-    _bulletoManager->UpdateBullet(); //updates hackjob bullets 
+    _bulletoManager->UpdateBullet(delta); //updates hackjob bullets 
 	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
 
@@ -207,10 +212,9 @@ void MainScene::Update(const float delta) {
 	pos.y += cos(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
 	_aimIndicator->set_position(pos);
 
-	if (win != -1)
-		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
-
     _playerManager->UpdatePlayerUI();
+
+	return win;
 }
 
 void MainScene::CleanUp() {
