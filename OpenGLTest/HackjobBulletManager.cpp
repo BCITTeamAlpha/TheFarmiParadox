@@ -60,7 +60,9 @@ void HackjobBulletManager::UpdateBullet() {
 				&& character->teamID != bullet->shooter_teamID) {
 				
 				character->TakeDamage(bullet->damage);
-				printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
+				//printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
+
+				SetInfoText("hit player");
 
 				map->explosion(Planetoid(character->get_position().x, character->get_position().y, bullet->explosionRadius));
 				//printf("\nExplosion radius: %lf\n", bullet->explosionRadius);

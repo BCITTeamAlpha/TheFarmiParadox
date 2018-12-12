@@ -33,8 +33,6 @@ public:
 	virtual void notify(EventName eventName, Param *params) override;
 	std::vector<Player*> players;
 
-	int actionsTaken = 0;
-	int maxActionsPerTurn = 5;
 	int moveTime = 20;
 	int aimTime = 10;
 private:
