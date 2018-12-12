@@ -1,4 +1,5 @@
 #include "PhysicsManager.h"
+#include "SoundParams.h"
 
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
@@ -39,6 +40,17 @@ void PhysicsManager::calcPhysics(float dTime)
 			if (character->jump_input) {
 				player_input = true;
 				N_comp = player_jump_speed;
+                
+                SoundParams * JumpNoise = new SoundParams();
+
+                JumpNoise->sound = Jump;
+
+                JumpNoise->x = 0;
+                JumpNoise->y = 0;
+                JumpNoise->z = 0;
+
+                TypeParam<SoundParams*> *jumpSound = new TypeParam<SoundParams*>(JumpNoise);
+                EventManager::notify(PLAY_SOUND, jumpSound);
 			}
 		   	if (character->left_input || character->right_input) {
 				player_input = true;
