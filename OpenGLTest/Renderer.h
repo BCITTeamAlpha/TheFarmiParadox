@@ -36,7 +36,7 @@ class Renderer : public ISubscriber {
 		glm::vec3 light_target = { 182.5f, 90.0f, 0.0f };
 		glm::vec3 light_color = { 1.0f, 1.0f, 1.0f };
 		GLfloat light_brightness = 40000.0f;
-		GLfloat light_FOV = 75.0f;
+		GLfloat light_FOV = 90.0f;
 		GLfloat light_nearclip = 0.1f;
 		GLfloat	light_farclip = 1000.0f;
 	private:
