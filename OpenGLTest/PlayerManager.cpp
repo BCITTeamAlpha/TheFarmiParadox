@@ -1,6 +1,7 @@
 #include "PlayerManager.h"
 #include "UIManager.h"
 #include "TextComponent.h"
+#define _CRT_SECURE_NO_WARNINGS
 
 PlayerManager * PlayerManager::instance = NULL;
 
@@ -49,14 +50,14 @@ void PlayerManager::fireWeapon()
 	instance->NextPlayer();
 }
 
-int PlayerManager::SecondsRemaining()
+float PlayerManager::SecondsRemaining()
 {
 	switch (turnStage)
 	{
 	case 0:
-		return (int)std::round(moveTime - timeElapsed);
+		return moveTime - timeElapsed;
 	case 1:
-		return (int)std::round(aimTime - timeElapsed);
+		return aimTime - timeElapsed;
 	default:
 		return 0;
 	}
@@ -66,7 +67,9 @@ void PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
 
-	printf("Time Remaining:%d\n", SecondsRemaining());
+    TextComponent *timer = dynamic_cast<TextComponent*>(UIManager::GetComponentById("timerText"));
+    if(timer != nullptr)
+        timer->SetText(getTimeString());
 
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
@@ -253,4 +256,19 @@ void PlayerManager::notify(EventName eventName, Param *params)
 	}
 
 	printf("Actions taken: %d, Max Actions Per Turn = %d\n", actionsTaken, maxActionsPerTurn);
+}
+
+std::string PlayerManager::getTimeString() {
+    float time = SecondsRemaining();
+
+    int seconds = (int)time;
+    float msTemp = (time - seconds) * 100;
+    int ms = (int)msTemp;
+
+    char buff[6];
+    sprintf_s(buff, "%02d:%02d", seconds, ms);
+    
+    std::string ret(buff);
+
+    return ret;
 }

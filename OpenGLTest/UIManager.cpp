@@ -145,6 +145,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         *color = element->FindAttribute("color"),
         *alpha = element->FindAttribute("alpha"),
         *onclick = element->FindAttribute("onclick"),
+        *ar = element->FindAttribute("ar"),
         *id = element->FindAttribute("id");
 
     float offX = 0, offY = 0, w = 0, h = 0;
@@ -155,6 +156,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
     std::string idVal = "";
     bool vis = true;
     std::string clickFunc = "";
+    float aspectRatio = 1.0f;
 
     if (visible != nullptr) {
         vis = visible->BoolValue();
@@ -166,6 +168,10 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
 
     if (onclick != nullptr) {
         clickFunc = onclick->Value();
+    }
+
+    if (ar != nullptr) {
+        aspectRatio = ar->FloatValue();
     }
 
     if (anchor != nullptr) {
@@ -210,7 +216,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         const XMLAttribute  *width = element->FindAttribute("width"),
             *height = element->FindAttribute("height");
 
-        col = {0, 0, 0, 1};
+        col = {0, 0, 0, 0};
 
         UnitType xUnit = UNIT_PERCENT, yUnit = UNIT_PERCENT;
 
@@ -239,6 +245,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         newComponent = new UIComponent(w, h, offX, offY);
         newComponent->xType = xUnit;
         newComponent->yType = yUnit;
+        newComponent->aspectRatio = aspectRatio;
     } else if (type == "image") {
         const XMLAttribute  *width = element->FindAttribute("width"),
             *height = element->FindAttribute("height"),
@@ -287,11 +294,17 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
 
         col = {1.0, 1.0, 1.0, 1.0};
 
+        UnitType sType = UNIT_PIXEL;
         float s = 0;
-        if (size != nullptr)
-            s = std::stof(size->Value());
+        if (size != nullptr) {
+            std::string val = size->Value();
+            s = std::stof(val);
+            if (val.back() == '%')
+                sType = UNIT_PERCENT;
+        }
 
         newComponent = new TextComponent(text, s, offX, offY);
+        newComponent->yType = sType;
     }
 
     if (color != nullptr) {
@@ -302,6 +315,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         col.r = ((c >> 16) & 0xFF) / 255.0f;
         col.g = ((c >> 8) & 0xFF) / 255.0f;
         col.b = (c & 0xFF) / 255.0f;
+        col.a = 1.0f;
     }
 
     if (alpha != nullptr) {

@@ -1,0 +1,24 @@
+<root>
+  <component id="MenuScene" width="100%" height="100%" alpha="1" color="246DC2" visible="true">
+    <component id="startGame" width="450px" height="80px" anchor="center center" color="2C2F33" onclick="startGame">
+      <text size="40" anchor="center center" color="FFFFFF">Start Game</text>
+    </component>
+  </component>
+  <component id="MainScene" width="100%" height="100%" alpha="0" visible="false">
+    <component id="lBox" width="22.35%" height="100%" color="246DC2" anchor="top left">
+      <component id="lBoxInner" width="90%" height="96%" color="3B86DB" anchor="center center">
+        <text id="lText" size="64" anchor="top center" color="FFFFFF">T O P</text>
+        <image id="Karen" anchor="bottom center" width="95%" height="scale" src="araragi_karen.png" />
+      </component>
+    </component>
+    <component id="rBox" width="21.9%" height="100%" color="246DC2" anchor="top right">
+      <component id="rBoxInner" width="90%" height="96%" color="3B86DB" anchor="center center">
+        <text id="rText" size="64" anchor="top center" color="FFFFFF">K E K</text>
+        <text id="rInfoText" size="30" anchor="bottom center" color="FFFFFF" offset="0 100px"></text>
+        <component id="hideButton" width="90%" height="50px" anchor="bottom center" offset="0 10px" color="2C2F33" onclick="toggleKaren">
+          <text id="btnTex" size="40" anchor="center center" color="FFFFFF">Hide</text>
+        </component>
+      </component>
+    </component>
+  </component>
+</root>

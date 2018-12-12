@@ -7,6 +7,7 @@ enum EventName {
     RENDERER_ADD_TO_UIRENDERABLES, // Tell renderer to add renderable to list
     RENDERER_POPULATE_BUFFERS, // Tell renderer to repopulate buffers for a renderable
     RENDERER_SET_CAMERA, // Set Camera Position
+    RENDERER_REPOPULATE_BUFFERS,
     UI_CLICK, // Clicked on screen
 	PLAYER_JUMP,   // Used to trigger a player movement event
 	PLAYER_LEFT,
