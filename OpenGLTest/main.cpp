@@ -114,7 +114,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 int main() {
-	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::unique_lock<std::mutex> lck(mtx);

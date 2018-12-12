@@ -7,6 +7,7 @@
 #include "UIManager.h"
 
 void MainScene::InitScene() {
+	srand(time(NULL));
     UIComponent *mainUI = UIManager::GetComponentById("MainScene");
     if (mainUI != nullptr)
         mainUI->visible = true;
