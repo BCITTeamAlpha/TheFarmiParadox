@@ -82,15 +82,15 @@ void SoundManager::playSong(TrackList track, float x, float y, float z) {
 
 void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) {
     //mutex check to ensure we don't commit access violations by accessing dead buffers while they're remade.
-    std::unique_lock<std::mutex> lock(SoundMtx);
-    //SoundCv.wait(lock);
+    
+    SoundMtx.lock();
     int selectedBuffer = currentSoundBuffer;
     currentSoundBuffer++;
     if (currentSoundBuffer >= MAX_SOUND_BUFFERS) {
         currentSoundBuffer = 0;
     }
-    //end mutex
-    //SoundCv.notify_one();
+    SoundMtx.unlock();
+    
 
     //check if our selected buffer
     if (soundObject->isPlaying(seSource[selectedBuffer])) {
@@ -149,6 +149,8 @@ void SoundManager::notify(EventName eventName, Param* param) {
                 // Successful type cast
                 SoundInfo = sound->Param;
                 playSound(SoundInfo->sound, SoundInfo->x, SoundInfo->y, SoundInfo->z);
+                delete SoundInfo;
+                delete param;
             }
             break;
         }
