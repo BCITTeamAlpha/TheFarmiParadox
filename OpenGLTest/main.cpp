@@ -31,40 +31,19 @@ SoundManager* noise;
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 	switch (key) {
-
-	case GLFW_KEY_UP:
-	case GLFW_KEY_W:
-		if (action == GLFW_PRESS) {
-			TypeParam<bool> param(true);
-			EventManager::notify(AIM_UP, &param, false);
-		}
-		if (action == GLFW_RELEASE) {
-			TypeParam<bool> param(false);
-			EventManager::notify(AIM_UP, &param, false);
-		}
-		break;
-	case GLFW_KEY_DOWN:
-	case GLFW_KEY_S:
-		if (action == GLFW_PRESS) {
-			TypeParam<bool> param(true);
-			EventManager::notify(AIM_DOWN, &param, false);
-		}
-		if (action == GLFW_RELEASE) {
-			TypeParam<bool> param(false);
-			EventManager::notify(AIM_DOWN, &param, false);
-		}
-		break;
 	case GLFW_KEY_LEFT:
 	case GLFW_KEY_A:
 		if (action == GLFW_PRESS)
 		{
 			TypeParam<bool> param(true);  	
 			EventManager::notify(PLAYER_LEFT, &param, false);
+			EventManager::notify(AIM_LEFT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_LEFT, &param, false);
+			EventManager::notify(AIM_LEFT, &param, false);
 		}
 		break;
 	case GLFW_KEY_RIGHT:
@@ -73,11 +52,13 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		{
 			TypeParam<bool> param(true);
 			EventManager::notify(PLAYER_RIGHT, &param, false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		if (action == GLFW_RELEASE)
 		{
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_RIGHT, &param, false);
+			EventManager::notify(AIM_RIGHT, &param, false);
 		}
 		break;
 	case GLFW_KEY_SPACE:

@@ -17,8 +17,8 @@ public:
 	void setControllable(bool c);
 	void setNextCharacter();
 	void adjustAim(float dTime);
-	void setAimUp(bool b);
-	void setAimDown(bool b);
+	void setAimLeft(bool b);
+	void setAimRight(bool b);
 	void clearInput();
 	void moveLeft(bool v);
 	void moveRight(bool v);
@@ -31,5 +31,5 @@ public:
 private:
 	Inventory *weaps;
 	int currentCharacterIndex;
-	bool aimUp, aimDown;
+	bool aimLeft, aimRight;
 };

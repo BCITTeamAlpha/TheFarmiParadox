@@ -53,20 +53,18 @@ void Player::fireWeapon()
 	weaps->useWeapon(chars[currentCharacterIndex]->get_position());
 }
 
-void Player::setAimUp(bool b)
-{
-	aimUp = b;
+void Player::setAimLeft(bool b) {
+	aimLeft = b;
 }
 
-void Player::setAimDown(bool b)
-{
-	aimDown = b;
+void Player::setAimRight(bool b) {
+	aimRight = b;
 }
 
 void Player::adjustAim(float dTime)
 {
 	const float SPEED = 45;
-	aim_angle += (aimDown - aimUp) * dTime * SPEED;
+	aim_angle += (aimLeft - aimRight) * dTime * SPEED;
 	weaps->angle = aim_angle; // unused at the time of the midnight before our final presentation
 	std::cout << "Weapon Angle = " << aim_angle << " degrees" << std::endl;
 }
