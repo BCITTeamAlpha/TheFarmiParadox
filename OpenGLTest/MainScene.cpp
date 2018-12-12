@@ -7,6 +7,7 @@
 #include "UIManager.h"
 
 void MainScene::InitScene() {
+	srand(time(NULL));
     UIComponent *mainUI = UIManager::GetComponentById("MainScene");
     if (mainUI != nullptr)
         mainUI->visible = true;
@@ -29,6 +30,11 @@ void MainScene::InitScene() {
     TypeParam<glm::vec3> param(cameraPos);
     EventManager::notify(RENDERER_SET_CAMERA, &param);
 
+	// setup cores
+	for (int i = 0; i < _planets.size(); i++) {
+		_cores.push_back(Core(_planets[i]));
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_cores[i].renderable), false);
+	}
 
     // setup background
     Renderable* backgroundSkin = new Renderable();
@@ -68,7 +74,7 @@ void MainScene::InitScene() {
     delete backgroundImage;
     backgroundSkin->fullBright = true;
 
-    _physics = new PhysicsManager(&_planets, _map);
+    _physics = new PhysicsManager(&_planets, &_cores, _map);
 
     for (int i = 0; i < 5; ++i) {
         Pickup *p = new Pickup();
@@ -152,7 +158,11 @@ void MainScene::InitScene() {
 void MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
-    _playerManager->handlePlayers(delta);
+    int win = _playerManager->handlePlayers(delta);
+
+	if (win != -1)
+		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
+
     //_playerManager->UpdatePlayerUI();
 }
 

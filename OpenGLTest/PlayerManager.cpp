@@ -62,7 +62,7 @@ int PlayerManager::SecondsRemaining()
 	}
 }
 
-void PlayerManager::handlePlayers(float dTime)
+int PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
 
@@ -71,7 +71,7 @@ void PlayerManager::handlePlayers(float dTime)
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
 		turnStage = 1;
-		instance->players[instance->currentPlayerIndex]->setControllable(false);
+		players[currentPlayerIndex]->setControllable(false);
 		timeElapsed = 0;
 		instance->NextPlayer();
 		return;
@@ -79,10 +79,19 @@ void PlayerManager::handlePlayers(float dTime)
 	else if (turnStage == 1)
 	{
 		if (timeElapsed >= aimTime)
-			timeElapsed = 0;
+			NextPlayer();
 		else
 			players[currentPlayerIndex]->adjustAim(dTime);
 	}
+
+	for (int i = 0; i < players.size(); i++)
+	{
+		//if players[i] has no more characters delete it
+	}
+
+	//if there is only one player left, return the winning player's id
+
+	return -1;
 }
 
 void PlayerManager::NextPlayer() 
@@ -91,11 +100,11 @@ void PlayerManager::NextPlayer()
 	timeElapsed = 0;
 	players[currentPlayerIndex]->setNextCharacter();
 
-	if (players.size())
-	{
-		players[currentPlayerIndex]->clearInput();
-		currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-	}
+
+	//players[currentPlayerIndex]->nextChar();
+	players[currentPlayerIndex]->clearInput();
+	currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+	
 	printf("next player index:%d\n", currentPlayerIndex);
 
 	players[currentPlayerIndex]->getCurrentCharacter()->bulletoAmmo = players[currentPlayerIndex]->getCurrentCharacter()->maxBulletsPerTurn;
