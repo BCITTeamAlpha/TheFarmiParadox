@@ -115,6 +115,7 @@
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="Pickup.cpp" />
+    <ClCompile Include="PickupManager.cpp" />
     <ClCompile Include="Planetoid.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerManager.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="MainScene.h" />
     <ClInclude Include="MenuScene.h" />
+    <ClInclude Include="PickupManager.h" />
     <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="Map.h" />

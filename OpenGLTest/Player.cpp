@@ -109,8 +109,6 @@ void Player::jump(bool v)
 		c->jump_input = v;
 	}
 }
-
-
 void Player::RemoveCharacter(int index) {
 
 
@@ -123,5 +121,8 @@ void Player::RemoveCharacter(int index) {
 
 	if (currentCharacterIndex >= chars.size() || currentCharacterIndex < 0)
 		currentCharacterIndex = 0; //dont want to access out of bounds element
-	
+}
+
+Inventory Player::getWeapons() {
+	return *weaps;
 }

@@ -108,6 +108,7 @@ void PlayerManager::NextPlayer()
 	players[currentPlayerIndex]->getCurrentCharacter()->bulletoAmmo = players[currentPlayerIndex]->getCurrentCharacter()->maxBulletsPerTurn;
 
 	UpdatePlayerUI();
+	EventManager::notify(PICKUP_SPAWN, nullptr);
 }
 
 void PlayerManager::AddPlayer(Player * player)
