@@ -14,11 +14,11 @@ class HackjobBulletManager : public ISubscriber {
 
 public:
 
-	HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map *map);
+	HackjobBulletManager(PhysicsManager *physics, Map *map);
 	void UpdateBullet();
 	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
 	void SetInfoText(std::string info);
-
+	void CheckIfPlayersDamaged();
     void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
 
 private:

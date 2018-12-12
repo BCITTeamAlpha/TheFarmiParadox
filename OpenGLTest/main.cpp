@@ -72,17 +72,6 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 			TypeParam<bool> param(false);
 			EventManager::notify(PLAYER_JUMP, &param, false);
             
-            //SoundParams * JumpNoise = new SoundParams();
-
-            //JumpNoise->sound = Jump;
-
-            //JumpNoise->x = 0;
-            //JumpNoise->y = 0;
-            //JumpNoise->z = 0;
-
-            //TypeParam<SoundParams*> jumpSound(JumpNoise);
-            //EventManager::notify(PLAY_SOUND, &jumpSound);
-            noise->playSound(Jump, 0, 0, 0);
 		}
 		break;
 	case GLFW_KEY_F:
@@ -107,7 +96,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) //GLFW_RELEASE is the other possible state.
 	{
 		//printf("%lf %lf\n", xpos, ypos);
-        EventManager::notify(BULLET_SPAWN, nullptr);
 	}
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) //GLFW_RELEASE is the other possible state.
 	{
@@ -125,7 +113,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 int main() {
-	srand(time(NULL));
 	// start Renderer in own thread
 	renderer = new Renderer();
 	std::unique_lock<std::mutex> lck(mtx);
@@ -147,6 +134,7 @@ int main() {
     noise = new SoundManager();
     EventManager::subscribe(PLAY_SONG, noise);
     EventManager::subscribe(PLAY_SOUND, noise);
+    EventManager::subscribe(GAME_START, noise);
 
     //start initial music track
     TrackParams * initial = new TrackParams();
@@ -166,7 +154,7 @@ int main() {
 		Sleep(1000.0 / 59.94);
 
 		// code to move light around
-		float x = 85.0f + 256.0f * std::sin(tick * 0.01f);
+		float x = 182.5f + 256.0f * std::sin(tick * 0.01f);
 		float y = 100.0f + 256.0f * std::cos(tick * 0.01f);
 		renderer->light_position.x = x;
 		renderer->light_position.y = y;

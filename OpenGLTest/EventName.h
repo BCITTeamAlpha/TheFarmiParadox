@@ -15,6 +15,7 @@ enum EventName {
 	WEAPON_PREV,
 	WEAPON_NEXT,
 	WEAPON_FIRE,
+	PICKUP_SPAWN,
 	AIM_LEFT,
 	AIM_RIGHT,
     PLAY_SONG,
@@ -22,4 +23,5 @@ enum EventName {
 	PLAYER_FIRE,
     BULLET_SPAWN,
     GAME_START,
+    SOUND_COMPLETE,
 };

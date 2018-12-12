@@ -6,13 +6,14 @@
 #include <iostream>
 #include "EventManager.h"
 #include "Character.h"
+#include "Core.h"
 #include <algorithm>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 class PhysicsManager/* : public ISubscriber*/ {
 public:
-	PhysicsManager(std::vector<Planetoid> *p, Map *m);
+	PhysicsManager(std::vector<Planetoid> *p, std::vector<Core> *c, Map *m);
 	void calcPhysics(float dTime);
 	void addObject(PhysicsObject *obj);
 	glm::vec2 genSpawnPos(float object_radius);
@@ -28,6 +29,8 @@ private:
 	
 	std::vector<Planetoid> *planets;
 	std::vector<PhysicsObject*> objects;
-	std::vector<Character*> chars;
+	std::vector<Core> *cores;
 	Map *map;
+
+    unsigned int frames_since_jump_sound;
 };

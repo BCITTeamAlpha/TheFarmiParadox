@@ -7,6 +7,7 @@
 #include "UIManager.h"
 
 void MainScene::InitScene() {
+	srand(time(NULL));
     UIComponent *mainUI = UIManager::GetComponentById("MainScene");
     if (mainUI != nullptr)
         mainUI->visible = true;
@@ -14,14 +15,14 @@ void MainScene::InitScene() {
     _playerManager = new PlayerManager();
 
     // setup Map IRenderable
-    _planets.push_back(Planetoid(52.0f, 120.0f, 16.0f));
-    _planets.push_back(Planetoid(92.0f, 82.0f, 8.0f));
-    _planets.push_back(Planetoid(36.0f, 64.0f, 32.0f));
-    _planets.push_back(Planetoid(12.0f, 152.0f, 12.0f));
-    _planets.push_back(Planetoid(124.0f, 152.0f, 48.0f));
-    _planets.push_back(Planetoid(132.0f, 32.0f, 32.0f));
+    _planets.push_back(Planetoid(147.0f, 120.0f, 16.0f));
+    _planets.push_back(Planetoid(188.0f, 82.0f, 8.0f));
+    _planets.push_back(Planetoid(131.0f, 64.0f, 32.0f));
+    _planets.push_back(Planetoid(107.0f, 152.0f, 12.0f));
+    _planets.push_back(Planetoid(219.0f, 152.0f, 48.0f));
+    _planets.push_back(Planetoid(227.0f, 32.0f, 32.0f));
 
-    _map = new Map(_planets, 175, 205);
+    _map = new Map(_planets, 365, 205);
 
     glm::vec3 cameraPos = {_map->width() / 2.0f,
                            _map->height() / 2.0f,
@@ -29,6 +30,11 @@ void MainScene::InitScene() {
     TypeParam<glm::vec3> param(cameraPos);
     EventManager::notify(RENDERER_SET_CAMERA, &param);
 
+	// setup cores
+	for (int i = 0; i < _planets.size(); i++) {
+		_cores.push_back(Core(_planets[i]));
+		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_cores[i].renderable), false);
+	}
 
     // setup background
     Renderable* backgroundSkin = new Renderable();
@@ -68,8 +74,8 @@ void MainScene::InitScene() {
     delete backgroundImage;
     backgroundSkin->fullBright = true;
 
-    _physics = new PhysicsManager(&_planets, _map);
-
+    _physics = new PhysicsManager(&_planets, &_cores, _map);
+	/*
     for (int i = 0; i < 5; ++i) {
         Pickup *p = new Pickup();
         p->mass = 75;
@@ -86,6 +92,7 @@ void MainScene::InitScene() {
 
         EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(p->renderable), false);
     }
+	*/
 
     _models.push_back("../Models/Cat.obj");
     _models.push_back("../Models/Cow.obj");
@@ -93,61 +100,89 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int teams = 4;
-    int characters_per_team = 2;
+    int numberOfPlayers = 2;
+    int charactersPerPlayer = 2;
+	int playerID = 1;
+	int characterID = 1;
 
-    for (int i = 0; i < teams; i++) {
-        for (int j = 0; j < characters_per_team; j++) {
+    for (int i = 0; i < numberOfPlayers; i++) {
+		//set up a player 
+		Player *player = new Player();
+		player->playerID = playerID++;
+
+		//set up a test pickup to give the player weapons
+		Pickup pickup1 = Pickup(new Weapon("Pistol", 8, 100, 4, 40));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 16, 30));
+
+		player->addItem(pickup1);
+		player->addItem(pickup2);
+
+        for (int j = 0; j < charactersPerPlayer; j++) {
             //set up a square test character
             Character *c = new Character(1000, 10, 10); //health, bullets, maxBullets per turn (recharged when it's their turn again) -> right click to shoot
             c->mass = 50;
-            c->controllable = true;
+			if(j==0)
+				c->controllable = true; //sets only the first character to controllable initially
             c->radius = 2.5f;
-            c->teamID = i; //i is the current teamid being set - note this is to prevent friendly fire from daniel's bulleto code
-            c->set_position(_physics->genSpawnPos(c->radius));
+			c->characterID = characterID++;
+			c->set_position(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
             cSkin->z = 0;
             cSkin->model = AssetLoader::loadModel(_models[j % _models.size()]);
-            float hue = i / (float)teams + j / ((float)teams * (float)characters_per_team * 3);
+            float hue = i / (float)numberOfPlayers + j / ((float)numberOfPlayers * (float)charactersPerPlayer * 3);
             hue = hue * 2.0 * M_PI;
             cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
             cSkin->scale = glm::vec3(2.5f);
             c->setRenderable(cSkin);
 
-            //set up a player with the test character
-            Player *player = new Player();
-
-            //set up a test pickup to give the player weapons
-            Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-            Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
-
-            player->addItem(pickup1);
-            player->addItem(pickup2);
-
-            c->playerID = player->playerID; //omegalul ultra duplication
+            c->playerID = player->playerID;
             player->addCharacter(c);
-            _playerManager->AddPlayer(player);
 
             // send physicsobjects to physicsmanager
             _physics->addObject(c);
             EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
         }
+		_playerManager->AddPlayer(player);
     }
+
+	_aimIndicator = new GameObject();
+	Renderable *aimSkin = new Renderable();
+	aimSkin->model = AssetLoader::loadModel("../Models/cube.obj");
+	aimSkin->scale = glm::vec3(2.0);
+	aimSkin->color = glm::vec4(1.0, 0.25, 0.0, 1.0);
+	aimSkin->fullBright = true;
+	_aimIndicator->setRenderable(aimSkin);
+	EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_aimIndicator->renderable), false);
 
     // send Renderables to renderer
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_map->renderable), false);
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_background->renderable), false);
 
-    _map->explosion(Planetoid(89, 117, 8));
+    _map->explosion(Planetoid(184, 117, 8));
 
-    _bulletoManager = new HackjobBulletManager(_playerManager, _physics, _map); //initializes bullet manager
+    _bulletoManager = new HackjobBulletManager(_physics, _map); //initializes bullet manager
+	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 
 void MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
-    _playerManager->handlePlayers(delta);
+	_pickupManager->updatePickup(); //checks pickup collisions
+    int win = _playerManager->handlePlayers(delta);
+
+	Character* c = _playerManager->GetCurrentPlayer()->getCurrentCharacter();
+	glm::vec2 pos = c->get_position();
+	glm::vec3 rot = c->get_rotation();
+	rot.z += _playerManager->GetCurrentPlayer()->aim_angle;
+	rot.z += (rot.y == 0.0f) ? -45 : 45;
+	pos.x += -sin(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
+	pos.y += cos(rot.z * (float)M_PI / 180.0f) * 2.0f * c->radius;
+	_aimIndicator->set_position(pos);
+
+	if (win != -1)
+		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
+
     //_playerManager->UpdatePlayerUI();
 }
 

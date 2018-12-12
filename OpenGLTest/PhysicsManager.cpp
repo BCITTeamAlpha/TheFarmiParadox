@@ -1,15 +1,20 @@
 #include "PhysicsManager.h"
+#include "SoundParams.h"
+#include "PlayerManager.h"
 
 const float PhysicsManager::VELOCITY_CAP = 40.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
 const float ROT_CAP = 700.0f;
+const unsigned int JUMP_SOUND_PERIOD = 29;
 
-PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, Map *m)
+PhysicsManager::PhysicsManager(std::vector<Planetoid> *p, std::vector<Core> *c, Map *m)
 {
 	map = m;
+	cores = c;
 	planets = p;
 	objects = std::vector<PhysicsObject*>();
+    frames_since_jump_sound = 0;
 }
 
 void PhysicsManager::calcPhysics(float dTime)
@@ -37,6 +42,19 @@ void PhysicsManager::calcPhysics(float dTime)
 			float T_comp = dot(T_acc, vel);
 
 			if (character->jump_input) {
+                if (frames_since_jump_sound > JUMP_SOUND_PERIOD) {
+                    frames_since_jump_sound = 0;
+                    SoundParams * JumpNoise = new SoundParams();
+
+                    JumpNoise->sound = Jump;
+
+                    JumpNoise->x = 0;
+                    JumpNoise->y = 0;
+                    JumpNoise->z = 0;
+
+                    TypeParam<SoundParams*> *jumpSound = new TypeParam<SoundParams*>(JumpNoise);
+                    EventManager::notify(PLAY_SOUND, jumpSound);
+                }
 				player_input = true;
 				N_comp = player_jump_speed;
 			}
@@ -86,6 +104,29 @@ void PhysicsManager::calcPhysics(float dTime)
 		object->velocity = vel;
 		object->grounded = colliding;
 	}
+
+	for (int i = 0; i < cores->size(); i++) {
+		Core* core = &(*cores)[i];
+		for (int j = 0; j < PlayerManager::instance->players.size(); j++) {
+			Player* player = PlayerManager::instance->players[j];
+			for (int k = 0; k < player->chars.size(); k++) {
+				Character *character = player->chars[k];
+				glm::vec2 normal;
+				if (core->colliding_with_object(*character, normal)) {
+					std::cout << "Player burned up. \n";
+					character->renderable = NULL;
+					int playerToBeRemovedID = character->playerID;
+					PlayerManager::instance->players[j]->RemoveCharacter(k);
+
+					if (PlayerManager::instance->players[j]->chars.size() == 0) {
+						PlayerManager::instance->RemovePlayer(playerToBeRemovedID);
+					}
+				}
+			}
+		}
+	}
+
+    frames_since_jump_sound++;
 }
 
 //Finds the net force on a given point in space

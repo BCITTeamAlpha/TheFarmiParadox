@@ -18,7 +18,7 @@ public:
 	static void aimWeapon();
 	static void fireWeapon();
 
-	void handlePlayers(float dTime);
+	int handlePlayers(float dTime);
 
 	void NextPlayer();
 
@@ -35,13 +35,10 @@ public:
 	virtual void notify(EventName eventName, Param *params) override;
 	std::vector<Player*> players;
 
-	int actionsTaken = 0;
-	int maxActionsPerTurn = 5;
 	int moveTime = 20;
 	int aimTime = 10;
 private:
     std::string getTimeString();
-    UIComponent *timer;
 	int currentPlayerIndex;
 	size_t turnStage;
 	float timeElapsed;
