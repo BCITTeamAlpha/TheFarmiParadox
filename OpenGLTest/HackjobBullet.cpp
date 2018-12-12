@@ -1,6 +1,6 @@
 #include "HackjobBullet.h"
 
-float minimumCollisionDitance = 1.5f;
+float minimumCollisionDistance = 1.5f;
 
 HackjobBullet::HackjobBullet(int damage, float explosionRadius) {
 	this->damage = damage;
@@ -10,5 +10,5 @@ HackjobBullet::HackjobBullet(int damage, float explosionRadius) {
 
 bool HackjobBullet::colliding_with_player(glm::vec2 & player_pos) {
 	float length = glm::length(get_position() - player_pos);
-	return length < (this->radius + minimumCollisionDitance);
+	return length < (this->radius + minimumCollisionDistance);
 }

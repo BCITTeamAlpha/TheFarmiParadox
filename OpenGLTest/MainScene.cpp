@@ -69,7 +69,7 @@ void MainScene::InitScene() {
     backgroundSkin->fullBright = true;
 
     _physics = new PhysicsManager(&_planets, _map);
-
+	/*
     for (int i = 0; i < 5; ++i) {
         Pickup *p = new Pickup();
         p->mass = 75;
@@ -86,6 +86,7 @@ void MainScene::InitScene() {
 
         EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(p->renderable), false);
     }
+	*/
 
     _models.push_back("../Models/Cat.obj");
     _models.push_back("../Models/Cow.obj");
@@ -142,11 +143,13 @@ void MainScene::InitScene() {
     _map->explosion(Planetoid(89, 117, 8));
 
     _bulletoManager = new HackjobBulletManager(_playerManager, _physics, _map); //initializes bullet manager
+	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 
 void MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
+	_pickupManager->updatePickup(); //checks pickup collisions
     _playerManager->handlePlayers(delta);
     //_playerManager->UpdatePlayerUI();
 }

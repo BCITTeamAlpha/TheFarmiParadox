@@ -102,3 +102,7 @@ void Player::jump(bool v)
 		c->jump_input = v;
 	}
 }
+
+Inventory Player::getWeapons() {
+	return *weaps;
+}
