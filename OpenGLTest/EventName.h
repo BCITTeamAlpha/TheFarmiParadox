@@ -22,4 +22,5 @@ enum EventName {
 	PLAYER_FIRE,
     BULLET_SPAWN,
     GAME_START,
+    SOUND_COMPLETE,
 };

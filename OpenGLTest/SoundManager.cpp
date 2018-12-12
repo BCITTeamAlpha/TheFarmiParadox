@@ -4,6 +4,7 @@
 //defines for track filenames
 #define MAIN_BGM "../Music/bgm1.wav" 
 #define MENU_BGM "../Music/bgm2.wav"
+#define WELCOME_BGM "../Music/bgm3.wav"
 
 //defines for SoundEffect Names
 #define JUMP "../Sounds/jumpSE.wav"
@@ -42,6 +43,13 @@ void SoundManager::loadAudioData() {
     }
     Music.insert(std::pair<TrackList, AudioData>(MenuBGM, temp));
 
+    //load welcome message
+    temp = soundObject->getAudioData(WELCOME_BGM);
+    if (temp.data == NULL) {
+        std::cout << "Menu BGM failed to store correctly." << std::endl;
+    }
+    Music.insert(std::pair<TrackList, AudioData>(WelcomeBGM, temp));
+
     //Load Sounds
     //Jump Sound
     temp = soundObject->getAudioData(JUMP);
@@ -63,10 +71,9 @@ SoundManager::~SoundManager() {
 }
 
 void SoundManager::playSong(TrackList track, float x, float y, float z) {
-    if (soundObject->isPlaying(bgmSource)) {
-        soundObject->PauseAudio(bgmSource);
-        soundObject->clearBuffer(bgmBuffer,bgmSource);
-    }
+    //ensure buffer is cleared
+    soundObject->PauseAudio(bgmSource);
+    soundObject->clearBuffer(bgmBuffer,bgmSource);
 
     switch (track){
         case MainBGM:
@@ -78,6 +85,12 @@ void SoundManager::playSong(TrackList track, float x, float y, float z) {
         case MenuBGM:
             soundObject->bufferData(bgmBuffer, bgmSource, Music.find(MenuBGM)->second);
             soundObject->toggleLooping(bgmSource, true);
+            soundObject->placeSource(bgmSource, x, y, z);
+            soundObject->PlayAudio(bgmSource);
+            break;
+        case WelcomeBGM:
+            soundObject->bufferData(bgmBuffer, bgmSource, Music.find(WelcomeBGM)->second);
+            soundObject->toggleLooping(bgmSource, false);
             soundObject->placeSource(bgmSource, x, y, z);
             soundObject->PlayAudio(bgmSource);
             break;
@@ -161,6 +174,15 @@ void SoundManager::notify(EventName eventName, Param* param) {
                 delete param;
             }
             break;
+        }
+        case GAME_START: {
+            //play welcome
+            playSong(WelcomeBGM, 0, 0, 0);
+            //wait for welcome to finish
+            while (soundObject->isPlaying(bgmSource)){}
+            //play main music
+            EventManager::notify(SOUND_COMPLETE,nullptr);
+            playSong(MainBGM,0,0,0);
         }
         default:
             break;
