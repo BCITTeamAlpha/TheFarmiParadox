@@ -8,12 +8,12 @@ PickupManager::PickupManager(PlayerManager *playerManager, PhysicsManager *physi
 	pickupList = std::vector<Pickup*>();
 	weapons = std::vector<Weapon>();
 	
-	Weapon weap1 = Weapon("Pistol", 8, 100, 4, 40);
+	//Weapon weap1 = Weapon("Pistol", 8, 100, 4, 40);
 	Weapon weap2 = Weapon("Rifle", 5, 200, 6, 50);
 	Weapon weap3 = Weapon("Shotgun", 3, 300, 8, 40);
 	Weapon weap4 = Weapon("Rocket Launcher", 2, 200, 12, 40);
 	Weapon weap5 = Weapon("Grenade", 1, 100, 14, 30);
-	weapons.push_back(weap1);
+	//weapons.push_back(weap1);
 	weapons.push_back(weap2);
 	weapons.push_back(weap3);
 	weapons.push_back(weap4);
@@ -39,7 +39,7 @@ void PickupManager::updatePickup() {
 
 				// If pickup collides with a player and they do not have the pickup in their inventory
 				if (pickup->colliding_with_player(character->get_position())) {
-					if (pickup->pickedUp()->_name == weapon->_name) {
+					if (pickup->pickedUp()->_name.compare(weapon->_name) == 0) {
 
 						// Adds pickup's ammo to players weapon ammo
 						weapon->_charges += pickup->pickedUp()->_charges;
@@ -50,13 +50,14 @@ void PickupManager::updatePickup() {
 
 						// Else add pickup to Player Inventory and destroy pickup from map
 					}
-					else {
-						playerManager->instance->players[j]->addItem(*pickup); pickup->renderable = NULL;
-						pickupList.erase(pickupList.begin() + i);
-						removed = true;
-						break;
-					}
 				}				
+			}
+			if (!removed && pickup->colliding_with_player(character->get_position()))
+			{
+				playerManager->instance->players[j]->addItem(*pickup); pickup->renderable = NULL;
+				pickupList.erase(pickupList.begin() + i);
+				removed = true;
+				break;
 			}
 		}
 	}

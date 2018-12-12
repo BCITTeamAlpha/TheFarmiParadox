@@ -135,7 +135,7 @@ void MainScene::InitScene() {
 
 		//set up a test pickup to give the player weapons
 		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 100, 4, 40));
-		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 16, 30));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 14, 30));
 		
 
 		player->addItem(pickup1);
