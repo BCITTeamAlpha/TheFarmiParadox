@@ -134,8 +134,8 @@ void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float exp
 	bullet->set_position(playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 
 
 	glm::vec3 rot = playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
-	float aim_angle = playerManager->GetCurrentPlayer()->aim_angle;
-	rot.z += (rot.y == 0.0f) ? -aim_angle : aim_angle;
+	rot.z += playerManager->GetCurrentPlayer()->aim_angle;
+	rot.z += (rot.y == 0.0f) ? -45 : 45;
 	float x = -sin(rot.z * (float)M_PI / 180.0f);
 	float y = cos(rot.z * (float)M_PI / 180.0f);
 	bullet->velocity = glm::vec2(x, y) * speedScalar;
