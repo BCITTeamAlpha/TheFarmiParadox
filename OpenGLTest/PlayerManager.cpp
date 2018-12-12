@@ -73,7 +73,6 @@ int PlayerManager::handlePlayers(float dTime)
 		turnStage = 1;
 		players[currentPlayerIndex]->setControllable(false);
 		timeElapsed = 0;
-		instance->NextPlayer();
 	}
 	else if (turnStage == 1)
 	{
