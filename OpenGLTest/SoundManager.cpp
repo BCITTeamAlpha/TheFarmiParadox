@@ -9,6 +9,7 @@
 //defines for SoundEffect Names
 #define JUMP "../Sounds/jumpSE.wav"
 #define DAMAGE "../Sounds/damageSE.wav"
+#define GOAT_DEATH "../Sounds/goatDeath.wav"
 
 //private mutex variables
 std::mutex SoundMtx;
@@ -64,6 +65,13 @@ void SoundManager::loadAudioData() {
         std::cout << "Explosion SE failed to store correctly." << std::endl;
     }
     SoundEffects.insert(std::pair<SoundsList, AudioData>(Damage, temp));
+
+    //death Sound 1
+    temp = soundObject->getAudioData(GOAT_DEATH);
+    if (temp.data == NULL) {
+        std::cout << "Explosion SE failed to store correctly." << std::endl;
+    }
+    SoundEffects.insert(std::pair<SoundsList, AudioData>(GoatDeath, temp));
 }
 
 SoundManager::~SoundManager() {
@@ -122,6 +130,12 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
         break;
     case Damage:
         soundObject->bufferData(seBuffer[selectedBuffer], seSource[selectedBuffer], SoundEffects.find(Damage)->second);
+        soundObject->toggleLooping(seSource[selectedBuffer], false);
+        soundObject->placeSource(seSource[selectedBuffer], x, y, z);
+        soundObject->PlayAudio(seSource[selectedBuffer]);
+        break;
+    case GoatDeath:
+        soundObject->bufferData(seBuffer[selectedBuffer], seSource[selectedBuffer], SoundEffects.find(GoatDeath)->second);
         soundObject->toggleLooping(seSource[selectedBuffer], false);
         soundObject->placeSource(seSource[selectedBuffer], x, y, z);
         soundObject->PlayAudio(seSource[selectedBuffer]);
