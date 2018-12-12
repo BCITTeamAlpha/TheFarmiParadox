@@ -55,7 +55,7 @@ void SoundManager::loadAudioData() {
     if (temp.data == NULL) {
         std::cout << "Explosion SE failed to store correctly." << std::endl;
     }
-    SoundEffects.insert(std::pair<SoundsList, AudioData>(Jump, temp));
+    SoundEffects.insert(std::pair<SoundsList, AudioData>(Damage, temp));
 }
 
 SoundManager::~SoundManager() {
