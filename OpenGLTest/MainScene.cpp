@@ -125,7 +125,7 @@ void MainScene::InitScene() {
 				c->controllable = true; //sets only the first character to controllable initially
             c->radius = 2.5f;
 			c->characterID = characterID++;
-			c->set_position(glm::vec2(50,50));//(_physics->genSpawnPos(c->radius));
+			c->set_position(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
             cSkin->z = 0;

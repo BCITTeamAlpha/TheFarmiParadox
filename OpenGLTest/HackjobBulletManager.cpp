@@ -24,7 +24,7 @@ void HackjobBulletManager::notify(EventName eventName, Param *params) {
     case BULLET_SPAWN: {
         float bulletSpeedScalar = 42.069f;
         int damage = 200;
-        float explosionRadius = 5.0f;
+        float explosionRadius = 8.0f;
         SpawnBulleto(bulletSpeedScalar, damage, explosionRadius); //speed scalar, int damage, float explosionRadius
         printf("Firing bullet with speedScalar %lf, damage %d, explode radius %lf\n", bulletSpeedScalar, damage, explosionRadius);
         break;
