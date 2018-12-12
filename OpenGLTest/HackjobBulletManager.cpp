@@ -135,7 +135,6 @@ void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float exp
 
 	glm::vec3 rot = playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
 	float aim_angle = playerManager->GetCurrentPlayer()->aim_angle;
-	std::cout << '\n' << aim_angle << "help me\n";
 	rot.z += (rot.y == 0.0f) ? -aim_angle : aim_angle;
 	float x = -sin(rot.z * (float)M_PI / 180.0f);
 	float y = cos(rot.z * (float)M_PI / 180.0f);
