@@ -15,14 +15,14 @@ void MainScene::InitScene() {
     _playerManager = new PlayerManager();
 
     // setup Map IRenderable
-    _planets.push_back(Planetoid(52.0f, 120.0f, 16.0f));
-    _planets.push_back(Planetoid(92.0f, 82.0f, 8.0f));
-    _planets.push_back(Planetoid(36.0f, 64.0f, 32.0f));
-    _planets.push_back(Planetoid(12.0f, 152.0f, 12.0f));
-    _planets.push_back(Planetoid(124.0f, 152.0f, 48.0f));
-    _planets.push_back(Planetoid(132.0f, 32.0f, 32.0f));
+    _planets.push_back(Planetoid(147.0f, 120.0f, 16.0f));
+    _planets.push_back(Planetoid(188.0f, 82.0f, 8.0f));
+    _planets.push_back(Planetoid(131.0f, 64.0f, 32.0f));
+    _planets.push_back(Planetoid(107.0f, 152.0f, 12.0f));
+    _planets.push_back(Planetoid(219.0f, 152.0f, 48.0f));
+    _planets.push_back(Planetoid(227.0f, 32.0f, 32.0f));
 
-    _map = new Map(_planets, 175, 205);
+    _map = new Map(_planets, 365, 205);
 
     glm::vec3 cameraPos = {_map->width() / 2.0f,
                            _map->height() / 2.0f,
@@ -150,7 +150,7 @@ void MainScene::InitScene() {
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_map->renderable), false);
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_background->renderable), false);
 
-    _map->explosion(Planetoid(89, 117, 8));
+    _map->explosion(Planetoid(184, 117, 8));
 
     _bulletoManager = new HackjobBulletManager(_playerManager, _physics, _map); //initializes bullet manager
 	_pickupManager = new PickupManager(_playerManager, _physics);
