@@ -3,6 +3,8 @@
 #include <vector>
 #include "ISubscriber.h"
 #include "EventManager.h"
+#include "UIManager.h"
+#include "TextComponent.h"
 
 class PlayerManager : public ISubscriber
 {
@@ -24,7 +26,7 @@ public:
 
 	void RemovePlayer(int playerID);
 
-	int SecondsRemaining();
+	float SecondsRemaining();
 
 	Player* GetCurrentPlayer();
 
@@ -35,7 +37,9 @@ public:
 
 	int moveTime = 20;
 	int aimTime = 10;
+    int charPerPlayer;
 private:
+    std::string getTimeString();
 	int currentPlayerIndex;
 	size_t turnStage;
 	float timeElapsed;

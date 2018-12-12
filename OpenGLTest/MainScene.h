@@ -11,6 +11,8 @@
 
 class MainScene : public Scene {
 public:
+    MainScene(int numPlayers, int *models);
+
     void InitScene();
     void Update(const float delta);
     void CleanUp();
@@ -22,6 +24,8 @@ private:
 	PickupManager *_pickupManager;
     GameObject *_background;
 	GameObject *_aimIndicator;
+    int _numPlayers;
+    int *_modelNums;
 
     std::vector<Planetoid> _planets;
 	std::vector<Core> _cores;

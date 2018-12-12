@@ -252,5 +252,8 @@
     <Xml Include="..\UI\DefaultUI.xml">
       <Filter>Resource Files</Filter>
     </Xml>
+    <Xml Include="TestUI.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

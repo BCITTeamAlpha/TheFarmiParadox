@@ -220,6 +220,14 @@ void Renderer::PopulateBuffers(UIComponent * renderable) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
+void Renderer::DeleteBuffers(UIComponent *renderable) {
+    glDeleteBuffers(1, &renderable->model.positionLoc);
+    glDeleteBuffers(1, &renderable->model.UVLoc);
+    glDeleteBuffers(1, &renderable->model.normalLoc);
+    glDeleteBuffers(1, &renderable->model.elementLoc);
+    glDeleteTextures(1, &renderable->texture.loc);
+}
+
 void Renderer::AddToRenderables(std::shared_ptr<Renderable> renderable) {
     GenerateBuffers(renderable);
     PopulateBuffers(renderable);
@@ -430,6 +438,12 @@ void Renderer::notify(EventName eventName, Param* params) {
             PopulateBuffers(p->Param);
             break;
         }
+        case RENDERER_REPOPULATE_BUFFERS: {
+            TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+            DeleteBuffers(p->Param);
+            AddToUIRenderables(p->Param);
+            break;
+        }
         case RENDERER_SET_CAMERA: {
             TypeParam<glm::vec3> *p = dynamic_cast<TypeParam<glm::vec3> *>(params);
             glm::vec3 pos = p->Param;
@@ -475,6 +489,7 @@ Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+    EventManager::subscribe(RENDERER_REPOPULATE_BUFFERS, this);
     EventManager::subscribe(RENDERER_SET_CAMERA, this);
 }
 

@@ -8,16 +8,17 @@ TextComponent::TextComponent(std::string text, float fontSize, float x, float y,
 }
 
 void TextComponent::SetText(std::string text) {
-    _text = text;
-	valid = false;
+    if (text != _text) {
+        _text = text;
+        valid = false;
+    }
 }
 
 void TextComponent::Resize() {
     if (parent != nullptr) {
-
-        float fontWidth = _fontSize * texture.width / texture.height;
-
-        screenSize.y = _fontSize;
+        screenSize.y = yType == UNIT_PERCENT ? parent->screenSize.y * _fontSize / 100.0f : _fontSize;
+        
+        float fontWidth = screenSize.y * texture.width / texture.height;
         screenSize.x = fontWidth * _text.length();
 
         glm::vec2 screenAnchor;
@@ -53,7 +54,7 @@ void TextComponent::Resize() {
         generateVertices();
 
         TypeParam<UIComponent*> param(this);
-        EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
+        EventManager::notify(RENDERER_REPOPULATE_BUFFERS, &param, false);
     }
 
 	valid = true;
@@ -86,7 +87,7 @@ glm::vec2 TextComponent::getUVfromChar(const char c) {
 
 void TextComponent::generateVertices() {
     glm::vec2 uv;
-    float fontWidth = _fontSize * texture.width / texture.height;
+    float fontWidth = screenSize.y * texture.width / texture.height;
 
 	model.positions.clear();
 	model.UVs.clear();
@@ -94,8 +95,8 @@ void TextComponent::generateVertices() {
 
     for (int i = 0; i < _text.length(); i++) {
         uv = getUVfromChar(_text[i]);
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + _fontSize, 0)); // Top Left
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + _fontSize, 0)); // Top Right
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + screenSize.y, 0)); // Top Left
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + screenSize.y, 0)); // Top Right
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y, 0)); // Bottom Left
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0));
 		model.UVs.push_back(uv);

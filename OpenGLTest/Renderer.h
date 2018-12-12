@@ -54,6 +54,8 @@ class Renderer : public ISubscriber {
 		void DrawRenderable_ShadowMap(std::shared_ptr<Renderable> renderable);
         void DrawUIRenderable(UIComponent * renderable);
 
+        void DeleteBuffers(UIComponent * renderable);
+
 		void CreateShaderProgram(GLuint & programLoc, const char * vertexShaderPath, const char * fragmentShaderPath);
 
         void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
@@ -65,8 +67,8 @@ class Renderer : public ISubscriber {
 		std::mutex renderables_waitList_mutex;
 		std::list<std::shared_ptr<Renderable>> renderables_waitList;
 		std::list<std::shared_ptr<Renderable>> renderables;
-		const GLuint WIDTH = 1280;
-		const GLuint HEIGHT = 720;
+		const GLuint WIDTH = 1600;
+		const GLuint HEIGHT = 900;
 		GLuint mainProgram, VAO;
 		const GLuint SHADOW_WIDTH = 1024;
 		const GLuint SHADOW_HEIGHT = 1024;

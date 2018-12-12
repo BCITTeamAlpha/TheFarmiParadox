@@ -1,6 +1,7 @@
 #include "PlayerManager.h"
 #include "UIManager.h"
 #include "TextComponent.h"
+#define _CRT_SECURE_NO_WARNINGS
 
 PlayerManager * PlayerManager::instance = NULL;
 
@@ -50,14 +51,14 @@ void PlayerManager::fireWeapon()
 	//instance->NextPlayer();  moved this into denny code (hackjobbulletmanager.cpp) when the bullet makes contact with terrain or another player
 }
 
-int PlayerManager::SecondsRemaining()
+float PlayerManager::SecondsRemaining()
 {
 	switch (turnStage)
 	{
 	case 0:
-		return (int)std::round(moveTime - timeElapsed);
+		return moveTime - timeElapsed;
 	case 1:
-		return (int)std::round(aimTime - timeElapsed);
+		return aimTime - timeElapsed;
 	default:
 		return 0;
 	}
@@ -66,8 +67,6 @@ int PlayerManager::SecondsRemaining()
 int PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
-
-	//printf("Time Remaining:%d\n", SecondsRemaining());
 
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
@@ -107,8 +106,33 @@ void PlayerManager::NextPlayer()
 
 	players[currentPlayerIndex]->getCurrentCharacter()->bulletoAmmo = players[currentPlayerIndex]->getCurrentCharacter()->maxBulletsPerTurn;
 
-	UpdatePlayerUI();
-	EventManager::notify(PICKUP_SPAWN, nullptr);
+    UIComponent *component = UIManager::GetComponentById("tBox");
+    if (component != nullptr)
+        component->color = players[currentPlayerIndex]->color;
+
+    component = UIManager::GetComponentById("detail");
+    if (component != nullptr)
+        component->color = players[currentPlayerIndex]->accent;
+
+    component = UIManager::GetComponentById("detailInner");
+    if (component != nullptr)
+        component->color = players[currentPlayerIndex]->color;
+
+    component = UIManager::GetComponentById("rightWeapon");
+    if (component != nullptr)
+        component->color = players[currentPlayerIndex]->color;
+
+    component = UIManager::GetComponentById("leftWeapon");
+    if (component != nullptr)
+        component->color = players[currentPlayerIndex]->color;
+
+    for (int i = 1; i <= 6; i++) {
+        component = UIManager::GetComponentById("c" + std::to_string(i) + "Container");
+        if (component != nullptr)
+            component->visible = (i <= players[currentPlayerIndex]->chars.size());
+    }
+
+    EventManager::notify(PICKUP_SPAWN, nullptr);
 }
 
 void PlayerManager::AddPlayer(Player * player)
@@ -133,22 +157,58 @@ Player* PlayerManager::GetCurrentPlayer() {
 }
 
 void PlayerManager::UpdatePlayerUI() {
+    TextComponent *text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("timerText"));
+    if (text != nullptr)
+        text->SetText(getTimeString());
+
+    UIComponent *hpBar, *marker;
+    for (Player *p : players) {
+        marker = UIManager::GetComponentById("p" + std::to_string(p->playerID) + "Arrow");
+        if (marker != nullptr)
+            marker->visible = (GetCurrentPlayer() == p);
+
+        hpBar = UIManager::GetComponentById("p" + std::to_string(p->playerID) + "Health");
+        if (hpBar != nullptr) {
+            float total = 0;
+            for (Character *c : p->chars)
+                total += c->health;
+
+            hpBar->size.x = total / (10 * charPerPlayer);
+            hpBar->valid = false;
+        }
+    }
 
 	if (players[currentPlayerIndex] != NULL) { //update ui with info pertaining to whose turn it is, the team they belong to, and their hp
-		std::string info = "";
+        Player *p = players[currentPlayerIndex];
+        Weapon *currWeapon = p->getWeapons()->curWeapon();
 
-		info += "P:";
-		info += std::to_string(players[currentPlayerIndex]->playerID);
-		info += "C:";
-		info += std::to_string(players[currentPlayerIndex]->getCurrentCharacter()->characterID);
-		info += " HP:";
-		info += std::to_string(players[currentPlayerIndex]->getCurrentCharacter()->health);
+        text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("currPlayer"));
+        if (text != nullptr)
+            text->SetText("Player " + std::to_string(p->playerID) + "'s Turn");
+       
+        text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("ammoCount"));
+        if (text != nullptr)
+            text->SetText(std::to_string(currWeapon->_charges));
 
-		TextComponent *topRightInfo = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rText"));
-		if (topRightInfo != nullptr) {
-			topRightInfo->SetText(info);
-		}
-	}
+        text = dynamic_cast<TextComponent*>(UIManager::GetComponentById("currWeapon"));
+        if (text != nullptr)
+            text->SetText(currWeapon->_name);
+
+        for (int i = 0; i < p->chars.size(); i++) {
+            Character *c = p->chars[i];
+            if (c != nullptr) {
+                hpBar = UIManager::GetComponentById("c" + std::to_string(i + 1) + "Health");
+                if (hpBar != nullptr) {
+                    hpBar->size.x = c->health / 10.0f;
+                    hpBar->valid = false;
+                }
+
+                marker = UIManager::GetComponentById("c" + std::to_string(i + 1) + "Arrow");
+                if (marker != nullptr)
+                    marker->visible = (c == p->getCurrentCharacter());
+            }
+        }
+    }
 }
 
 
@@ -201,4 +261,19 @@ void PlayerManager::notify(EventName eventName, Param *params)
 		break;
 	}
 
+}
+
+std::string PlayerManager::getTimeString() {
+    float time = SecondsRemaining();
+
+    int seconds = (int)time;
+    float msTemp = (time - seconds) * 100;
+    int ms = (int)msTemp;
+
+    char buff[6];
+    sprintf_s(buff, "%02d:%02d", seconds, ms);
+    
+    std::string ret(buff);
+
+    return ret;
 }

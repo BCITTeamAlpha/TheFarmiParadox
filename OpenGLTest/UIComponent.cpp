@@ -14,6 +14,7 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     xType = UNIT_PERCENT;
     yType = UNIT_PERCENT;
     parent = nullptr;
+    aspectRatio = 1;
 
     ClickAction = "";
 
@@ -107,7 +108,7 @@ void UIComponent::Resize() {
 
     // Tell Renderer to recreate buffers with new position data
     TypeParam<UIComponent*> param(this);
-    EventManager::notify(RENDERER_POPULATE_BUFFERS, &param, false);
+    EventManager::notify(RENDERER_REPOPULATE_BUFFERS, &param, false);
 
     // Iterate resize on child panels
     for (UIComponent *child : children) {

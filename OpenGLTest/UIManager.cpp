@@ -127,12 +127,81 @@ bool UIManager::pointInRect(float px, float py, float rTop, float rRight, float 
 
 void UIManager::defineClicks() {
     DefineClickFunction("toggleKaren", []() {
-        UIComponent *karen = UIManager::GetComponentById("Karen");
-        karen->visible = !karen->visible;
+        UIComponent *karen = UIManager::GetComponentById("karen");
+        if (karen->anchor.y < 0)
+            karen->anchor.y = 0;
+        else
+            karen->anchor.y = -47;
+        karen->Resize();
     });
 
     DefineClickFunction("startGame", []() {
-        EventManager::notify(GAME_START, nullptr);
+        int numPlayer = 2;
+        int *models = new int[4];
+        UIComponent *comp = UIManager::GetComponentById("dataPNum");
+        if (comp != nullptr)
+            numPlayer = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP1Model");
+        if (comp != nullptr)
+            models[0] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP2Model");
+        if (comp != nullptr)
+            models[1] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP3Model");
+        if (comp != nullptr)
+            models[2] = comp->size.x;
+
+        comp = UIManager::GetComponentById("dataP4Model");
+        if (comp != nullptr)
+            models[3] = comp->size.x;
+
+        TypeParam<std::pair<int,int*>> *param = new TypeParam<std::pair<int,int*>>(std::pair<int,int*>(numPlayer, models));
+        EventManager::notify(GAME_START, param);
+    });
+
+    DefineClickFunction("playButton", []() {
+        UIComponent *comp = UIManager::GetComponentById("modelSelect");
+        comp->visible = true;
+
+        comp = UIManager::GetComponentById("splashScreen");
+        comp->visible = false;
+    });
+
+    DefineClickFunction("incrementPlayers", []() {
+        UIComponent *data = UIManager::GetComponentById("dataPNum");
+        int numPlayers = ++(data->size.x);
+
+        TextComponent *players = dynamic_cast<TextComponent*>(UIManager::GetComponentById("playerNum"));
+        if (players != nullptr)
+            players->SetText(std::to_string(numPlayers));
+
+        UIComponent *dec = UIManager::GetComponentById("decButton");
+        dec->visible = true;
+
+        if (numPlayers == 4) {
+            UIComponent *inc = UIManager::GetComponentById("incButton");
+            inc->visible = false;
+        }
+    });
+
+    DefineClickFunction("decrementPlayers", []() {
+        UIComponent *data = UIManager::GetComponentById("dataPNum");
+        int numPlayers = --(data->size.x);
+
+        TextComponent *players = dynamic_cast<TextComponent*>(UIManager::GetComponentById("playerNum"));
+        if (players != nullptr)
+            players->SetText(std::to_string(numPlayers));
+
+        UIComponent *inc = UIManager::GetComponentById("incButton");
+        inc->visible = true;
+
+        if (numPlayers == 2) {
+            UIComponent *dec = UIManager::GetComponentById("decButton");
+            dec->visible = false;
+        }
     });
 }
 
@@ -145,6 +214,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         *color = element->FindAttribute("color"),
         *alpha = element->FindAttribute("alpha"),
         *onclick = element->FindAttribute("onclick"),
+        *ar = element->FindAttribute("ar"),
         *id = element->FindAttribute("id");
 
     float offX = 0, offY = 0, w = 0, h = 0;
@@ -155,6 +225,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
     std::string idVal = "";
     bool vis = true;
     std::string clickFunc = "";
+    float aspectRatio = 1.0f;
 
     if (visible != nullptr) {
         vis = visible->BoolValue();
@@ -166,6 +237,10 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
 
     if (onclick != nullptr) {
         clickFunc = onclick->Value();
+    }
+
+    if (ar != nullptr) {
+        aspectRatio = ar->FloatValue();
     }
 
     if (anchor != nullptr) {
@@ -210,7 +285,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         const XMLAttribute  *width = element->FindAttribute("width"),
             *height = element->FindAttribute("height");
 
-        col = {0, 0, 0, 1};
+        col = {0, 0, 0, 0};
 
         UnitType xUnit = UNIT_PERCENT, yUnit = UNIT_PERCENT;
 
@@ -239,6 +314,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         newComponent = new UIComponent(w, h, offX, offY);
         newComponent->xType = xUnit;
         newComponent->yType = yUnit;
+        newComponent->aspectRatio = aspectRatio;
     } else if (type == "image") {
         const XMLAttribute  *width = element->FindAttribute("width"),
             *height = element->FindAttribute("height"),
@@ -287,11 +363,17 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
 
         col = {1.0, 1.0, 1.0, 1.0};
 
+        UnitType sType = UNIT_PIXEL;
         float s = 0;
-        if (size != nullptr)
-            s = std::stof(size->Value());
+        if (size != nullptr) {
+            std::string val = size->Value();
+            s = std::stof(val);
+            if (val.back() == '%')
+                sType = UNIT_PERCENT;
+        }
 
         newComponent = new TextComponent(text, s, offX, offY);
+        newComponent->yType = sType;
     }
 
     if (color != nullptr) {
@@ -302,6 +384,7 @@ UIComponent* UIManager::readChild(const XMLElement* element) {
         col.r = ((c >> 16) & 0xFF) / 255.0f;
         col.g = ((c >> 8) & 0xFF) / 255.0f;
         col.b = (c & 0xFF) / 255.0f;
+        col.a = 1.0f;
     }
 
     if (alpha != nullptr) {

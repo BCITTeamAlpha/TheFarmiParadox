@@ -66,7 +66,6 @@ void Player::adjustAim(float dTime)
 	const float SPEED = 45;
 	aim_angle += (aimLeft - aimRight) * dTime * SPEED;
 	weaps->angle = aim_angle; // unused at the time of the midnight before our final presentation
-	std::cout << "Weapon Angle = " << aim_angle << " degrees" << std::endl;
 }
 
 void Player::clearInput()
