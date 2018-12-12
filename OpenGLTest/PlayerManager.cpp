@@ -14,8 +14,8 @@ PlayerManager::PlayerManager()
     EventManager::subscribe(PLAYER_LEFT, this);
     EventManager::subscribe(PLAYER_RIGHT, this);
     EventManager::subscribe(PLAYER_JUMP, this);
-    EventManager::subscribe(AIM_LEFT, this);
-    EventManager::subscribe(AIM_RIGHT, this);
+    EventManager::subscribe(AIM_UP, this);
+    EventManager::subscribe(AIM_DOWN, this);
     EventManager::subscribe(PLAYER_FIRE, this);
 }
 
@@ -39,6 +39,7 @@ void PlayerManager::aimWeapon()
 {
 	instance->turnStage = 1;
 	instance->players[instance->currentPlayerIndex]->setControllable(false);
+	instance->players[instance->currentPlayerIndex]->aim_angle = 45.0f;
 	instance->timeElapsed = 0;
 }
 
@@ -176,17 +177,17 @@ void PlayerManager::notify(EventName eventName, Param *params)
 			players[currentPlayerIndex]->jump(p->Param);
 		break;
 	}
-	case AIM_LEFT: {
+	case AIM_UP: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
         if (p != nullptr && turnStage == 1) 
-			players[currentPlayerIndex]->setAimLeft(p->Param);
+			players[currentPlayerIndex]->setAimUp(p->Param);
         
 		break;
 	}
-	case AIM_RIGHT: {
+	case AIM_DOWN: {
 		TypeParam<bool> *p = dynamic_cast<TypeParam<bool> *>(params); // Safetly cast generic param pointer to a specific type
         if (p != nullptr && turnStage == 1)  
-			players[currentPlayerIndex]->setAimRight(p->Param);
+			players[currentPlayerIndex]->setAimDown(p->Param);
 		break;
 	}
 	case PLAYER_FIRE: {

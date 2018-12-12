@@ -17,8 +17,8 @@ public:
 	void setControllable(bool c);
 	void setNextCharacter();
 	void adjustAim(float dTime);
-	void setAimLeft(bool b);
-	void setAimRight(bool b);
+	void setAimUp(bool b);
+	void setAimDown(bool b);
 	void clearInput();
 	void moveLeft(bool v);
 	void moveRight(bool v);
@@ -27,9 +27,9 @@ public:
 	Inventory getWeapons();
 	int playerID;
 	std::vector<Character *> chars;
-
+	float aim_angle;
 private:
 	Inventory *weaps;
 	int currentCharacterIndex;
-	bool aimLeft, aimRight;
+	bool aimUp, aimDown;
 };

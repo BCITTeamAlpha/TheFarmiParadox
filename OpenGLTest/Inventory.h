@@ -19,9 +19,7 @@ public:
 	void emptySlot();
 	void addItem(Pickup item);
 	void useWeapon(glm::vec2 pos);
-	void angleWeapon(float dAngle);
-
+	float angle;
 private:
 	const int capacity = 5;
-	float angle;
 };
