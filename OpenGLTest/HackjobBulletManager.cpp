@@ -3,9 +3,8 @@
 #include "TextComponent.h"
 #include "SoundParams.h"
 
-HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map* map) {
+HackjobBulletManager::HackjobBulletManager(PhysicsManager *physics, Map* map) {
 	this->physics = physics;
-	this->playerManager = playerManager;
 	this->map = map;
 	bulletList = std::vector<HackjobBullet*>();
 
@@ -22,9 +21,10 @@ void HackjobBulletManager::SetInfoText(std::string info) {
 void HackjobBulletManager::notify(EventName eventName, Param *params) {
     switch (eventName) {
     case BULLET_SPAWN: {
-        float bulletSpeedScalar = 42.069f;
-        int damage = 200;
-        float explosionRadius = 8.0f;
+		Weapon* weap = PlayerManager::instance->GetCurrentPlayer()->getWeapons()->curWeapon();
+        float bulletSpeedScalar = weap->_speed;
+        int damage = weap->_damage;
+        float explosionRadius = weap->_explosionRad;
         SpawnBulleto(bulletSpeedScalar, damage, explosionRadius); //speed scalar, int damage, float explosionRadius
         printf("Firing bullet with speedScalar %lf, damage %d, explode radius %lf\n", bulletSpeedScalar, damage, explosionRadius);
         break;
@@ -40,11 +40,11 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 
 		HackjobBullet *bullet = bulletList[i];
 
-		for (int j = 0; j < playerManager->instance->players.size(); j++) {
+		for (int j = 0; j < PlayerManager::instance->players.size(); j++) {
 
-			for (int k = 0; k < playerManager->instance->players[j]->chars.size(); k++) {
+			for (int k = 0; k < PlayerManager::instance->players[j]->chars.size(); k++) {
 
-				Character *character = playerManager->instance->players[j]->chars[k];
+				Character *character = PlayerManager::instance->players[j]->chars[k];
 
 				if (bullet->colliding_with_player(character->get_position())
 					&& character->playerID != bullet->shooter_PlayerID && character->characterID != bullet->shooterCharacterID) {
@@ -64,17 +64,17 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 					if (character->health <= 0) { //kills character and removes the dead dude from player manager
 						character->renderable = NULL;
 						int playerToBeRemovedID = character->playerID;
-						playerManager->instance->players[j]->RemoveCharacter(k);
+						PlayerManager::instance->players[j]->RemoveCharacter(k);
 
-						if (playerManager->instance->players[j]->chars.size() == 0) {
-							playerManager->RemovePlayer(playerToBeRemovedID);
+						if (PlayerManager::instance->players[j]->chars.size() == 0) {
+							PlayerManager::instance->RemovePlayer(playerToBeRemovedID);
 						}
 					}
 
 					bullet->renderable = NULL; //delete bullet's renderable share pointer
 					bulletList.erase(bulletList.begin() + i);
 
-					playerManager->NextPlayer();
+					PlayerManager::instance->NextPlayer();
 
 					break;
 					
@@ -107,7 +107,7 @@ void HackjobBulletManager::UpdateBullet() {
 			bulletList[i]->renderable = NULL;
 			bulletList.erase(bulletList.begin() + i);
 
-			playerManager->NextPlayer();
+			PlayerManager::instance->NextPlayer();
 
 			break; //break in order to avoid vector iteration errors
 		}
@@ -118,23 +118,23 @@ void HackjobBulletManager::UpdateBullet() {
 
 void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float explodeRadius) { //spawns a projectile from where the player is located at
 
-	if (playerManager->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo-- <= 0) return; //dont shoot if we don't have "bulleto ammo"
+	if (PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo-- <= 0) return; //dont shoot if we don't have "bulleto ammo"
 
 	std::string currentAmmoString = "P";
-	currentAmmoString += std::to_string( playerManager->GetCurrentPlayer()->playerID);
+	currentAmmoString += std::to_string(PlayerManager::instance->GetCurrentPlayer()->playerID);
 	currentAmmoString += " Ammo: ";
-	currentAmmoString += std::to_string(playerManager->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo);
+	currentAmmoString += std::to_string(PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo);
 	SetInfoText(currentAmmoString);
 
 	HackjobBullet *bullet = new HackjobBullet(damage, explodeRadius); //default dmg is float 100.0f, if no args are provided to the bullet, second argument = bullet's explode radius
-	bullet->shooter_PlayerID = playerManager->GetCurrentPlayer()->playerID;
-	bullet->shooterCharacterID = playerManager->GetCurrentPlayer()->getCurrentCharacter()->characterID;
+	bullet->shooter_PlayerID = PlayerManager::instance->GetCurrentPlayer()->playerID;
+	bullet->shooterCharacterID = PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->characterID;
 	bullet->mass = 15;
 	bullet->radius = 2.0f;
-	bullet->set_position(playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 
+	bullet->set_position(PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 
 
-	glm::vec3 rot = playerManager->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
-	rot.z += playerManager->GetCurrentPlayer()->aim_angle;
+	glm::vec3 rot = PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
+	rot.z += PlayerManager::instance->GetCurrentPlayer()->aim_angle;
 	rot.z += (rot.y == 0.0f) ? -45 : 45;
 	float x = -sin(rot.z * (float)M_PI / 180.0f);
 	float y = cos(rot.z * (float)M_PI / 180.0f);

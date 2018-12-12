@@ -50,7 +50,7 @@ void Player::setNextCharacter() {
 void Player::fireWeapon()
 {
 	EventManager::notify(BULLET_SPAWN, nullptr);
-	weaps->useWeapon(chars[currentCharacterIndex]->get_position());
+	weaps->useWeapon();
 }
 
 void Player::setAimLeft(bool b) {
@@ -109,6 +109,6 @@ void Player::RemoveCharacter(int index) {
 	}
 }
 
-Inventory Player::getWeapons() {
-	return *weaps;
+Inventory* Player::getWeapons() {
+	return weaps;
 }

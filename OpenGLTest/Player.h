@@ -24,7 +24,7 @@ public:
 	void moveRight(bool v);
 	void jump(bool v);
 	void RemoveCharacter(int index);
-	Inventory getWeapons();
+	Inventory* getWeapons();
 	int playerID;
 	std::vector<Character *> chars;
 	float aim_angle;

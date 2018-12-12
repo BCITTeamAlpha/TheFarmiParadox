@@ -72,7 +72,7 @@ void Inventory::addItem(Pickup item) {
 }
 
 // Removes a charge from the current Item
-void Inventory::useWeapon(glm::vec2 pos)
+void Inventory::useWeapon()
 {
 	if (currentSlot == -1)
 	{
@@ -82,6 +82,11 @@ void Inventory::useWeapon(glm::vec2 pos)
 
 	std::cout << "Remaining Charges: " << _slots[currentSlot]->_charges - 1 << std::endl;
 
-	if (_slots[currentSlot]->use(pos, angle) < 1)
+	if (_slots[currentSlot]->use() < 1)
 		emptySlot();
+}
+
+Weapon* Inventory::curWeapon()
+{
+	return _slots[currentSlot];
 }

@@ -18,7 +18,8 @@ public:
 	Pickup dropSlot();
 	void emptySlot();
 	void addItem(Pickup item);
-	void useWeapon(glm::vec2 pos);
+	void useWeapon();
+	Weapon* curWeapon();
 	float angle;
 private:
 	const int capacity = 5;
