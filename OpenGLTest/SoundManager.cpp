@@ -1,5 +1,6 @@
 #include "SoundManager.h"
 #include <iostream>
+#include <mutex>
 //defines for track filenames
 #define MAIN_BGM "../Music/bgm1.wav" 
 #define MENU_BGM "../Music/bgm2.wav"
@@ -7,12 +8,19 @@
 //defines for SoundEffect Names
 #define JUMP "../Sounds/jumpSE.wav"
 
+//private mutex variables
+std::mutex SoundMtx;
+int currentSoundBuffer;
+
 SoundManager::SoundManager() {
     soundObject = new Sound();
     soundObject->makeBuffer(&bgmBuffer);
-    soundObject->makeBuffer(&seBuffer);
     soundObject->makeSource(&bgmSource);
-    soundObject->makeSource(&seSource);
+    for (int i = 0; i < MAX_SOUND_BUFFERS; i++) {
+        soundObject->makeSource(&seSource[i]);
+        soundObject->makeBuffer(&seBuffer[i]);
+    }
+    currentSoundBuffer = 0;
     loadAudioData();
 }
 
@@ -70,17 +78,29 @@ void SoundManager::playSong(TrackList track, float x, float y, float z) {
 }
 
 void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) {
-    if (soundObject->isPlaying(seSource)) {
-        soundObject->PauseAudio(seSource);
-        soundObject->clearBuffer(seBuffer, seSource);
+    //mutex check to ensure we don't commit access violations by accessing dead buffers while they're remade.
+    
+    SoundMtx.lock();
+    int selectedBuffer = currentSoundBuffer;
+    currentSoundBuffer++;
+    if (currentSoundBuffer >= MAX_SOUND_BUFFERS) {
+        currentSoundBuffer = 0;
+    }
+    SoundMtx.unlock();
+    
+
+    //check if our selected buffer
+    if (soundObject->isPlaying(seSource[selectedBuffer])) {
+        soundObject->PauseAudio(seSource[selectedBuffer]);
+        soundObject->clearBuffer(seBuffer[selectedBuffer], seSource[selectedBuffer]);
     }
 
     switch (soundEffect) {
     case Jump:
-        soundObject->bufferData(seBuffer, seSource, SoundEffects.find(Jump)->second);
-        soundObject->toggleLooping(seSource, false);
-        soundObject->placeSource(seSource, x, y, z);
-        soundObject->PlayAudio(seSource);
+        soundObject->bufferData(seBuffer[selectedBuffer], seSource[selectedBuffer], SoundEffects.find(Jump)->second);
+        soundObject->toggleLooping(seSource[selectedBuffer], false);
+        soundObject->placeSource(seSource[selectedBuffer], x, y, z);
+        soundObject->PlayAudio(seSource[selectedBuffer]);
         break;
     default:
         break;
@@ -89,11 +109,18 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
 
 void SoundManager::cleanUp() {
     //clean up step
-    alDeleteSources(1, &bgmSource);
-    alDeleteSources(1, &seSource);
-    alDeleteBuffers(1, &bgmBuffer);
-    alDeleteBuffers(1, &seBuffer);
 
+    //bgm cleanup
+    alDeleteSources(1, &bgmSource);
+    alDeleteBuffers(1, &bgmBuffer);
+
+    //sound effect cleanup
+    for (int i = 0; i < MAX_SOUND_BUFFERS; i++) {
+        alDeleteSources(1, &seSource[i]);
+        alDeleteBuffers(1, &seBuffer[i]);
+    }
+
+    //sound object cleanup
     soundObject->~Sound();
 }
 
@@ -119,6 +146,8 @@ void SoundManager::notify(EventName eventName, Param* param) {
                 // Successful type cast
                 SoundInfo = sound->Param;
                 playSound(SoundInfo->sound, SoundInfo->x, SoundInfo->y, SoundInfo->z);
+                delete SoundInfo;
+                delete param;
             }
             break;
         }

@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "PlayerManager.h"
 #include "Map.h"
+#include "Core.h"
 #include "PhysicsManager.h"
 #include "HackjobBulletManager.h"
 #include "PickupManager.h"
@@ -22,6 +23,7 @@ private:
     GameObject *_background;
 
     std::vector<Planetoid> _planets;
+	std::vector<Core> _cores;
     std::vector<std::string> _models;
 };
 

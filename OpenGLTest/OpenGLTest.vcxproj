@@ -170,7 +170,9 @@
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="ISubscriber.h" />
+    <ClInclude Include="SoundParams.h" />
     <ClInclude Include="TextComponent.h" />
+    <ClInclude Include="TrackParams.h" />
     <ClInclude Include="UIComponent.h" />
     <ClInclude Include="UIManager.h" />
     <ClInclude Include="Weapon.h" />
