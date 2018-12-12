@@ -7,6 +7,7 @@
 #include "UIManager.h"
 
 void MainScene::InitScene() {
+	srand(time(NULL));
     UIComponent *mainUI = UIManager::GetComponentById("MainScene");
     if (mainUI != nullptr)
         mainUI->visible = true;
@@ -152,7 +153,11 @@ void MainScene::InitScene() {
 void MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
-    _playerManager->handlePlayers(delta);
+    int win = _playerManager->handlePlayers(delta);
+
+	if (win != -1)
+		printf("Player %d wins!!!!!!!!!!!!!!!!", win);
+
     //_playerManager->UpdatePlayerUI();
 }
 
