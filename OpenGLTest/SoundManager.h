@@ -3,6 +3,7 @@
 #include "Sound.h"
 #include "EventManager.h"
 #include <unordered_map>
+#define MAX_SOUND_BUFFERS 5
 
 //for referencing songs
 enum TrackList
@@ -42,8 +43,8 @@ private:
     void loadAudioData();
     ALuint bgmBuffer;
     ALuint bgmSource;
-    ALuint seBuffer;
-    ALuint seSource;
+    ALuint seBuffer[MAX_SOUND_BUFFERS];
+    ALuint seSource[MAX_SOUND_BUFFERS];
     Sound* soundObject;
     std::unordered_map<TrackList, AudioData> Music;
     std::unordered_map<SoundsList, AudioData> SoundEffects;
