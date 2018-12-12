@@ -7,6 +7,7 @@
 
 //defines for SoundEffect Names
 #define JUMP "../Sounds/jumpSE.wav"
+#define DAMAGE "../Sounds/damageSE.wav"
 
 //private mutex variables
 std::mutex SoundMtx;
@@ -42,11 +43,19 @@ void SoundManager::loadAudioData() {
     Music.insert(std::pair<TrackList, AudioData>(MenuBGM, temp));
 
     //Load Sounds
+    //Jump Sound
     temp = soundObject->getAudioData(JUMP);
     if (temp.data == NULL) {
         std::cout << "Jump SE failed to store correctly." << std::endl;
     }
     SoundEffects.insert(std::pair<SoundsList, AudioData>(Jump, temp));
+
+    //Explosion Sound
+    temp = soundObject->getAudioData(DAMAGE);
+    if (temp.data == NULL) {
+        std::cout << "Explosion SE failed to store correctly." << std::endl;
+    }
+    SoundEffects.insert(std::pair<SoundsList, AudioData>(Damage, temp));
 }
 
 SoundManager::~SoundManager() {
@@ -88,16 +97,18 @@ void SoundManager::playSound(SoundsList soundEffect, float x, float y, float z) 
     }
     SoundMtx.unlock();
     
-
-    //check if our selected buffer
-    if (soundObject->isPlaying(seSource[selectedBuffer])) {
-        soundObject->PauseAudio(seSource[selectedBuffer]);
-        soundObject->clearBuffer(seBuffer[selectedBuffer], seSource[selectedBuffer]);
-    }
+    soundObject->PauseAudio(seSource[selectedBuffer]);
+    soundObject->clearBuffer(seBuffer[selectedBuffer], seSource[selectedBuffer]);
 
     switch (soundEffect) {
     case Jump:
         soundObject->bufferData(seBuffer[selectedBuffer], seSource[selectedBuffer], SoundEffects.find(Jump)->second);
+        soundObject->toggleLooping(seSource[selectedBuffer], false);
+        soundObject->placeSource(seSource[selectedBuffer], x, y, z);
+        soundObject->PlayAudio(seSource[selectedBuffer]);
+        break;
+    case Damage:
+        soundObject->bufferData(seBuffer[selectedBuffer], seSource[selectedBuffer], SoundEffects.find(Damage)->second);
         soundObject->toggleLooping(seSource[selectedBuffer], false);
         soundObject->placeSource(seSource[selectedBuffer], x, y, z);
         soundObject->PlayAudio(seSource[selectedBuffer]);

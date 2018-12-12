@@ -31,4 +31,6 @@ private:
 	std::vector<PhysicsObject*> objects;
 	std::vector<Character*> chars;
 	Map *map;
+
+    unsigned int frames_since_jump_sound;
 };

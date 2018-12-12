@@ -1,7 +1,7 @@
 #pragma once
 //for referencing sounds
 enum SoundsList {
-    Jump
+    Jump,Damage
 };
 
 //for notifying the sound event

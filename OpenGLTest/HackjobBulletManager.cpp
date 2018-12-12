@@ -1,6 +1,7 @@
 #include "HackjobBulletManager.h"
 #include "UIManager.h"
 #include "TextComponent.h"
+#include "SoundParams.h"
 
 HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map* map) {
 	this->physics = physics;
@@ -58,10 +59,19 @@ void HackjobBulletManager::UpdateBullet() {
 			if (bullet->colliding_with_player(character->get_position()) 
 				&& character->playerID != bullet->shooter_PlayerID
 				&& character->teamID != bullet->shooter_teamID) {
-				
+
 				character->TakeDamage(bullet->damage);
 				//printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
+                SoundParams * bulletNoise = new SoundParams();
 
+                bulletNoise->sound = Damage;
+
+                bulletNoise->x = 0;
+                bulletNoise->y = 0;
+                bulletNoise->z = 0;
+
+                TypeParam<SoundParams*> *bulletSound = new TypeParam<SoundParams*>(bulletNoise);
+                EventManager::notify(PLAY_SOUND, bulletSound);
 				SetInfoText("hit player");
 
 				map->explosion(Planetoid(character->get_position().x, character->get_position().y, bullet->explosionRadius));
