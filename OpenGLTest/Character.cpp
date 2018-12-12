@@ -7,9 +7,8 @@ Character::Character(int health, int startingAmmo, int maxBulletsPerTurn)
 	right_input = false;
 	jump_input = false;
 	this->health = health;
-	this->bulletoAmmo = startingAmmo; //hard coded 10 starting ammo
+	this->bulletoAmmo = startingAmmo; 
 	this->maxBulletsPerTurn = maxBulletsPerTurn;
-
 }
 
 void Character::TakeDamage(int amount) {

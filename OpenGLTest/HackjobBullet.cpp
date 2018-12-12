@@ -1,6 +1,7 @@
 #include "HackjobBullet.h"
 
-float minimumCollisionDistance = 1.5f;
+float minimumCollisionDistance = 3.5f;
+
 
 HackjobBullet::HackjobBullet(int damage, float explosionRadius) {
 	this->damage = damage;
