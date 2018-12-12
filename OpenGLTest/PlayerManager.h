@@ -16,7 +16,7 @@ public:
 	static void aimWeapon();
 	static void fireWeapon();
 
-	void handlePlayers(float dTime);
+	int handlePlayers(float dTime);
 
 	void NextPlayer();
 
