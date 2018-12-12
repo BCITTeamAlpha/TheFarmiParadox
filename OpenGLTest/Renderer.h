@@ -62,6 +62,7 @@ class Renderer : public ISubscriber {
 
         std::list<UIComponent*> transparentList;
 
+		std::mutex renderables_waitList_mutex;
 		std::list<std::shared_ptr<Renderable>> renderables_waitList;
 		std::list<std::shared_ptr<Renderable>> renderables;
 		const GLuint WIDTH = 1280;
@@ -72,8 +73,5 @@ class Renderer : public ISubscriber {
 		GLuint shadowProgram, depthMap, depthMapFBO;
 		GLuint uiProgram;
 
-		TextComponent *infoText1; //used by BulletoManager to display when someone has been hit
-		TextComponent *infoTextTopRight; //display player turn and team
         UIManager *uim;
-
 };

@@ -12,8 +12,7 @@ std::map<const std::string, void(*)()> UIManager::_clickFunctions;
 UIManager::UIManager(float width, float height) {
     UIComponent *blackOverlay = new UIComponent(100, 100, 0, 0);
     blackOverlay->id = "BlackOverlay";
-    blackOverlay->color = { 0, 0, 0, 1 };
-    blackOverlay->visible = false;
+    blackOverlay->color = { 0, 0, 0, 0 };
 
     // Create a transparent root element of the UI layout that covers the screen
     _root = new UIComponent(100, 100, 0, 0);
@@ -21,6 +20,7 @@ UIManager::UIManager(float width, float height) {
     _root->screenSize = {width, height};
     _root->screenPosition = {0, 0};
     _root->children.push_back(blackOverlay);
+    blackOverlay->parent = _root;
 
     LoadFromXML("../UI/DefaultUI.xml");
 
@@ -29,6 +29,8 @@ UIManager::UIManager(float width, float height) {
     TypeParam<UIComponent*> param(_root);
     EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
     EventManager::subscribe(UI_CLICK, this);
+
+    defineClicks();
 }
 
 UIManager::~UIManager() {
@@ -38,7 +40,7 @@ UIManager::~UIManager() {
 void UIManager::Resize() {
     _root->Resize();
 
-    GetComponentById("BlackOverlay")->z = 10;
+    GetComponentById("BlackOverlay")->z = 100;
 }
 
 void UIManager::AddToRoot(UIComponent *component) {
@@ -67,20 +69,22 @@ UIComponent* UIManager::Root() { return _root; }
 UIComponent* UIManager::GetComponentById(std::string id) {
 	UIComponent* component = nullptr;
 
-	std::stack<UIComponent*> stack;
-	stack.push(_root);
-	while (!stack.empty()) {
-		UIComponent* node = stack.top();
-		stack.pop();
+    if (_root != nullptr) {
+        std::stack<UIComponent*> stack;
+        stack.push(_root);
+        while (!stack.empty()) {
+            UIComponent* node = stack.top();
+            stack.pop();
 
-		if (node->id == id) {
-			component = node;
-			break;
-		}
+            if (node->id == id) {
+                component = node;
+                break;
+            }
 
-		for (UIComponent* child : node->children)
-			stack.push(child);
-	}
+            for (UIComponent* child : node->children)
+                stack.push(child);
+        }
+    }
 
 	return component;
 }
@@ -119,6 +123,17 @@ void UIManager::findTopClick(UIComponent** top, UIComponent* comp, const float x
 
 bool UIManager::pointInRect(float px, float py, float rTop, float rRight, float rLeft, float rBottom) {
     return (px > rLeft && px < rRight && py < rTop && px > rBottom);
+}
+
+void UIManager::defineClicks() {
+    DefineClickFunction("toggleKaren", []() {
+        UIComponent *karen = UIManager::GetComponentById("Karen");
+        karen->visible = !karen->visible;
+    });
+
+    DefineClickFunction("startGame", []() {
+        EventManager::notify(GAME_START, nullptr);
+    });
 }
 
 UIComponent* UIManager::readChild(const XMLElement* element) {

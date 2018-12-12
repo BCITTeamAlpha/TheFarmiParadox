@@ -1,9 +1,22 @@
 #pragma once
-//uses SoundManager, UIManager, Map; has Players; created by main
 
-class Game {
+#include "Scene.h"
+#include "EventManager.h"
+#include "UIManager.h"
+
+class Game : public ISubscriber {
 public:
 	Game();
-private:
+    ~Game();
 
+    void Update(const float delta);
+    void Transition(Scene *nextScene);
+
+    void notify(EventName eventName, Param *params); // overrides ISubscriber::notify
+
+    bool FadeOut = false;
+    bool FadeIn = false;
+    UIComponent *Black = nullptr;
+private:
+    Scene *_currScene;
 };

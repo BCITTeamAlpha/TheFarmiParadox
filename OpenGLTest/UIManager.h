@@ -29,6 +29,7 @@ private:
     static UIComponent* readChild(const tinyxml2::XMLElement* element);
 
 	void findTopClick(UIComponent** top, UIComponent* comp, const float x, const float y);
+    void defineClicks();
 
     static UIComponent *_root;
     static std::map<const std::string, void(*)()> _clickFunctions;

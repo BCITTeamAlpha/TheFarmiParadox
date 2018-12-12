@@ -6,6 +6,7 @@ UIComponent::UIComponent(float width, float height, float x, float y) :
     // Set default values for a panel
 	id = "";
     visible = true;
+	valid = true;
     vAnchor = ANCHOR_TOP;
     hAnchor = ANCHOR_LEFT;
     anchorXType = ANCHOR_PIXEL;
@@ -112,6 +113,8 @@ void UIComponent::Resize() {
     for (UIComponent *child : children) {
         child->Resize();
     }
+
+	valid = true;
 }
 
 void UIComponent::Add(UIComponent* child) {

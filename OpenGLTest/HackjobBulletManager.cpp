@@ -2,18 +2,34 @@
 #include "UIManager.h"
 #include "TextComponent.h"
 
-
 HackjobBulletManager::HackjobBulletManager(PlayerManager *playerManager, PhysicsManager *physics, Map* map) {
 	this->physics = physics;
 	this->playerManager = playerManager;
 	this->map = map;
 	bulletList = std::vector<HackjobBullet*>();
+
+    EventManager::subscribe(BULLET_SPAWN, this);
 }
 
 void HackjobBulletManager::SetInfoText(std::string info) { //this doesn't work (crashes) if called in Main
     TextComponent *infoText = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rInfoText"));
     if (infoText != nullptr) {
         infoText->SetText(info);
+    }
+}
+
+void HackjobBulletManager::notify(EventName eventName, Param *params) {
+    switch (eventName) {
+    case BULLET_SPAWN: {
+        float bulletSpeedScalar = 42.069f;
+        int damage = 200;
+        float explosionRadius = 5.0f;
+        SpawnBulleto(bulletSpeedScalar, damage, explosionRadius); //speed scalar, int damage, float explosionRadius
+        printf("Firing bullet with speedScalar %lf, damage %d, explode radius %lf\n", bulletSpeedScalar, damage, explosionRadius);
+        break;
+    }
+    default:
+        break;
     }
 }
 

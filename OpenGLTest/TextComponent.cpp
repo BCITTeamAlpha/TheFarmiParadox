@@ -9,7 +9,7 @@ TextComponent::TextComponent(std::string text, float fontSize, float x, float y,
 
 void TextComponent::SetText(std::string text) {
     _text = text;
-    Resize();
+	valid = false;
 }
 
 void TextComponent::Resize() {
@@ -55,6 +55,8 @@ void TextComponent::Resize() {
         TypeParam<UIComponent*> param(this);
         EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
     }
+
+	valid = true;
 }
 
 bool TextComponent::IsTransparent() {

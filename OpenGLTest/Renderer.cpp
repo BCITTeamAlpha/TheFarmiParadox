@@ -10,7 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 enum {
 	UNIFORM_MODEL_MATRIX,
 	UNIFORM_VIEW_MATRIX,
@@ -86,6 +85,9 @@ void Renderer::DrawRenderable_ShadowMap(std::shared_ptr<Renderable> renderable) 
 }
 
 void Renderer::DrawUIRenderable(UIComponent* UIrenderable) {
+	if (!UIrenderable->valid)
+		UIrenderable->Resize();
+
 	glBindBuffer(GL_ARRAY_BUFFER, UIrenderable->model.positionLoc);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
 
@@ -374,19 +376,17 @@ int Renderer::RenderLoop() {
 	cv.notify_all();
 
     uim = new UIManager(WIDTH, HEIGHT);
-    UIManager::DefineClickFunction("toggleKaren", []() {
-        UIComponent *karen = UIManager::GetComponentById("Karen");
-        karen->visible = !karen->visible;
-    });
 
 	while (!glfwWindowShouldClose(window)) {
 		//Check for events like key pressed, mouse moves, etc.
 		glfwPollEvents();
 
+		renderables_waitList_mutex.lock();
 		while (renderables_waitList.size() != 0) {
 			AddToRenderables(renderables_waitList.back());
 			renderables_waitList.pop_back();
 		}
+		renderables_waitList_mutex.unlock();
 
 		for (std::shared_ptr<Renderable> &renderable : renderables) {
 			if (renderable.use_count() == 1) {
@@ -415,7 +415,9 @@ void Renderer::notify(EventName eventName, Param* params) {
     switch (eventName) {
 		case RENDERER_ADD_TO_RENDERABLES: {
 			TypeParam<std::shared_ptr<Renderable>> *p = dynamic_cast<TypeParam<std::shared_ptr<Renderable>> *>(params);
+			renderables_waitList_mutex.lock();
 			renderables_waitList.push_back(p->Param);
+			renderables_waitList_mutex.unlock();
 			break;
 		}
 		case RENDERER_ADD_TO_UIRENDERABLES: {
@@ -423,11 +425,18 @@ void Renderer::notify(EventName eventName, Param* params) {
 			AddToUIRenderables(p->Param);
 			break;
 		}
-		case RENDERER_POPULATE_BUFFERS: {
-			TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
-			PopulateBuffers(p->Param);
-			break;
-		}
+        case RENDERER_POPULATE_BUFFERS: {
+            TypeParam<UIComponent*> *p = dynamic_cast<TypeParam<UIComponent*> *>(params);
+            PopulateBuffers(p->Param);
+            break;
+        }
+        case RENDERER_SET_CAMERA: {
+            TypeParam<glm::vec3> *p = dynamic_cast<TypeParam<glm::vec3> *>(params);
+            glm::vec3 pos = p->Param;
+            cameraPosition = pos;
+            cameraPosition.z /= std::tan(cameraFOV * M_PI / 360.0f);
+            break;
+        }
 		default:
 			break;
     }
@@ -440,18 +449,24 @@ void Renderer::DrawUITree() {
     for (UIComponent *t : transparentList) {
         DrawUIRenderable(t);
     }
+
+    UIComponent* black = UIManager::GetComponentById("BlackOverlay");
+    if (black != nullptr && black->visible)
+        DrawUIRenderable(black);
 }
 
 void Renderer::traverseChild(UIComponent *component) {
-    if (component->IsTransparent()) {
-        transparentList.push_back(component);
-    } else {
-        DrawUIRenderable(component);
-    }
+    if (component != nullptr && component->id != "BlackOverlay") {
+        if (component->IsTransparent()) {
+            transparentList.push_back(component);
+        } else {
+            DrawUIRenderable(component);
+        }
 
-    for (UIComponent *child : component->children) {
-        if (child->visible) {
-            traverseChild(child);
+        for (UIComponent *child : component->children) {
+            if (child->visible) {
+                traverseChild(child);
+            }
         }
     }
 }
@@ -460,6 +475,7 @@ Renderer::Renderer() {
     EventManager::subscribe(RENDERER_ADD_TO_RENDERABLES, this);
     EventManager::subscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
     EventManager::subscribe(RENDERER_POPULATE_BUFFERS, this);
+    EventManager::subscribe(RENDERER_SET_CAMERA, this);
 }
 
 Renderer::~Renderer() {
