@@ -10,7 +10,7 @@
 class MenuScene : public Scene {
 public:
     void InitScene();
-    void Update(const float delta);
+    int Update(const float delta);
     void CleanUp();
 private:
     GameObject *_background;

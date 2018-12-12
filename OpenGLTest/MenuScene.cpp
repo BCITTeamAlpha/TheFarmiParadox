@@ -74,8 +74,8 @@ void MenuScene::InitScene() {
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
 }
 
-void MenuScene::Update(const float delta) {
-
+int MenuScene::Update(const float delta) {
+	return -1;
 }
 
 void MenuScene::CleanUp() {

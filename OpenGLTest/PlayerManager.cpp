@@ -84,11 +84,12 @@ int PlayerManager::handlePlayers(float dTime)
 
 	for (int i = 0; i < players.size(); i++)
 	{
-		//if players[i] has no more characters delete it
+		if (players[i]->chars.size() == 0)
+			players.erase(players.begin() + i);
 	}
 
-	//if there is only one player left, return the winning player's id
-
+	if (players.size() == 1)
+		return players[0]->playerID;
 	return -1;
 }
 
