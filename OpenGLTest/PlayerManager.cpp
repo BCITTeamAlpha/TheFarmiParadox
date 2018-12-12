@@ -100,7 +100,6 @@ void PlayerManager::NextPlayer()
 	timeElapsed = 0;
 	players[currentPlayerIndex]->setNextCharacter();
 
-
 	//players[currentPlayerIndex]->nextChar();
 	players[currentPlayerIndex]->clearInput();
 	currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
