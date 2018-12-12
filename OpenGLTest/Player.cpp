@@ -49,6 +49,7 @@ void Player::setNextCharacter() {
 
 void Player::fireWeapon()
 {
+	EventManager::notify(BULLET_SPAWN, nullptr);
 	weaps->useWeapon(chars[currentCharacterIndex]->get_position());
 }
 
