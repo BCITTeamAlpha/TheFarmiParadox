@@ -73,6 +73,7 @@ void PlayerManager::handlePlayers(float dTime)
 		turnStage = 1;
 		instance->players[instance->currentPlayerIndex]->setControllable(false);
 		timeElapsed = 0;
+		instance->NextPlayer();
 		return;
 	}
 	else if (turnStage == 1)
@@ -88,7 +89,6 @@ void PlayerManager::NextPlayer()
 {
 	turnStage = 0;
 	timeElapsed = 0;
-	//players[currentPlayerIndex]->setControllable(true);
 	players[currentPlayerIndex]->setNextCharacter();
 
 	if (players.size())

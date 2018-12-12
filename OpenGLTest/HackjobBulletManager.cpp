@@ -52,30 +52,41 @@ void HackjobBulletManager::UpdateBullet() {
 
 		for (int j = 0; j < playerManager->instance->players.size(); j++) {
 
-			Character *character = playerManager->instance->players[j]->getCurrentCharacter();
+			for (int k = 0; k < playerManager->instance->players[j]->chars.size(); k++) {
 
-			if (bullet->colliding_with_player(character->get_position())
-				&& character->playerID != bullet->shooter_PlayerID) {
+				Character *character = playerManager->instance->players[j]->chars[k];
 
-				character->TakeDamage(bullet->damage);
-				//printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
-				std::string hitInfo = "P";
-				hitInfo += std::to_string(character->playerID);
-				hitInfo += " hit hp:";
-				hitInfo += std::to_string(character->health);
-				SetInfoText(hitInfo);
-				map->explosion(Planetoid(character->get_position().x, character->get_position().y, bullet->explosionRadius));
-				//printf("\nExplosion radius: %lf\n", bullet->explosionRadius);
+				if (bullet->colliding_with_player(character->get_position())
+					&& character->playerID != bullet->shooter_PlayerID) {
 
-				if (character->health <= 0) { //kills character and removes the dead dude from player manager
-					character->renderable = NULL;
-					playerManager->RemovePlayer(character->playerID);
+					character->TakeDamage(bullet->damage);
+					//printf("Player ID:%d got hit! health remaining: %d\n", character->playerID, character->health);
+					std::string hitInfo = "P";
+					hitInfo += std::to_string(character->playerID);
+					hitInfo += "C:";
+					hitInfo += std::to_string(character->characterID);
+					hitInfo += " hit hp:";
+					hitInfo += std::to_string(character->health);
+					SetInfoText(hitInfo);
+					map->explosion(Planetoid(character->get_position().x, character->get_position().y, bullet->explosionRadius));
+					//printf("\nExplosion radius: %lf\n", bullet->explosionRadius);
+
+					if (character->health <= 0) { //kills character and removes the dead dude from player manager
+						character->renderable = NULL;
+						int playerToBeRemovedID = character->playerID;
+						playerManager->instance->players[j]->RemoveCharacter(k);
+
+						if (playerManager->instance->players[j]->chars.size() == 0) {
+							playerManager->RemovePlayer(playerToBeRemovedID);
+						}
+					}
+
+					bullet->renderable = NULL; //delete bullet's renderable share pointer
+					bulletList.erase(bulletList.begin() + i);
+					break;
 				}
-
-				bullet->renderable = NULL; //delete bullet's renderable share pointer
-				bulletList.erase(bulletList.begin() + i);
-				break;
 			}
+
 		}
 	}
 

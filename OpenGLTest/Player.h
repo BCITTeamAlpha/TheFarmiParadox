@@ -23,11 +23,12 @@ public:
 	void moveLeft(bool v);
 	void moveRight(bool v);
 	void jump(bool v);
+	void RemoveCharacter(int index);
 	int playerID;
 	std::vector<Character *> chars;
 
 private:
 	Inventory *weaps;
-	int curChar;
+	int currentCharacterIndex;
 	bool aimLeft, aimRight;
 };

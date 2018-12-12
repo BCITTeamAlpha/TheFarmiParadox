@@ -2,7 +2,7 @@
 
 Player::Player()
 {
-	curChar = 0;
+	currentCharacterIndex = 0;
 	//chars = std::vector<Character *>();
 	weaps = new Inventory();
 }
@@ -17,7 +17,7 @@ Character* Player::getFirstCharacter() {
 }
 
 Character* Player::getCurrentCharacter() {
-	return chars[curChar];
+	return chars[currentCharacterIndex];
 }
 
 void Player::addItem(Pickup item)
@@ -37,19 +37,19 @@ void Player::nextWeapon()
 
 void Player::setControllable(bool c)
 {
-	chars[curChar]->controllable = c;
+	chars[currentCharacterIndex]->controllable = c;
 }
 
 void Player::setNextCharacter() {
 	clearInput(); //sets previous to not controllable
-	curChar++;
-	if (curChar >= chars.size()) curChar = 0; //checks for wrap around
+	currentCharacterIndex++;
+	if (currentCharacterIndex >= chars.size()) currentCharacterIndex = 0; //checks for wrap around
 	setControllable(true); //sets current to controllable
 }
 
 void Player::fireWeapon()
 {
-	weaps->useWeapon(chars[curChar]->get_position());
+	weaps->useWeapon(chars[currentCharacterIndex]->get_position());
 }
 
 void Player::setAimLeft(bool b)
@@ -108,4 +108,20 @@ void Player::jump(bool v)
 	{
 		c->jump_input = v;
 	}
+}
+
+
+void Player::RemoveCharacter(int index) {
+
+
+	if (index == currentCharacterIndex) {
+		currentCharacterIndex = (currentCharacterIndex + 1) & chars.size();
+	}
+	else if (index < currentCharacterIndex) {
+		currentCharacterIndex--;
+	}
+
+	if (currentCharacterIndex >= chars.size() || currentCharacterIndex < 0)
+		currentCharacterIndex = 0; //dont want to access out of bounds element
+	
 }
