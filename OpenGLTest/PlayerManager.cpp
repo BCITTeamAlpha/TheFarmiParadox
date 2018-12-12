@@ -66,7 +66,7 @@ int PlayerManager::handlePlayers(float dTime)
 {
 	timeElapsed += dTime;
 
-	printf("Time Remaining:%d\n", SecondsRemaining());
+	//printf("Time Remaining:%d\n", SecondsRemaining());
 
 	if (turnStage == 0 && timeElapsed >= moveTime)
 	{
@@ -106,6 +106,7 @@ void PlayerManager::NextPlayer()
 	players[currentPlayerIndex]->getFirstCharacter()->bulletoAmmo = players[currentPlayerIndex]->getFirstCharacter()->maxBulletsPerTurn;
 
 	UpdatePlayerUI();
+	EventManager::notify(PICKUP_SPAWN, nullptr);
 }
 
 void PlayerManager::AddPlayer(Player * player)

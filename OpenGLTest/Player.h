@@ -21,6 +21,7 @@ public:
 	void moveLeft(bool v);
 	void moveRight(bool v);
 	void jump(bool v);
+	Inventory getWeapons();
 	int playerID;
 	static int PLAYER_COUNT;
 	//static Player *me;

@@ -6,6 +6,7 @@
 #include "Core.h"
 #include "PhysicsManager.h"
 #include "HackjobBulletManager.h"
+#include "PickupManager.h"
 #include <vector>
 
 class MainScene : public Scene {
@@ -18,6 +19,7 @@ private:
     Map *_map;
     PhysicsManager *_physics;
     HackjobBulletManager *_bulletoManager;
+	PickupManager *_pickupManager;
     GameObject *_background;
 
     std::vector<Planetoid> _planets;
