@@ -75,7 +75,7 @@ void MainScene::InitScene() {
     backgroundSkin->fullBright = true;
 
     _physics = new PhysicsManager(&_planets, &_cores, _map);
-
+	/*
     for (int i = 0; i < 5; ++i) {
         Pickup *p = new Pickup();
         p->mass = 75;
@@ -92,6 +92,7 @@ void MainScene::InitScene() {
 
         EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(p->renderable), false);
     }
+	*/
 
     _models.push_back("../Models/Cat.obj");
     _models.push_back("../Models/Cow.obj");
@@ -99,46 +100,50 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int teams = 4;
-    int characters_per_team = 2;
+    int numberOfPlayers = 2;
+    int charactersPerPlayer = 2;
+	int playerID = 1;
+	int characterID = 1;
 
-    for (int i = 0; i < teams; i++) {
-        for (int j = 0; j < characters_per_team; j++) {
+    for (int i = 0; i < numberOfPlayers; i++) {
+		//set up a player 
+		Player *player = new Player();
+		player->playerID = playerID++;
+
+		//set up a test pickup to give the player weapons
+		Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
+
+		player->addItem(pickup1);
+		player->addItem(pickup2);
+
+        for (int j = 0; j < charactersPerPlayer; j++) {
             //set up a square test character
             Character *c = new Character(1000, 10, 10); //health, bullets, maxBullets per turn (recharged when it's their turn again) -> right click to shoot
             c->mass = 50;
-            c->controllable = true;
+			if(j==0)
+				c->controllable = true; //sets only the first character to controllable initially
             c->radius = 2.5f;
-            c->teamID = i; //i is the current teamid being set - note this is to prevent friendly fire from daniel's bulleto code
-            c->set_position(_physics->genSpawnPos(c->radius));
+			c->characterID = characterID++;
+			c->set_position(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
             cSkin->z = 0;
             cSkin->model = AssetLoader::loadModel(_models[j % _models.size()]);
-            float hue = i / (float)teams + j / ((float)teams * (float)characters_per_team * 3);
+            float hue = i / (float)numberOfPlayers + j / ((float)numberOfPlayers * (float)charactersPerPlayer * 3);
             hue = hue * 2.0 * M_PI;
             cSkin->color = glm::vec4(std::sin(hue) * 0.5f + 0.5f, std::sin(hue + 2) * 0.5f + 0.5f, std::sin(hue + 4) * 0.5f + 0.5f, 1);
             cSkin->scale = glm::vec3(2.5f);
             c->setRenderable(cSkin);
 
-            //set up a player with the test character
-            Player *player = new Player();
-
-            //set up a test pickup to give the player weapons
-            Pickup pickup1 = Pickup(new Weapon("Gun", 5, 20));
-            Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 50));
-
-            player->addItem(pickup1);
-            player->addItem(pickup2);
-
-            c->playerID = player->playerID; //omegalul ultra duplication
+            c->playerID = player->playerID;
             player->addCharacter(c);
-            _playerManager->AddPlayer(player);
 
             // send physicsobjects to physicsmanager
             _physics->addObject(c);
             EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(c->renderable), false);
         }
+		_playerManager->AddPlayer(player);
     }
 
     // send Renderables to renderer
@@ -148,11 +153,13 @@ void MainScene::InitScene() {
     _map->explosion(Planetoid(89, 117, 8));
 
     _bulletoManager = new HackjobBulletManager(_playerManager, _physics, _map); //initializes bullet manager
+	_pickupManager = new PickupManager(_playerManager, _physics);
 }
 
 void MainScene::Update(const float delta) {
     _physics->calcPhysics(delta);
     _bulletoManager->UpdateBullet(); //updates hackjob bullets 
+	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
 
 	if (win != -1)
