@@ -155,7 +155,7 @@ int main() {
 		Sleep(1000.0 / 59.94);
 
 		// code to move light around
-		float x = 85.0f + 256.0f * std::sin(tick * 0.01f);
+		float x = 182.5f + 256.0f * std::sin(tick * 0.01f);
 		float y = 100.0f + 256.0f * std::cos(tick * 0.01f);
 		renderer->light_position.x = x;
 		renderer->light_position.y = y;
