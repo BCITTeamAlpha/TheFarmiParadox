@@ -18,12 +18,16 @@ void MainScene::InitScene() {
     _playerManager = new PlayerManager();
 
     // setup Map IRenderable
+	_planets.push_back(Planetoid(300.0f, 80.0f, 32.0f));
+	_planets.push_back(Planetoid(295.0f, 135.0f, 12.0f));
+	_planets.push_back(Planetoid(320.0f, 160.0f, 12.0f));
+
     _planets.push_back(Planetoid(147.0f, 120.0f, 16.0f));
     _planets.push_back(Planetoid(188.0f, 82.0f, 8.0f));
     _planets.push_back(Planetoid(131.0f, 64.0f, 32.0f));
     _planets.push_back(Planetoid(107.0f, 152.0f, 12.0f));
     _planets.push_back(Planetoid(219.0f, 152.0f, 48.0f));
-    _planets.push_back(Planetoid(227.0f, 32.0f, 32.0f));
+    _planets.push_back(Planetoid(227.0f, 40.0f, 32.0f));
 
     _map = new Map(_planets, 365, 205);
 
@@ -147,7 +151,7 @@ void MainScene::InitScene() {
 			c->set_position(_physics->genSpawnPos(c->radius));
 
             Renderable *cSkin = new Renderable();
-            cSkin->z = 0;
+            cSkin->z = 2.5f;
             cSkin->model = AssetLoader::loadModel(_models[_modelNums[i]]);
 //            float hue = i / (float)_numPlayers + j / ((float)_numPlayers * (float)charactersPerPlayer * 3);
  //           hue = hue * 2.0 * M_PI;
