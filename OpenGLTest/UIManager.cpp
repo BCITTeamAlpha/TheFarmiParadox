@@ -10,6 +10,7 @@ UIComponent* UIManager::_root;
 std::map<const std::string, void(*)()> UIManager::_clickFunctions;
 
 UIManager::UIManager(float width, float height) {
+	// Create a full size Black Panel used for fading in and out of Scenes
     UIComponent *blackOverlay = new UIComponent(100, 100, 0, 0);
     blackOverlay->id = "BlackOverlay";
     blackOverlay->color = { 0, 0, 0, 0 };
@@ -41,6 +42,7 @@ UIManager::~UIManager() {
 void UIManager::Resize() {
     _root->Resize();
 
+	// Override default Z value to place the black overlay on top
     GetComponentById("BlackOverlay")->z = 100;
 }
 

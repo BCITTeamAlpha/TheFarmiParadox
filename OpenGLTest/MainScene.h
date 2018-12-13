@@ -9,6 +9,9 @@
 #include "PickupManager.h"
 #include <vector>
 
+/**
+Scene that runs the main gameplay loop for the game
+*/
 class MainScene : public Scene {
 public:
     MainScene(int numPlayers, int *models);

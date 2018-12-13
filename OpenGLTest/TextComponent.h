@@ -2,8 +2,12 @@
 
 #include "UIManager.h"
 
+/**
+Type of UIComponent that renders text to the panel, through the means of a bitmap font
+*/
 class TextComponent : public UIComponent {
 public:
+	// default font type to use
     static const std::string DEFAULT_FONT;
 
     TextComponent(std::string text, float fontSize, float x, float y, std::string fontType = DEFAULT_FONT);
@@ -12,6 +16,7 @@ public:
     bool IsTransparent();
     void SetImage(std::string path);
 
+	// Change the text on this component
     void SetText(std::string text);
 private:
     glm::vec2 getUVfromChar(const char c);
