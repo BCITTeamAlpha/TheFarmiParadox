@@ -92,6 +92,10 @@ void MenuScene::CleanUp() {
 
     delete _background;
     delete c;
+	EventManager::unsubscribe(MENU_MODEL_NEXT, this);
+	EventManager::unsubscribe(MENU_MODEL_PREV, this);
+	EventManager::unsubscribe(MENU_MODEL_SELECT, this);
+	EventManager::unsubscribe(MENU_SHOW_MODEL, this);
 }
 
 void MenuScene::notify(EventName eventName, Param *params) {

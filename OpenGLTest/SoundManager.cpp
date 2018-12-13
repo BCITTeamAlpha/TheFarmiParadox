@@ -25,6 +25,10 @@ SoundManager::SoundManager() {
     }
     currentSoundBuffer = 0;
     loadAudioData();
+
+	EventManager::subscribe(PLAY_SONG, this);
+	EventManager::subscribe(PLAY_SOUND, this);
+	EventManager::subscribe(GAME_START, this);
 }
 
 void SoundManager::loadAudioData() {
@@ -76,6 +80,9 @@ void SoundManager::loadAudioData() {
 
 SoundManager::~SoundManager() {
     cleanUp();
+	EventManager::unsubscribe(PLAY_SONG, this);
+	EventManager::unsubscribe(PLAY_SOUND, this);
+	EventManager::unsubscribe(GAME_START, this);
 }
 
 void SoundManager::playSong(TrackList track, float x, float y, float z) {

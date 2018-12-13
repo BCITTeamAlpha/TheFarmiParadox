@@ -2,7 +2,7 @@
 #include "SoundParams.h"
 #include "PlayerManager.h"
 
-const float PhysicsManager::VELOCITY_CAP = 40.0f;
+const float PhysicsManager::VELOCITY_CAP = 80.0f;
 const float player_speed = 10.0f;
 const float player_jump_speed = 20.0f;
 const float ROT_CAP = 700.0f;
@@ -114,8 +114,6 @@ void PhysicsManager::calcPhysics(float dTime)
 				glm::vec2 normal;
 				if (core->colliding_with_object(*character, normal)) {
 					std::cout << "Player burned up. \n";
-					character->renderable = NULL;
-					int playerToBeRemovedID = character->playerID;
 					PlayerManager::instance->players[j]->RemoveCharacter(k);
 				}
 			}

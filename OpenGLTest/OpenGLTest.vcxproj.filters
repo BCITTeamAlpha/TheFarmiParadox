@@ -239,7 +239,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PickupManager.h">
-	  <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SoundParams.h">
       <Filter>Header Files</Filter>

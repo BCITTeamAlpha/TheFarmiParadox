@@ -18,10 +18,11 @@ class PickupManager : public ISubscriber {
 
 public:
 	PickupManager(PlayerManager *playerManager, PhysicsManager *physics);
+	~PickupManager();
 	void updatePickup();
 	void spawnPickup();
 	virtual void notify(EventName eventName, Param *params) override;
-
+	void removePickups();
 private:
 
 	PhysicsManager *physics;

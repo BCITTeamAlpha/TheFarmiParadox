@@ -8,11 +8,15 @@ Game::Game() {
     _currScene->InitScene();
 
     EventManager::subscribe(GAME_START, this);
+	EventManager::subscribe(GAME_END, this);
 }
 
 Game::~Game() {
     _currScene->CleanUp();
     delete _currScene;
+
+	EventManager::unsubscribe(GAME_START, this);
+	EventManager::unsubscribe(GAME_END, this);
 }
 
 void Game::notify(EventName eventName, Param *params) {
@@ -33,6 +37,18 @@ void Game::notify(EventName eventName, Param *params) {
         Transition(new MainScene(numPlayer, models));
         break;
     }
+	case GAME_END: {
+		UIComponent *comp = UIManager::GetComponentById("modelSelect");
+		comp->visible = false;
+		comp = UIManager::GetComponentById("splashScreen");
+		comp->visible = true;
+		comp = UIManager::GetComponentById("nextPlayerModel");
+		comp->visible = true;
+		comp = UIManager::GetComponentById("startGame");
+		comp->visible = false;
+		Transition(new MenuScene());
+		break;
+	}
     default:
         break;
     }
@@ -76,7 +92,7 @@ void Game::Transition(Scene *nextScene) {
 void Game::Update(const float delta) {
     if (_currScene != nullptr && !FadeOut && !FadeIn) {
 		if (_currScene->Update(delta) != -1)
-			Transition(new MenuScene());
+			EventManager::notify(GAME_END, nullptr);
     }
     if (FadeOut) {
         if (Black->color.a < 1)
