@@ -123,7 +123,7 @@ void MainScene::InitScene() {
 
 		//set up a test pickup to give the player weapons
 		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 100, 4, 40));
-		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 14, 30));
+		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 200, 14, 30));
 		
 
 		player->addItem(pickup1);
@@ -132,7 +132,7 @@ void MainScene::InitScene() {
         for (int j = 0; j < charactersPerPlayer; j++) {
             //set up a square test character
             Character *c = new Character(1000, 10, 10); //health, bullets, maxBullets per turn (recharged when it's their turn again) -> right click to shoot
-            c->mass = 50;
+            c->mass = 200;
 			if(j==0)
 				c->controllable = true; //sets only the first character to controllable initially
             c->radius = 2.5f;
