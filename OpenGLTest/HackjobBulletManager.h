@@ -15,6 +15,7 @@ class HackjobBulletManager : public ISubscriber {
 public:
 
 	HackjobBulletManager(PhysicsManager *physics, Map *map);
+	~HackjobBulletManager();
 	void UpdateBullet(float dTime);
 	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
 	void SetInfoText(std::string info);

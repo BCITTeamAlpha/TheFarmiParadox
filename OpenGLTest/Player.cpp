@@ -103,6 +103,7 @@ void Player::jump(bool v)
 	}
 }
 void Player::RemoveCharacter(int index) {
+	chars[index]->renderable = NULL;
 	chars.erase(chars.begin() + index);
 	if (chars.size() > 0) {
 		currentCharacterIndex = currentCharacterIndex % chars.size();

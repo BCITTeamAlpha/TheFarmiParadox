@@ -202,6 +202,8 @@ int MainScene::Update(const float delta) {
     _bulletoManager->UpdateBullet(delta); //updates hackjob bullets 
 	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
+	if (win != -1)
+		return win;
 
 	Character* c = _playerManager->GetCurrentPlayer()->getCurrentCharacter();
 	glm::vec2 pos = c->get_position();
@@ -214,7 +216,7 @@ int MainScene::Update(const float delta) {
 
     _playerManager->UpdatePlayerUI();
 
-	return win;
+	return -1;
 }
 
 void MainScene::CleanUp() {
@@ -227,5 +229,7 @@ void MainScene::CleanUp() {
     delete _background;
     delete _aimIndicator;
     delete _map;
-    delete _playerManager;
+	_pickupManager->removePickups();
+	delete _pickupManager;
+	_cores.clear();
 }

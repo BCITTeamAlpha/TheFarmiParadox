@@ -22,6 +22,10 @@ PickupManager::PickupManager(PlayerManager *playerManager, PhysicsManager *physi
 	EventManager::subscribe(PICKUP_SPAWN, this);
 }
 
+PickupManager::~PickupManager() {
+	EventManager::unsubscribe(PICKUP_SPAWN, this);
+}
+
 // Checks if a character has tocuhed a Pickup
 void PickupManager::updatePickup() {
 	// Checks every Pickup
@@ -54,12 +58,23 @@ void PickupManager::updatePickup() {
 			}
 			if (!removed && pickup->colliding_with_player(character->get_position()))
 			{
-				playerManager->instance->players[j]->addItem(*pickup); pickup->renderable = NULL;
+				playerManager->instance->players[j]->addItem(*pickup);
+				pickup->renderable = NULL;
 				pickupList.erase(pickupList.begin() + i);
 				removed = true;
 				break;
 			}
 		}
+	}
+}
+
+void PickupManager::removePickups()
+{
+	for (int i = 0; i < pickupList.size(); i++)
+	{
+		Pickup *pickup = pickupList[i];
+		pickup->renderable = NULL;
+		pickupList.erase(pickupList.begin() + i);
 	}
 }
 

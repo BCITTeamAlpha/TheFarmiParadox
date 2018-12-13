@@ -35,6 +35,7 @@ UIManager::UIManager(float width, float height) {
 
 UIManager::~UIManager() {
     delete _root;
+	EventManager::unsubscribe(UI_CLICK, this);
 }
 
 void UIManager::Resize() {

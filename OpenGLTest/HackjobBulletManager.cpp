@@ -11,6 +11,11 @@ HackjobBulletManager::HackjobBulletManager(PhysicsManager *physics, Map* map) {
     EventManager::subscribe(BULLET_SPAWN, this);
 }
 
+HackjobBulletManager::~HackjobBulletManager()
+{
+	EventManager::unsubscribe(BULLET_SPAWN, this);
+}
+
 void HackjobBulletManager::SetInfoText(std::string info) {
     TextComponent *infoText = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rInfoText"));
     if (infoText != nullptr) {
@@ -62,14 +67,19 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 					map->explosion(Planetoid(bullet->get_position().x, bullet->get_position().y, bullet->explosionRadius));
 
 					if (character->health <= 0) { //kills character and removes the dead dude from player manager
-						character->renderable = NULL;
-						int playerToBeRemovedID = character->playerID;
 						PlayerManager::instance->players[j]->RemoveCharacter(k);
-
-						if (PlayerManager::instance->players[j]->chars.size() == 0) {
-							PlayerManager::instance->RemovePlayer(playerToBeRemovedID);
-						}
 					}
+
+					SoundParams * bulletNoise = new SoundParams();
+
+					bulletNoise->sound = Damage;
+
+					bulletNoise->x = 0;
+					bulletNoise->y = 0;
+					bulletNoise->z = 0;
+
+					TypeParam<SoundParams*> *bulletSound = new TypeParam<SoundParams*>(bulletNoise);
+					EventManager::notify(PLAY_SOUND, bulletSound);
 
 					bullet->renderable = NULL; //delete bullet's renderable share pointer
 					bulletList.erase(bulletList.begin() + i);
@@ -77,10 +87,8 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 					PlayerManager::instance->NextPlayer();
 
 					break;
-					
 				}
 			}
-
 		}
 	}
 }
