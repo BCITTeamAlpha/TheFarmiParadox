@@ -42,17 +42,24 @@ void PhysicsManager::calcPhysics(float dTime)
 			float T_comp = dot(T_acc, vel);
 
 			if (character->jump_input) {
+                //Section that ensures Jump sounds have delay to avoid cacophony
                 if (frames_since_jump_sound > JUMP_SOUND_PERIOD) {
                     frames_since_jump_sound = 0;
+                    //standard template for sending a sound effect event
+                    //make parameter object
                     SoundParams * JumpNoise = new SoundParams();
 
+                    //Define sound to be played
                     JumpNoise->sound = Jump;
 
+                    //define sound position (0's as place holders, should be the position of where this is called)
                     JumpNoise->x = 0;
                     JumpNoise->y = 0;
                     JumpNoise->z = 0;
-
+                    
+                    //Cast Sound Parameter to a Type Param
                     TypeParam<SoundParams*> *jumpSound = new TypeParam<SoundParams*>(JumpNoise);
+                    //fire notification with the type Param
                     EventManager::notify(PLAY_SOUND, jumpSound);
                 }
 				player_input = true;
