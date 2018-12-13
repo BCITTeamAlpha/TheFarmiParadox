@@ -18,13 +18,12 @@ enum EventName {
 	PICKUP_SPAWN,
 	AIM_LEFT,
 	AIM_RIGHT,
-    PLAY_SONG,
-    PLAY_SOUND,
+    PLAY_SONG, //used to trigger a BGM track to play
+    PLAY_SOUND, //used to trigger a Sound Effect
 	PLAYER_FIRE,
     BULLET_SPAWN,
     GAME_START,
 	GAME_END,
-    SOUND_COMPLETE,
     MENU_MODEL_NEXT,
     MENU_MODEL_PREV,
     MENU_MODEL_SELECT,

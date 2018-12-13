@@ -19,7 +19,6 @@ public:
 	void SpawnBulleto(float speedScalar,int damage, float explodeRadius); //spawns a single projectile
 	void SetInfoText(std::string info); //updates ui
 	void CheckIfPlayersDamaged(); //checks if any of the players have been damaged
-	HackjobBulletManager(PhysicsManager *physics, Map *map);
   void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
 	float waitTime = 10;
 private:

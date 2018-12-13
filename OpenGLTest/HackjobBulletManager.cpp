@@ -72,15 +72,16 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 					if (character->health <= 0) { //kills character and removes the dead dude from player manager
 						PlayerManager::instance->players[j]->RemoveCharacter(k);
 					}
-
+                    // notify event system for an explosion sound using the standard idiom
+                    //make sound Param
 					SoundParams * bulletNoise = new SoundParams();
-
+                    //select sound
 					bulletNoise->sound = Damage;
-
+                    //specify sound location
 					bulletNoise->x = 0;
 					bulletNoise->y = 0;
 					bulletNoise->z = 0;
-
+                    //make type param from sound params, notify sound system.
 					TypeParam<SoundParams*> *bulletSound = new TypeParam<SoundParams*>(bulletNoise);
 					EventManager::notify(PLAY_SOUND, bulletSound);
 
@@ -117,14 +118,16 @@ void HackjobBulletManager::UpdateBullet(float dTime) {
 	{
 		if (bulletList[i]->grounded && bulletList[i]->bulletMaxAliveTicks++ > 50) { //check if alive ticks greater than 10 so bullets dont immediately explode as we're shooting 
 			map->explosion(Planetoid(bulletList[i]->get_position().x, bulletList[i]->get_position().y, bulletList[i]->explosionRadius));
+            //notify event system for an explosion sound using the standard idiom
+            //make sound Param
 			SoundParams * bulletNoise = new SoundParams();
-
+            //select sound
 			bulletNoise->sound = Damage;
-
+            //specify sound location
 			bulletNoise->x = 0;
 			bulletNoise->y = 0;
 			bulletNoise->z = 0;
-
+            //make a type Param from sound Params, Notify event system
 			TypeParam<SoundParams*> *bulletSound = new TypeParam<SoundParams*>(bulletNoise);
 			EventManager::notify(PLAY_SOUND, bulletSound);
 			bulletList[i]->renderable = NULL;
