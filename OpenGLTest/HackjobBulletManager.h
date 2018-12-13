@@ -14,11 +14,11 @@ class HackjobBulletManager : public ISubscriber {
 
 public:
 
-	HackjobBulletManager(PhysicsManager *physics, Map *map);
-	void UpdateBullet(float dTime);
-	void SpawnBulleto(float speedScalar,int damage, float explodeRadius);
-	void SetInfoText(std::string info);
-	void CheckIfPlayersDamaged();
+	HackjobBulletManager(PhysicsManager *physics, Map *map); //the projectile needs information about the map and physics manager
+	void UpdateBullet(float dTime);	//update loop for bullets
+	void SpawnBulleto(float speedScalar,int damage, float explodeRadius); //spawns a single projectile
+	void SetInfoText(std::string info); //updates ui
+	void CheckIfPlayersDamaged(); //checks if any of the players have been damaged
     void notify(EventName eventName, Param* params);    // Overrides ISubscriber::notify
 	float waitTime = 10;
 private:
