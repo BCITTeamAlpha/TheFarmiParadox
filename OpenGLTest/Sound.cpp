@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstring>
 
+//constructor. Establishes our device, creates our context, and sets up our listener
 Sound::Sound() {
     //open default audio device
     device = alcOpenDevice(NULL);
@@ -15,7 +16,7 @@ Sound::Sound() {
 
     //create the audio context
     context = alcCreateContext(device, NULL);
-    if (context == NULL) //more error handling incase the context fails to be established
+    if (context == NULL) //more error handling in case the context fails to be established
     {
         std::cout << "cannot open context" << std::endl;
         return;
@@ -27,7 +28,7 @@ Sound::Sound() {
     alListenerfv(AL_ORIENTATION, f);
 }
 
-//clean up step
+//clean up step. Undo Start up
 Sound::~Sound(){
     alcDestroyContext(context);
     alcCloseDevice(device);
@@ -41,21 +42,24 @@ void Sound::PlayAudio(ALuint source) {
 
 //action that pauses the source playing
 void Sound::PauseAudio(ALuint source) {
+    //pause the music
     alSourcePause(source);
 }
 
 //action that checks if the source is currently playing
 bool Sound::isPlaying(ALuint  source) {
-    ALenum state;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
-    return (state == AL_PLAYING);
+    ALenum state; //reference for the current state
+    alGetSourcei(source, AL_SOURCE_STATE, &state); //check the state
+    return (state == AL_PLAYING); //return if the state matches the state returned when sound is playing
 }
 
-//this method will empty the buffer of current sounds, so we can refill it. And by empty, I mean destroy and remake
+//this method will empty the buffer of current sounds, so we can refill it. And by empty, I mean destroy and remake.
 void Sound::clearBuffer(ALuint buffer, ALuint source) {
+    //destroy existing buffers and sources to start fresh with no remnant data
     alDeleteSources(1, &source);
     alDeleteBuffers(1, &buffer);
 
+    //make the new ones
     makeBuffer(&buffer);
     makeSource(&source);
 }
@@ -91,31 +95,43 @@ void Sound::toggleLooping(ALuint source, bool loop) {
 
 }
 
-//method to read in a file as audio and attach it to a source
-void Sound::bufferData(ALuint buffer, ALuint source, const char * fn) {
+//method that reads in a file, and stores it in an audio data object for ease of use
+AudioData Sound::getAudioData(const char* fn) {
+    //make audio data object
+    AudioData FileData = AudioData();
 
     //sound data variables
     int channel, sampleRate, bps, size;
-   
+
     //load the wav file
-    char* data = ReadWavFile(fn, channel, sampleRate, bps, size); 
+    char* data = ReadWavFile(fn, channel, sampleRate, bps, size);
     
     //check that we actually got a return from our read attempt
     if (data == NULL) {
         std::cout << "Data was not read correctly for WAV file" << std::endl;
-        return;
+        return FileData;
     }
+    //store all of our sound information in the Audio Data object
+    FileData.BitsPerSample = bps;
+    FileData.SampleRate = sampleRate;
+    FileData.channel = channel;
+    FileData.size = size;
+    FileData.data = data;
+    //return the audio data Object
+    return FileData;
+}
+
+//method to read in a file as audio and attach it to a source
+void Sound::bufferData(ALuint buffer, ALuint source, AudioData file) {
 
     //determine our format
-    unsigned int format = determineFormat(channel, bps);
+    unsigned int format = determineFormat(file.channel, file.BitsPerSample);
     
     //load in the buffer data
-    alBufferData(buffer, format, data, size, sampleRate);
+    alBufferData(buffer, format, file.data, file.size, file.SampleRate);
 
     //attach buffer to source
     alSourcei(source, AL_BUFFER, buffer);
-
-    delete[] data;
 
 }
 
@@ -158,13 +174,13 @@ char * Sound::ReadWavFile(const char * fn, int & chan, int & samplerate, int & b
     myFile.read(buffer, 4);      //16
     myFile.read(buffer, 2);      //1
     myFile.read(buffer, 2);     //number of channels
-    chan = convertToInt(buffer, 2);
+    chan = convertToInt(buffer, 2); //store number of channels
     myFile.read(buffer, 4); //sample rate
-    samplerate = convertToInt(buffer, 4);
+    samplerate = convertToInt(buffer, 4); //store sample rate
     myFile.read(buffer, 4);
     myFile.read(buffer, 2);
-    myFile.read(buffer, 2);
-    bps = convertToInt(buffer, 2); // bits per sample
+    myFile.read(buffer, 2); //bits per sample
+    bps = convertToInt(buffer, 2); // store bits per sample
     myFile.read(buffer, 4);      //data
     if (strncmp(buffer, "data", 4) != 0) //data header should be contained here
     {
@@ -173,10 +189,10 @@ char * Sound::ReadWavFile(const char * fn, int & chan, int & samplerate, int & b
         return NULL;
     }
     myFile.read(buffer, 4); //size of the contained data
-    size = convertToInt(buffer, 4); //number of bytes in the date
-    char* data = new char[size];
-    myFile.read(data, size);
-    return data;
+    size = convertToInt(buffer, 4); //number of bytes in the data
+    char* data = new char[size]; //create storage for the byte data
+    myFile.read(data, size); //read to end of file
+    return data; //return our byte data
 }
 
 //method to determine if we are stereo or mono

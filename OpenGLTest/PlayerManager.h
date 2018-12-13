@@ -2,6 +2,9 @@
 #include "Player.h"
 #include <vector>
 #include "ISubscriber.h"
+#include "EventManager.h"
+#include "UIManager.h"
+#include "TextComponent.h"
 
 class PlayerManager : public ISubscriber
 {
@@ -15,15 +18,29 @@ public:
 	static void aimWeapon();
 	static void fireWeapon();
 
-	void handlePlayers(float dTime);
+	int handlePlayers(float dTime);
 
 	void NextPlayer();
 
 	void AddPlayer(Player *player);
 
+	void RemovePlayer(int playerID);
+
+	float SecondsRemaining();
+
+	Player* GetCurrentPlayer();
+
+	void UpdatePlayerUI();
+
 	virtual void notify(EventName eventName, Param *params) override;
-private:
 	std::vector<Player*> players;
+
+	int moveTime = 20;
+	int aimTime = 10;
+    int charPerPlayer;
+private:
+    std::string getTimeString();
 	int currentPlayerIndex;
 	size_t turnStage;
+	float timeElapsed;
 };

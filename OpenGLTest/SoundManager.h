@@ -2,44 +2,47 @@
 //has Sounds; created by main
 #include "Sound.h"
 #include "EventManager.h"
+#include "SoundParams.h"
+#include "TrackParams.h"
+#include <unordered_map>
+#define MAX_SOUND_BUFFERS 5
 
-//for referencing songs
-enum TrackList
-{MainBGM, MenuBGM};
 
-//for referencing sounds
-enum SoundsList
-{Jump};
 
-//for notifying the song event
-struct TrackParams {
-    TrackList track;
-    float x;
-    float y;
-    float z;
-};
 
-//for notifying the sound event
-struct SoundParams {
-    SoundsList sound;
-    float x;
-    float y;
-    float z;
-};
-
+//actual Manager class, is an ISubScriber to use the event system
 class SoundManager : public ISubscriber {
 public:
+    //constructor
 	SoundManager();
+    
+    //destructor
     ~SoundManager();
+    
+    //method that takes in a Music track and plays it at the given position
     void playSong(TrackList track, float x, float y, float z);
+    
+    //method that takes in a Sound Effect Name and plays it at the given position
     void playSound(SoundsList soundEffect, float x, float y, float z);
+    
+    //method that deletes all of our stored memory before close. Called by Destructor
     void cleanUp();
+    
+    //Required Event Notification Method
     void ISubscriber::notify(EventName eventName, Param* param);
 
 private:
+    //internal method to load in audio data from a file to minimize I/O operations
+    void loadAudioData();
+    //references to the music buffer and source
     ALuint bgmBuffer;
     ALuint bgmSource;
-    ALuint seBuffer;
-    ALuint seSource;
+    //references to the Sound Effect buffers and Source
+    ALuint seBuffer[MAX_SOUND_BUFFERS];
+    ALuint seSource[MAX_SOUND_BUFFERS];
+    //pointer to our actual engine object
     Sound* soundObject;
+    //Song and Sound Effect storage so we don't need to I/O everytime we want them.
+    std::unordered_map<TrackList, AudioData> Music;
+    std::unordered_map<SoundsList, AudioData> SoundEffects;
 };

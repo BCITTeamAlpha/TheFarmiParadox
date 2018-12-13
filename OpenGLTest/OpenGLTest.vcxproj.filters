@@ -99,18 +99,39 @@
     <ClCompile Include="PlayerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HackjobBulletManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HackjobBullet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PickupManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VertexShader.vsh">
+    <None Include="Standard.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FragmentShader.psh">
+    <None Include="ShadowMap.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="VertexShader2.vsh">
+    <None Include="UI.psh">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FragmentShader2.psh">
+    <None Include="Standard.vsh">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ShadowMap.vsh">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="UI.vsh">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -202,5 +223,37 @@
     <ClInclude Include="PlayerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HackjobBullet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HackjobBulletManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PickupManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TrackParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\UI\DefaultUI.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="TestUI.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

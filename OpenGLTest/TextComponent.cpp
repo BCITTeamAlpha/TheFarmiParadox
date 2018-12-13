@@ -8,16 +8,17 @@ TextComponent::TextComponent(std::string text, float fontSize, float x, float y,
 }
 
 void TextComponent::SetText(std::string text) {
-    _text = text;
-    Resize();
+    if (text != _text) { // If text is different, invalidate this UIComponent to be Resized
+        _text = text;
+        valid = false;
+    }
 }
 
 void TextComponent::Resize() {
     if (parent != nullptr) {
-
-        float fontWidth = _fontSize * texture.width / texture.height;
-
-        screenSize.y = _fontSize;
+        screenSize.y = yType == UNIT_PERCENT ? parent->screenSize.y * _fontSize / 100.0f : _fontSize;
+        
+        float fontWidth = screenSize.y * texture.width / texture.height;
         screenSize.x = fontWidth * _text.length();
 
         glm::vec2 screenAnchor;
@@ -29,19 +30,19 @@ void TextComponent::Resize() {
             screenPosition.x = parent->screenPosition.x + screenAnchor.x;
             break;
         case ANCHOR_HCENTER:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 4 - screenSize.x / 4 + screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 + screenAnchor.x;
             break;
         case ANCHOR_RIGHT:
-            screenPosition.x = parent->screenPosition.x + parent->screenSize.x / 2 - screenSize.x / 2 - screenAnchor.x;
+            screenPosition.x = parent->screenPosition.x + parent->screenSize.x - screenSize.x - screenAnchor.x;
             break;
         }
 
         switch (vAnchor) {
         case ANCHOR_TOP:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 - screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y - screenSize.y - screenAnchor.y;
             break;
         case ANCHOR_VCENTER:
-            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 4 - screenSize.y / 4 + screenAnchor.y;
+            screenPosition.y = parent->screenPosition.y + parent->screenSize.y / 2 - screenSize.y / 2 + screenAnchor.y;
             break;
         case ANCHOR_BOTTOM:
             screenPosition.y = parent->screenPosition.y + screenAnchor.y;
@@ -53,8 +54,10 @@ void TextComponent::Resize() {
         generateVertices();
 
         TypeParam<UIComponent*> param(this);
-        EventManager::notify(RENDERER_ADD_TO_UIRENDERABLES, &param, false);
+        EventManager::notify(RENDERER_REPOPULATE_BUFFERS, &param, false);
     }
+
+	valid = true;
 }
 
 bool TextComponent::IsTransparent() {
@@ -84,7 +87,7 @@ glm::vec2 TextComponent::getUVfromChar(const char c) {
 
 void TextComponent::generateVertices() {
     glm::vec2 uv;
-    float fontWidth = _fontSize * texture.width / texture.height;
+    float fontWidth = screenSize.y * texture.width / texture.height;
 
 	model.positions.clear();
 	model.UVs.clear();
@@ -92,10 +95,10 @@ void TextComponent::generateVertices() {
 
     for (int i = 0; i < _text.length(); i++) {
         uv = getUVfromChar(_text[i]);
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + _fontSize, 0)); // Top Left
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + _fontSize, 0)); // Top Right
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + screenSize.y, 0)); // Top Left
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + screenSize.y, 0)); // Top Right
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y, 0)); // Bottom Left
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0));
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0)); // Bottom Right
 		model.UVs.push_back(uv);
 		model.UVs.push_back(uv + glm::vec2(0.1, 0));
 		model.UVs.push_back(uv + glm::vec2(0, -0.1));

@@ -8,11 +8,14 @@ class Player {
 public:
 	Player();
 	void addCharacter(Character *c);
+	Character *getFirstCharacter();
+	Character *getCurrentCharacter();
 	void addItem(Pickup item);
 	void prevWeapon();
 	void nextWeapon();
 	void fireWeapon();
 	void setControllable(bool c);
+	void setNextCharacter();
 	void adjustAim(float dTime);
 	void setAimLeft(bool b);
 	void setAimRight(bool b);
@@ -20,10 +23,14 @@ public:
 	void moveLeft(bool v);
 	void moveRight(bool v);
 	void jump(bool v);
-	//static Player *me;
-private:
+	void RemoveCharacter(int index);
+	Inventory* getWeapons();
+	int playerID;
 	std::vector<Character *> chars;
+	float aim_angle;
+    glm::vec4 color, accent;
+	int currentCharacterIndex;
+private:
 	Inventory *weaps;
-	int curChar;
 	bool aimLeft, aimRight;
 };
