@@ -9,10 +9,10 @@ PickupManager::PickupManager(PlayerManager *playerManager, PhysicsManager *physi
 	weapons = std::vector<Weapon>();
 	
 	//Weapon weap1 = Weapon("Pistol", 8, 100, 4, 40);
-	Weapon weap2 = Weapon("Rifle", 5, 200, 6, 60);
-	Weapon weap3 = Weapon("Shotgun", 3, 300, 8, 20);
+	Weapon weap2 = Weapon("Rifle", 5, 300, 6, 60);
+	Weapon weap3 = Weapon("Shotgun", 3, 400, 8, 20);
 	Weapon weap4 = Weapon("Rocket Launcher", 2, 200, 12, 40);
-	Weapon weap5 = Weapon("Grenade", 1, 200, 14, 20);
+	Weapon weap5 = Weapon("Grenade", 1, 100, 14, 20);
 	//weapons.push_back(weap1);
 	weapons.push_back(weap2);
 	weapons.push_back(weap3);
