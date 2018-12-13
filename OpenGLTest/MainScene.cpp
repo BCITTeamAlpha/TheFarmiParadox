@@ -110,7 +110,7 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int charactersPerPlayer = 2 / _numPlayers;
+    int charactersPerPlayer = 12 / _numPlayers;
     _playerManager->charPerPlayer = charactersPerPlayer;
 	int playerID = 1;
 	int characterID = 1;
@@ -137,7 +137,7 @@ void MainScene::InitScene() {
             component->visible = true;
 
 		//set up a test pickup to give the player weapons
-		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 1000, 4, 40));
+		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 100, 4, 40));
 		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 14, 30));
 		
 
