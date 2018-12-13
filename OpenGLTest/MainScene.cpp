@@ -43,7 +43,7 @@ void MainScene::InitScene() {
 		EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_cores[i].renderable), false);
 	}
 
-    // setup background
+    // setup starry background
     Renderable* backgroundSkin = new Renderable();
     _background = new GameObject();
     _background->setRenderable(backgroundSkin);
@@ -82,26 +82,8 @@ void MainScene::InitScene() {
     backgroundSkin->fullBright = true;
 
     _physics = new PhysicsManager(&_planets, &_cores, _map);
-	/*
-    for (int i = 0; i < 5; ++i) {
-        Pickup *p = new Pickup();
-        p->mass = 75;
-        p->radius = 2.5f;
-        p->set_position(_physics->genSpawnPos(p->radius));
 
-        Renderable *pSkin = new Renderable();
-        pSkin->z = 0;
-        pSkin->model = AssetLoader::loadModel("../Models/cube.obj");
-        pSkin->color = glm::vec4(0.8f, 0.6f, 0.4f, 1.0f);
-        p->setRenderable(pSkin);
-        pSkin->scale = glm::vec3(5.0f);
-        _physics->addObject(p);
-
-        EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(p->renderable), false);
-    }
-	*/
-
-    _models.push_back("../Models/Cat.obj");
+	_models.push_back("../Models/Cat.obj");
     _models.push_back("../Models/Chick.obj");
     _models.push_back("../Models/Cow.obj");
     _models.push_back("../Models/Dolphin.obj");
@@ -115,6 +97,8 @@ void MainScene::InitScene() {
 	int playerID = 1;
 	int characterID = 1;
 
+
+	// Each Player's "main color" and "accent color"
     glm::vec4 playerColors[4][2] = {
         {{0.447, 0.098, 0.745, 1.0}, {0.271, 0.024, 0.482, 1.0}},
         {{0.922, 0.373, 0, 1.0}, {0.714, 0.29, 0, 1.0}},
@@ -124,6 +108,7 @@ void MainScene::InitScene() {
 
     UIComponent *component;
 
+	// setup players and their characters
     for (int i = 0; i < _numPlayers; i++) {
 		//set up a player 
 		Player *player = new Player();
@@ -178,6 +163,7 @@ void MainScene::InitScene() {
 		_playerManager->AddPlayer(player);
     }
 
+	// Create the aim indicator
 	_aimIndicator = new GameObject();
 	Renderable *aimSkin = new Renderable();
 	aimSkin->model = AssetLoader::loadModel("../Models/cube.obj");
@@ -191,6 +177,7 @@ void MainScene::InitScene() {
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_map->renderable), false);
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_background->renderable), false);
 
+	// Generate an explosion at a point to make a crater in the surface of one of the planetoids
     _map->explosion(Planetoid(184, 117, 8));
 
     _bulletoManager = new HackjobBulletManager(_physics, _map); //initializes bullet manager
@@ -205,6 +192,7 @@ int MainScene::Update(const float delta) {
 	if (win != -1)
 		return win;
 
+	// Place aim indicator
 	Character* c = _playerManager->GetCurrentPlayer()->getCurrentCharacter();
 	glm::vec2 pos = c->get_position();
 	glm::vec3 rot = c->get_rotation();

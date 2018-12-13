@@ -8,7 +8,7 @@ TextComponent::TextComponent(std::string text, float fontSize, float x, float y,
 }
 
 void TextComponent::SetText(std::string text) {
-    if (text != _text) {
+    if (text != _text) { // If text is different, invalidate this UIComponent to be Resized
         _text = text;
         valid = false;
     }
@@ -98,7 +98,7 @@ void TextComponent::generateVertices() {
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y + screenSize.y, 0)); // Top Left
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y + screenSize.y, 0)); // Top Right
 		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i, screenPosition.y, 0)); // Bottom Left
-		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0));
+		model.positions.push_back(glm::vec3(screenPosition.x + fontWidth * i + fontWidth, screenPosition.y, 0)); // Bottom Right
 		model.UVs.push_back(uv);
 		model.UVs.push_back(uv + glm::vec2(0.1, 0));
 		model.UVs.push_back(uv + glm::vec2(0, -0.1));

@@ -8,6 +8,9 @@
 #include "EventManager.h"
 #include <vector>
 
+/**
+Scene consisting of the opening title screen and animal selection
+*/
 class MenuScene : public Scene, public ISubscriber {
 public:
     void InitScene();
@@ -23,10 +26,10 @@ private:
     int _currPlayer;
 
     glm::vec4 playerColors[4] = {
-    {0.447, 0.098, 0.745, 1.0},
-    {0.922, 0.373, 0, 1.0},
-    {0.047, 0.714, 0.604, 1.0},
-    {0.922, 0.878, 0, 1.0},
+		{0.447, 0.098, 0.745, 1.0}, // Purple
+		{0.922, 0.373, 0, 1.0},		// Orange
+		{0.047, 0.714, 0.604, 1.0}, // Turquoise
+		{0.922, 0.878, 0, 1.0},		// Yellow
     };
 };
 

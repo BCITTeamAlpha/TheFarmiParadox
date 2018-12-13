@@ -21,7 +21,7 @@ Game::~Game() {
 
 void Game::notify(EventName eventName, Param *params) {
     switch (eventName) {
-    case GAME_START: {
+    case GAME_START: { // Transition to Main Scene on Start Game button press
         int numPlayer = 2;
         int models[] = { 0, 1, 2, 3 };
 
@@ -37,7 +37,7 @@ void Game::notify(EventName eventName, Param *params) {
         Transition(new MainScene(numPlayer, models));
         break;
     }
-	case GAME_END: {
+	case GAME_END: { // Transition to Menu Scene at the end of the game
 		UIComponent *comp = UIManager::GetComponentById("modelSelect");
 		comp->visible = false;
 		comp = UIManager::GetComponentById("splashScreen");
@@ -71,9 +71,11 @@ void fadeIn(Game* game) {
 }
 
 void Game::Transition(Scene *nextScene) {
+	// Control fade to black animation on separate thread
     std::thread t(&fadeOut, this);
     t.join();
 
+	// Once black screen, clean up the current scene then initialize the next scene
     Scene *scene = _currScene;
     _currScene = nullptr;
 
@@ -85,13 +87,14 @@ void Game::Transition(Scene *nextScene) {
     nextScene->InitScene();
     _currScene = nextScene;
 
+	// After next scene is initialized, fade back in
     std::thread t2(&fadeIn, this);
     t2.join();
 }
 
 void Game::Update(const float delta) {
     if (_currScene != nullptr && !FadeOut && !FadeIn) {
-		if (_currScene->Update(delta) != -1)
+		if (_currScene->Update(delta) != -1) // If scene update evalutes as someone has won the game, end game
 			EventManager::notify(GAME_END, nullptr);
     }
     if (FadeOut) {

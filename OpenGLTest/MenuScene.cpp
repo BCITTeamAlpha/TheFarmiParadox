@@ -66,6 +66,8 @@ void MenuScene::InitScene() {
 
     EventManager::notify(RENDERER_ADD_TO_RENDERABLES, &TypeParam<std::shared_ptr<Renderable>>(_background->renderable), false);
     
+
+	// Setup single model preview GameObject
     c = new GameObject();
     Renderable *cSkin = new Renderable();
     c->setRenderable(cSkin);
@@ -80,6 +82,7 @@ void MenuScene::InitScene() {
 }
 
 int MenuScene::Update(const float delta) {
+	// rotate the example GameObject
     c->set_rotation(c->get_rotation() + glm::vec3({0, 1, 0}));
     c->renderable->color = playerColors[_currPlayer];
 	return -1;
@@ -100,7 +103,7 @@ void MenuScene::CleanUp() {
 
 void MenuScene::notify(EventName eventName, Param *params) {
     switch (eventName) {
-    case MENU_MODEL_NEXT: {
+    case MENU_MODEL_NEXT: { // Cycle through models
         _currModel++;
         if (_currModel >= _models.size())
             _currModel = 0;
@@ -113,7 +116,7 @@ void MenuScene::notify(EventName eventName, Param *params) {
         c->renderable->invalidated = true;
         break;
     }
-    case MENU_MODEL_PREV: {
+    case MENU_MODEL_PREV: { // Cycle through models
         _currModel--;
         if (_currModel < 0)
             _currModel = _models.size() - 1;
@@ -140,7 +143,7 @@ void MenuScene::notify(EventName eventName, Param *params) {
         }
         break;
     }
-    case MENU_SHOW_MODEL: {
+    case MENU_SHOW_MODEL: { // Bring preview model into view or off screen
         c->renderable->position *= -1;
         break;
     }
