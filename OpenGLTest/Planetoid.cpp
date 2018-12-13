@@ -9,7 +9,7 @@ Planetoid::Planetoid(float x, float y, float r) :
 	//Calculates the mass of a planetoid with similar density to earth based
 	//on the radius. Scale factor makes the radius more reasonable for a planet.
 	//Multiplied by the gravitational constant for efficiency reasons.
-	_m(r*r*C_MASS),
+	_m(r*15.0f*C_MASS),
 	_pos(x, y)
 { }
 
