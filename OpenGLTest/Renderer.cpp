@@ -495,4 +495,9 @@ Renderer::Renderer() {
 
 Renderer::~Renderer() {
     delete uim;
+	EventManager::unsubscribe(RENDERER_ADD_TO_RENDERABLES, this);
+	EventManager::unsubscribe(RENDERER_ADD_TO_UIRENDERABLES, this);
+	EventManager::unsubscribe(RENDERER_POPULATE_BUFFERS, this);
+	EventManager::unsubscribe(RENDERER_REPOPULATE_BUFFERS, this);
+	EventManager::unsubscribe(RENDERER_SET_CAMERA, this);
 }

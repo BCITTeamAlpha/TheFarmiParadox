@@ -23,7 +23,12 @@ PlayerManager::PlayerManager()
 
 PlayerManager::~PlayerManager()
 {
-
+	EventManager::unsubscribe(PLAYER_LEFT, this);
+	EventManager::unsubscribe(PLAYER_RIGHT, this);
+	EventManager::unsubscribe(PLAYER_JUMP, this);
+	EventManager::unsubscribe(AIM_LEFT, this);
+	EventManager::unsubscribe(AIM_RIGHT, this);
+	EventManager::unsubscribe(PLAYER_FIRE, this);
 }
 
 void PlayerManager::prevWeapon()
@@ -71,7 +76,15 @@ int PlayerManager::handlePlayers(float dTime)
 	for (int i = 0; i < players.size(); i++)
 	{
 		if (players[i]->chars.size() == 0)
-			RemovePlayer(i);
+			RemovePlayer(players[i]->playerID);
+	}
+
+	if (players.size() == 1)
+	{
+		players[0]->RemoveCharacter(0);
+		int id = players[0]->playerID;
+		RemovePlayer(id);
+		return id;
 	}
 
 	if (turnStage == 0 && timeElapsed >= moveTime)
@@ -88,13 +101,20 @@ int PlayerManager::handlePlayers(float dTime)
 			players[currentPlayerIndex]->adjustAim(dTime);
 	}
 
-	if (players.size() == 1)
-		return players[0]->playerID;
 	return -1;
 }
 
 void PlayerManager::NextPlayer() 
 {
+	for (int i = 0; i < players.size(); i++)
+	{
+		if (players[i]->chars.size() == 0)
+			RemovePlayer(players[i]->playerID);
+	}
+
+	if (players.size() == 1)
+		return;
+
 	turnStage = 0;
 	timeElapsed = 0;
 

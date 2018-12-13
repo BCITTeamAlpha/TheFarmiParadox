@@ -110,7 +110,7 @@ void MainScene::InitScene() {
     _models.push_back("../Models/Slime.obj");
 
     //create players
-    int charactersPerPlayer = 12 / _numPlayers;
+    int charactersPerPlayer = 2 / _numPlayers;
     _playerManager->charPerPlayer = charactersPerPlayer;
 	int playerID = 1;
 	int characterID = 1;
@@ -137,7 +137,7 @@ void MainScene::InitScene() {
             component->visible = true;
 
 		//set up a test pickup to give the player weapons
-		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 100, 4, 40));
+		Pickup pickup1 = Pickup(new Weapon("Pistol", 40, 1000, 4, 40));
 		Pickup pickup2 = Pickup(new Weapon("Grenade", 1, 100, 14, 30));
 		
 
@@ -202,6 +202,8 @@ int MainScene::Update(const float delta) {
     _bulletoManager->UpdateBullet(delta); //updates hackjob bullets 
 	_pickupManager->updatePickup(); //checks pickup collisions
     int win = _playerManager->handlePlayers(delta);
+	if (win != -1)
+		return win;
 
 	Character* c = _playerManager->GetCurrentPlayer()->getCurrentCharacter();
 	glm::vec2 pos = c->get_position();
@@ -214,7 +216,7 @@ int MainScene::Update(const float delta) {
 
     _playerManager->UpdatePlayerUI();
 
-	return win;
+	return -1;
 }
 
 void MainScene::CleanUp() {
@@ -227,5 +229,7 @@ void MainScene::CleanUp() {
     delete _background;
     delete _aimIndicator;
     delete _map;
-    delete _playerManager;
+	_pickupManager->removePickups();
+	delete _pickupManager;
+	_cores.clear();
 }
