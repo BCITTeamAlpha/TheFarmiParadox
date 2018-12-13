@@ -16,6 +16,7 @@ HackjobBulletManager::~HackjobBulletManager()
 	EventManager::unsubscribe(BULLET_SPAWN, this);
 }
 
+//Passes in a string to the ui
 void HackjobBulletManager::SetInfoText(std::string info) {
     TextComponent *infoText = dynamic_cast<TextComponent*>(UIManager::GetComponentById("rInfoText"));
     if (infoText != nullptr) {
@@ -23,6 +24,7 @@ void HackjobBulletManager::SetInfoText(std::string info) {
     }
 }
 
+//using subscriber/event system, this class is notified when someone wants to spawn a projectile
 void HackjobBulletManager::notify(EventName eventName, Param *params) {
     switch (eventName) {
     case BULLET_SPAWN: {
@@ -39,19 +41,20 @@ void HackjobBulletManager::notify(EventName eventName, Param *params) {
     }
 }
 
+//This is a loop to check if a player has collided with a bullet
 void HackjobBulletManager::CheckIfPlayersDamaged() {
 
-	for (int i = 0; i < bulletList.size(); i++) {	//For every bullet in the game, check if they have hit any of the players 
+	for (int i = 0; i < bulletList.size(); i++) {	//For every bullet in the game, check if they have hit any of the characters 
 
 		HackjobBullet *bullet = bulletList[i];
 
-		for (int j = 0; j < PlayerManager::instance->players.size(); j++) {
+		for (int j = 0; j < PlayerManager::instance->players.size(); j++) {	//iterates through all players
 
-			for (int k = 0; k < PlayerManager::instance->players[j]->chars.size(); k++) {
+			for (int k = 0; k < PlayerManager::instance->players[j]->chars.size(); k++) { //then iterates through each character belonging to each player
 
 				Character *character = PlayerManager::instance->players[j]->chars[k];
 
-				if (bullet->colliding_with_player(character->get_position())
+				if (bullet->colliding_with_player(character->get_position()) //if bullet is colliding with a character, and that character does not belong to one of your own characters
 					&& character->playerID != bullet->shooter_PlayerID && character->characterID != bullet->shooterCharacterID) {
 
 					character->TakeDamage(bullet->damage);
@@ -82,9 +85,9 @@ void HackjobBulletManager::CheckIfPlayersDamaged() {
 					EventManager::notify(PLAY_SOUND, bulletSound);
 
 					bullet->renderable = NULL; //delete bullet's renderable share pointer
-					bulletList.erase(bulletList.begin() + i);
+					bulletList.erase(bulletList.begin() + i); //delete the bullet by removing it from the bulletList vector
 
-					PlayerManager::instance->NextPlayer();
+					PlayerManager::instance->NextPlayer();	//switches control to the next player
 
 					break;
 				}
@@ -136,9 +139,13 @@ void HackjobBulletManager::UpdateBullet(float dTime) {
 
 }
 
+/*
+	This method spawns a projectile, and sets its speed based on speedScalar, as well as the damage that the projectile will deal
+	if it collides with a character, plus the explosion radius as it collies with terrain.
+*/
 void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float explodeRadius) { //spawns a projectile from where the player is located at
 
-	if (PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo-- <= 0) return; //dont shoot if we don't have "bulleto ammo"
+	if (PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->bulletoAmmo-- <= 0) return; //dont shoot if we don't have "bullet ammo"
 
 	std::string currentAmmoString = "P";
 	currentAmmoString += std::to_string(PlayerManager::instance->GetCurrentPlayer()->playerID);
@@ -153,14 +160,14 @@ void HackjobBulletManager::SpawnBulleto(float speedScalar, int damage, float exp
 	bullet->radius = 2.0f;
 	bullet->set_position(PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->get_position()); 
 
-	glm::vec3 rot = PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();
+	glm::vec3 rot = PlayerManager::instance->GetCurrentPlayer()->getCurrentCharacter()->get_rotation();	//sets the bullet's angle
 	rot.z += PlayerManager::instance->GetCurrentPlayer()->aim_angle;
 	rot.z += (rot.y == 0.0f) ? -45 : 45;
 	float x = -sin(rot.z * (float)M_PI / 180.0f);
 	float y = cos(rot.z * (float)M_PI / 180.0f);
 	bullet->velocity = glm::vec2(x, y) * speedScalar;
 
-	Renderable *pSkin = new Renderable();
+	Renderable *pSkin = new Renderable();	//sets a renderable for the bullet
 	pSkin->z = 0;
 	pSkin->model = AssetLoader::loadModel("../Models/sphere.obj");
 	pSkin->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
